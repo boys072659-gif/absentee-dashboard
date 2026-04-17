@@ -1,0 +1,3352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a2a4a">
+<title>통합 심방 계획 대시보드</title>
+<style>
+    /* == 비밀번호 오버레이 == */
+    #pw-overlay {
+        position: fixed; inset: 0; background: linear-gradient(135deg, #1a2a4a 0%, #2c3e50 100%);
+        display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .pw-box {
+        background: white; border-radius: 16px; padding: 48px 40px; text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4); min-width: 320px;
+    }
+    .pw-box h2 { margin: 0 0 8px; color: #2c3e50; font-size: 22px; }
+    .pw-box p  { margin: 0 0 28px; color: #7f8c8d; font-size: 14px; }
+    .pw-input {
+        width: 100%; box-sizing: border-box; border: 2px solid #ddd; border-radius: 10px;
+        padding: 14px 16px; font-size: 22px; letter-spacing: 6px; text-align: center;
+        font-family: monospace; outline: none; transition: border-color 0.2s;
+    }
+    .pw-input:focus { border-color: #3498db; }
+    .pw-btn {
+        margin-top: 16px; width: 100%; padding: 14px; background: #3498db; color: white;
+        border: none; border-radius: 10px; font-size: 16px; font-family: 'Malgun Gothic', sans-serif;
+        cursor: pointer; transition: background 0.2s;
+    }
+    .pw-btn:hover { background: #2980b9; }
+    .pw-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* == 로딩 스피너 == */
+    #loading-overlay {
+        position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+        display: none; align-items: center; justify-content: center;
+        z-index: 8000; flex-direction: column; gap: 16px;
+    }
+    .spinner { width: 48px; height: 48px; border: 5px solid #ecf0f1;
+        border-top-color: #3498db; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 20px; }
+    .container { max-width: 1300px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 15px; margin-bottom: 20px; }
+
+    /* 진행 현황 바 */
+    .progress-bar-wrap { margin-bottom: 30px; background: #ecf0f1; border-radius: 8px; overflow: hidden; height: 28px; position: relative; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); transition: width 0.4s; border-radius: 8px; }
+    .progress-bar-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-weight: bold; font-size: 14px; color: #2c3e50; white-space: nowrap; }
+
+    .summary-cards { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+    .card { background: #ecf0f1; padding: 20px; border-radius: 8px; text-align: center; flex: 1; min-width: 150px; border-top: 4px solid #3498db; }
+    .card h3 { margin: 0 0 10px 0; color: #7f8c8d; font-size: 16px; }
+    .card p { margin: 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
+    .card .done-count { font-size: 13px; color: #27ae60; margin-top: 4px; font-weight: bold; }
+
+    /* 필터 영역 */
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+    .filter-bar button { padding: 6px 14px; border: 2px solid #bdc3c7; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; font-family: 'Malgun Gothic', sans-serif; transition: all 0.2s; }
+    .filter-bar button.active { background: #34495e; color: white; border-color: #34495e; }
+    .filter-bar button:hover { background: #ecf0f1; }
+    .filter-label { font-size: 13px; color: #7f8c8d; font-weight: bold; }
+
+    .date-section { margin-bottom: 40px; }
+    .date-header { background-color: #34495e; color: white; padding: 12px 20px; border-radius: 6px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
+    .badge { background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px; font-size: 14px; }
+    .date-done-badge { background: #27ae60; color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; margin-left: 8px; }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; vertical-align: middle; }
+    th { background-color: #f2f2f2; color: #333; font-weight: bold; font-size: 13px; }
+    tr:nth-child(even) { background-color: #fafafa; }
+    tr:hover { background-color: #f0f7ff; }
+    tr.row-done { background-color: #eafaf1 !important; }
+    tr.row-done td { color: #555; }
+
+    /* 진행 체크박스 */
+    .check-cell { text-align: center; width: 70px; }
+    .check-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .check-wrap input[type=checkbox] { width: 20px; height: 20px; cursor: pointer; accent-color: #27ae60; }
+    .check-label { font-size: 11px; font-weight: bold; }
+    .check-label.done { color: #27ae60; }
+    .check-label.pending { color: #e74c3c; }
+
+    /* 비고란 */
+    .note-cell { width: 180px; }
+    .note-input { width: 100%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; font-size: 12px; font-family: 'Malgun Gothic', sans-serif; resize: vertical; min-height: 40px; background: #fffef0; transition: border-color 0.2s; }
+    .note-input:focus { outline: none; border-color: #3498db; background: #fff; }
+    .note-input.has-note { background: #fff9e6; border-color: #f39c12; }
+
+    .dept-자문회 { color: #8e44ad; font-weight: bold; }
+    .dept-장년회 { color: #27ae60; font-weight: bold; }
+    .dept-부녀회 { color: #d35400; font-weight: bold; }
+    .dept-청년회 { color: #2980b9; font-weight: bold; }
+
+    /* 저장 버튼 */
+    .save-btn { position: fixed; bottom: 24px; right: 24px; background: #3498db; color: white; border: none; border-radius: 50px; padding: 14px 24px; font-size: 15px; font-family: 'Malgun Gothic', sans-serif; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 999; transition: background 0.2s; }
+    .save-btn:hover { background: #2980b9; }
+    .save-toast { position: fixed; bottom: 80px; right: 24px; background: #2c3e50; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-family: 'Malgun Gothic', sans-serif; z-index: 999; display: none; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* == 모바일 반응형 및 스와이프 최적화 == */
+    .date-section {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* 폰에서 부드러운 가로 스크롤 지원 */
+    }
+
+    @media (max-width: 768px) {
+        body { padding: 10px; }
+        .container { padding: 15px; }
+        h1 { font-size: 20px; }
+        
+        /* 표 안의 내용이 줄바꿈되어 깨지지 않도록 고정 */
+        th, td { white-space: nowrap; font-size: 12px; padding: 8px 6px; }
+        .note-input { min-width: 160px; font-size: 14px; } /* 비고란 터치하기 쉽게 크기 확보 */
+        
+        /* 요약 카드 모바일 2열 배치 */
+        .summary-cards { gap: 10px; }
+        .card { min-width: calc(50% - 10px); padding: 15px 10px; }
+        
+        /* 로그인 박스 사이즈 조정 */
+        .pw-box { padding: 30px 20px; min-width: 280px; }
+        
+        /* 저장 버튼 모바일 사이즈 조정 */
+        .save-btn { bottom: 16px; right: 16px; padding: 12px 20px; font-size: 14px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="pw-overlay">
+  <div class="pw-box">
+    <div style="font-size:48px;margin-bottom:12px;">🔐</div>
+    <h2>부서 통합 심방 대시보드</h2>
+    <p>비밀번호를 입력하세요</p>
+    <form onsubmit="event.preventDefault(); checkPw();" style="margin: 0;">
+      <input class="pw-input" type="password" id="pw-input" placeholder="••••••••" maxlength="20">
+      <button type="submit" class="pw-btn">확인</button>
+    </form>
+    <div class="pw-error" id="pw-error">❌ 비밀번호가 틀렸습니다</div>
+  </div>
+</div>
+
+<div id="loading-overlay" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.85); align-items:center; justify-content:center; z-index:8000; flex-direction:column; gap:16px;">
+  <div class="spinner"></div>
+  <div style="color:#2c3e50; font-size:15px; font-family:'Malgun Gothic',sans-serif;">데이터 불러오는 중...</div>
+</div>
+
+<div class="container">
+    <h1>📅 부서 통합 심방 계획 대시보드</h1>
+
+    <div class="progress-bar-wrap" style="margin-bottom:16px;">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+        <div class="progress-bar-label" id="progressLabel">진행: 0 / 168건 (0%)</div>
+    </div>
+
+    <div class="filter-bar">
+        <span class="filter-label">🔍 보기:</span>
+        <button class="active" onclick="filterRows('all')">전체</button>
+        <button onclick="filterRows('pending')">미완료만</button>
+        <button onclick="filterRows('done')">완료만</button>
+        <span class="filter-label" style="margin-left:10px;">📌 부서:</span>
+        <button class="active" onclick="filterDept('all')">전체</button>
+        <button onclick="filterDept('자문회')">자문회</button>
+        <button onclick="filterDept('장년회')">장년회</button>
+        <button onclick="filterDept('부녀회')">부녀회</button>
+        <button onclick="filterDept('청년회')">청년회</button>
+    </div>
+
+<div class="summary-cards">
+    <div class="card" style="border-top-color:#e74c3c;"><h3>총합</h3><p>168건</p><div class="done-count" id="card-all">완료 0건</div></div>
+    <div class="card"><h3>자문회</h3><p>5건</p><div class="done-count" id="card-자문회">완료 0건</div></div>
+    <div class="card"><h3>장년회</h3><p>25건</p><div class="done-count" id="card-장년회">완료 0건</div></div>
+    <div class="card"><h3>부녀회</h3><p>10건</p><div class="done-count" id="card-부녀회">완료 0건</div></div>
+    <div class="card"><h3>청년회</h3><p>128건</p><div class="done-count" id="card-청년회">완료 0건</div></div>
+</div>
+
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 13일 (월)</span>
+            <span class="badge">총 1건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>장엘리</strong></td>
+                    <td>중랑 사랑-1</td>
+                    <td>안소현(친분자)</td>
+                    <td>친분자 통해 센터 말씀 링크 공유받아 듣기로 함.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_1" onchange="onCheck(this, 'row_1')">
+                            <span class="check-label pending" id="lbl_row_1">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_1" placeholder="비고 입력..." oninput="onNote(this, 'row_1')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 14일 (화)</span>
+            <span class="badge">총 10건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>권예지</strong></td>
+                    <td>강북 사랑-4</td>
+                    <td>조현우(구역장)</td>
+                    <td>수술 회복 기간으로 대면 예배드리지 못하였으나 구역장 통하여 권면 시 돌아오는 주일부터 예배드려보기로 약속하였음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_2" onchange="onCheck(this, 'row_2')">
+                            <span class="check-label pending" id="lbl_row_2">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_2" placeholder="비고 입력..." oninput="onNote(this, 'row_2')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박하연</strong></td>
+                    <td>중랑 3-5</td>
+                    <td>윤유림(구역장)</td>
+                    <td>4.14 구역장과 전화하였고 수요일은 대면이 아직 어려울거같고 주일은 선교교회 또는 어려울 경우 줌 예배 또는 성전에 방문하여 사명자를 만나기로하였음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_3" onchange="onCheck(this, 'row_3')">
+                            <span class="check-label pending" id="lbl_row_3">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_3" placeholder="비고 입력..." oninput="onNote(this, 'row_3')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>변동현</strong></td>
+                    <td>노원 1-4</td>
+                    <td>이병준(교사)</td>
+                    <td>스스로 의지를 갖고 예배 드릴 수 있도록 속마음 파악하여 사명자가 마춰줘서 남는 것이 아닌 노력을 해야함을 이야기하고 6월 이후 예배형태가 바뀜에 따라 실질적인 대책 논의</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_4" onchange="onCheck(this, 'row_4')">
+                            <span class="check-label pending" id="lbl_row_4">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_4" placeholder="비고 입력..." oninput="onNote(this, 'row_4')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>손승재</strong></td>
+                    <td>강북 3-7</td>
+                    <td>홍하은(구역장)</td>
+                    <td>예배노트 제출하기로 약속하였으나 지켜지지 않아 구역장 통하여 다시 예배의 중요성 언급하였으며 돌아오는 주일부터 예배드려보기로 하였음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_5" onchange="onCheck(this, 'row_5')">
+                            <span class="check-label pending" id="lbl_row_5">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_5" placeholder="비고 입력..." oninput="onNote(this, 'row_5')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이주연</strong></td>
+                    <td>강북 사랑-1</td>
+                    <td>이다혜(구역장)</td>
+                    <td>구역장과 통화해서 바뀐 예배기준 설명하였는데, 거리가 멀다보니 서울교회로 오기는 힘들다고 하여 줌예배와 타지파 출석 중 고민해보겠다고 하였음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_6" onchange="onCheck(this, 'row_6')">
+                            <span class="check-label pending" id="lbl_row_6">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_6" placeholder="비고 입력..." oninput="onNote(this, 'row_6')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이혜민</strong></td>
+                    <td>중랑 2-3</td>
+                    <td>박영미(구역장)</td>
+                    <td>통화로 예배 권면을 했고 다음주부터는 대면 가능하다고 했습니다.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_7" onchange="onCheck(this, 'row_7')">
+                            <span class="check-label pending" id="lbl_row_7">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_7" placeholder="비고 입력..." oninput="onNote(this, 'row_7')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>조권희</strong></td>
+                    <td>노원 사랑-4</td>
+                    <td>이가희(인도자)</td>
+                    <td>인도자 통해 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_8" onchange="onCheck(this, 'row_8')">
+                            <span class="check-label pending" id="lbl_row_8">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_8" placeholder="비고 입력..." oninput="onNote(this, 'row_8')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>추성미</strong></td>
+                    <td>노원 2-1</td>
+                    <td>이수경(인도자)</td>
+                    <td>구역장과 친분자가 함께 만나 예배 후 친분 약속 잡기로하여 친분 연락 넣기로 했고 어머니는 예배 중요성 심으며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_9" onchange="onCheck(this, 'row_9')">
+                            <span class="check-label pending" id="lbl_row_9">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_9" placeholder="비고 입력..." oninput="onNote(this, 'row_9')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>하주형</strong></td>
+                    <td>중랑 2-1</td>
+                    <td>최지연(교사)</td>
+                    <td>다음주부터는 잘 나오기로 이야기함.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_10" onchange="onCheck(this, 'row_10')">
+                            <span class="check-label pending" id="lbl_row_10">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_10" placeholder="비고 입력..." oninput="onNote(this, 'row_10')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>한나라</strong></td>
+                    <td>노원 사랑-4</td>
+                    <td>조명희(인도자)</td>
+                    <td>아이가 어리고 이방남편이라 어머니가 아이를 봐줌으로 예배환경 마련을 도와주는 편. 금주 출결 위해 시간 확보 계획 심방</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_11" onchange="onCheck(this, 'row_11')">
+                            <span class="check-label pending" id="lbl_row_11">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_11" placeholder="비고 입력..." oninput="onNote(this, 'row_11')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 15일 (수)</span>
+            <span class="badge">총 2건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>양재준</strong></td>
+                    <td>강북 2-4</td>
+                    <td>유은지(구역장)</td>
+                    <td>선교교회 출석하는 인원이나 예배드리지 못하여 구역장 통하여 예배의 중요성 다시 한번 언급할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_12" onchange="onCheck(this, 'row_12')">
+                            <span class="check-label pending" id="lbl_row_12">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_12" placeholder="비고 입력..." oninput="onNote(this, 'row_12')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>최서영</strong></td>
+                    <td>중랑 사랑-3</td>
+                    <td>홍은기(구역장)</td>
+                    <td>주일까지 예배노트를 보내달라는 이야기에 답장이 없어 4.15 수요일까지 기다려보고 통화 시도예정, 바뀌는 지침도 전화로 한번더 설명하고 어려운점 소통예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_13" onchange="onCheck(this, 'row_13')">
+                            <span class="check-label pending" id="lbl_row_13">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_13" placeholder="비고 입력..." oninput="onNote(this, 'row_13')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 16일 (목)</span>
+            <span class="badge">총 10건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김귀임</strong></td>
+                    <td>도사 3-1</td>
+                    <td>구역장</td>
+                    <td>구역장이 수시로 방문하여 출근했을때 만날수 있으니 출근했을때 예배지침을 알려주기로함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_14" onchange="onCheck(this, 'row_14')">
+                            <span class="check-label pending" id="lbl_row_14">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_14" placeholder="비고 입력..." oninput="onNote(this, 'row_14')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박진성</strong></td>
+                    <td>노원 사랑-4</td>
+                    <td>이유진(구역장)</td>
+                    <td>예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_15" onchange="onCheck(this, 'row_15')">
+                            <span class="check-label pending" id="lbl_row_15">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_15" placeholder="비고 입력..." oninput="onNote(this, 'row_15')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>백송이</strong></td>
+                    <td>노원 사랑-5</td>
+                    <td>한승주(인도자)</td>
+                    <td>사촌결혼식 등으로 예배 미출석 되었으나 인도자에게 챙겨달라고 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_16" onchange="onCheck(this, 'row_16')">
+                            <span class="check-label pending" id="lbl_row_16">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_16" placeholder="비고 입력..." oninput="onNote(this, 'row_16')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>변세은</strong></td>
+                    <td>노원 사랑-4</td>
+                    <td>변성훈(인도자)</td>
+                    <td>예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_17" onchange="onCheck(this, 'row_17')">
+                            <span class="check-label pending" id="lbl_row_17">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_17" placeholder="비고 입력..." oninput="onNote(this, 'row_17')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이선구</strong></td>
+                    <td>성북 2-3</td>
+                    <td>이승엽(구역장)</td>
+                    <td>4.16일에 만나서 예배에 대한 심방예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_18" onchange="onCheck(this, 'row_18')">
+                            <span class="check-label pending" id="lbl_row_18">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_18" placeholder="비고 입력..." oninput="onNote(this, 'row_18')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이채린</strong></td>
+                    <td>중랑 3-2</td>
+                    <td>최해인(구역장)</td>
+                    <td>구역장이 연락하여 말씀광장 영상시청 후 느낀점 보낼 수 있도록 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_19" onchange="onCheck(this, 'row_19')">
+                            <span class="check-label pending" id="lbl_row_19">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_19" placeholder="비고 입력..." oninput="onNote(this, 'row_19')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>임지영</strong></td>
+                    <td>노원 사랑-2</td>
+                    <td>최연진(구역장)</td>
+                    <td>출결제외 해제되었음을 알리며 예배 드리는 부분에 대한 당부 심방</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_20" onchange="onCheck(this, 'row_20')">
+                            <span class="check-label pending" id="lbl_row_20">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_20" placeholder="비고 입력..." oninput="onNote(this, 'row_20')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>장유리</strong></td>
+                    <td>중랑 3-2</td>
+                    <td>장유진(팀장 및 친분자)</td>
+                    <td>친분자가 연락하여 예배드릴 수 있도록 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_21" onchange="onCheck(this, 'row_21')">
+                            <span class="check-label pending" id="lbl_row_21">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_21" placeholder="비고 입력..." oninput="onNote(this, 'row_21')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>정주영</strong></td>
+                    <td>노원 사랑-2</td>
+                    <td>정주영(교사)</td>
+                    <td>예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_22" onchange="onCheck(this, 'row_22')">
+                            <span class="check-label pending" id="lbl_row_22">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_22" placeholder="비고 입력..." oninput="onNote(this, 'row_22')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>조준석</strong></td>
+                    <td>노원 사랑-5</td>
+                    <td>김재현(인도자)</td>
+                    <td>병결로 1회성 못 나온 만큼 차주 예배는 꼭 나올 수 있도록 단도리 및 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_23" onchange="onCheck(this, 'row_23')">
+                            <span class="check-label pending" id="lbl_row_23">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_23" placeholder="비고 입력..." oninput="onNote(this, 'row_23')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 17일 (금)</span>
+            <span class="badge">총 22건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-자문회">자문회</td>
+                    <td><strong>김련순</strong></td>
+                    <td>새신자 2-1</td>
+                    <td>새신자 담당강사<br>임원,인도자</td>
+                    <td>새신자 자문 담당강사, 임원, 인도자 협력심방</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_24" onchange="onCheck(this, 'row_24')">
+                            <span class="check-label pending" id="lbl_row_24">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_24" placeholder="비고 입력..." oninput="onNote(this, 'row_24')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-자문회">자문회</td>
+                    <td><strong>안수영</strong></td>
+                    <td>새신자 3-2</td>
+                    <td>구역장</td>
+                    <td>구역장 전화관리로 줌 예배 참석 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_25" onchange="onCheck(this, 'row_25')">
+                            <span class="check-label pending" id="lbl_row_25">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_25" placeholder="비고 입력..." oninput="onNote(this, 'row_25')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-자문회">자문회</td>
+                    <td><strong>조동주</strong></td>
+                    <td>새신자 1-2</td>
+                    <td>임원</td>
+                    <td>지방에서 올라왔으므로 임원 전화관리하여 대면 예배 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_26" onchange="onCheck(this, 'row_26')">
+                            <span class="check-label pending" id="lbl_row_26">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_26" placeholder="비고 입력..." oninput="onNote(this, 'row_26')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김윤숙</strong></td>
+                    <td>중믿 4-6</td>
+                    <td>구역장</td>
+                    <td>18일 구역장이 만남심방하여 예배의 중요성을 상기시키고 인시센이라도 드릴수있도록 하겠음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_27" onchange="onCheck(this, 'row_27')">
+                            <span class="check-label pending" id="lbl_row_27">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_27" placeholder="비고 입력..." oninput="onNote(this, 'row_27')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김종태</strong></td>
+                    <td>강북 3-2</td>
+                    <td>김찬교(구역장)</td>
+                    <td>직장으로 예배가 제대로 지켜지지 않아 인섬교와의 피드백 진행하여 도움 요청할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_28" onchange="onCheck(this, 'row_28')">
+                            <span class="check-label pending" id="lbl_row_28">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_28" placeholder="비고 입력..." oninput="onNote(this, 'row_28')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김지훈</strong></td>
+                    <td>성북 3-5</td>
+                    <td>박예나(교사)</td>
+                    <td>금주에 교사님 만나서 내부복 진행예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_29" onchange="onCheck(this, 'row_29')">
+                            <span class="check-label pending" id="lbl_row_29">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_29" placeholder="비고 입력..." oninput="onNote(this, 'row_29')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>문채희</strong></td>
+                    <td>중랑 3-1</td>
+                    <td>문현은(구역장)</td>
+                    <td>오후5시 왕십리역에서 만나 구역장과 내부복 시행예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_30" onchange="onCheck(this, 'row_30')">
+                            <span class="check-label pending" id="lbl_row_30">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_30" placeholder="비고 입력..." oninput="onNote(this, 'row_30')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박하늘</strong></td>
+                    <td>대학 사랑-1</td>
+                    <td>어머니</td>
+                    <td>어머니와 신앙 대화 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_31" onchange="onCheck(this, 'row_31')">
+                            <span class="check-label pending" id="lbl_row_31">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_31" placeholder="비고 입력..." oninput="onNote(this, 'row_31')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박하은</strong></td>
+                    <td>성북 2-1</td>
+                    <td>오송이(팀장)</td>
+                    <td>구역장이 이번주에 예배 큐알찍으로 오냐구 물어봣고 답변기다리는중임. 어려울경우에 같이 피드백하여서 대책 짤예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_32" onchange="onCheck(this, 'row_32')">
+                            <span class="check-label pending" id="lbl_row_32">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_32" placeholder="비고 입력..." oninput="onNote(this, 'row_32')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>배민성</strong></td>
+                    <td>대학 3-2</td>
+                    <td>전상현(구역장)</td>
+                    <td>지역 이동 후 내부복 2~3회 구역장과 진행 후 잠수를 타서 학교 앞 잠복과 집 앞에 가서 선물 주기로 챙겨보고 있으나 연락이 안되고 있음. 인도자님 통해서 만남 잡기 목표</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_33" onchange="onCheck(this, 'row_33')">
+                            <span class="check-label pending" id="lbl_row_33">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_33" placeholder="비고 입력..." oninput="onNote(this, 'row_33')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>서정동</strong></td>
+                    <td>대학 1-2</td>
+                    <td>고동하(구역장)</td>
+                    <td>구역장과 내부복 진행 예정, 내부복 일정 틀어지면 어머니와 영상 예배 드릴 수 있도록 어머니와 이번주 피드백 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_34" onchange="onCheck(this, 'row_34')">
+                            <span class="check-label pending" id="lbl_row_34">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_34" placeholder="비고 입력..." oninput="onNote(this, 'row_34')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>신원호</strong></td>
+                    <td>대학 사랑-3</td>
+                    <td>이우천(구역장)</td>
+                    <td>온라인 예배 꾸준히 드렸으나 2주째 잠수중, 구역장이 꾸준히 연락과 집앞기도 가고 있는 심령으로 전화 시도해보기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_35" onchange="onCheck(this, 'row_35')">
+                            <span class="check-label pending" id="lbl_row_35">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_35" placeholder="비고 입력..." oninput="onNote(this, 'row_35')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>안지현</strong></td>
+                    <td>대학 사랑-1</td>
+                    <td>어머니</td>
+                    <td>어머니와 신앙대화 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_36" onchange="onCheck(this, 'row_36')">
+                            <span class="check-label pending" id="lbl_row_36">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_36" placeholder="비고 입력..." oninput="onNote(this, 'row_36')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>양희주</strong></td>
+                    <td>중랑 사랑-2</td>
+                    <td>서유진(구역장)</td>
+                    <td>구역장님이 개별연락으로 선교교회로 예배 출석 권면예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_37" onchange="onCheck(this, 'row_37')">
+                            <span class="check-label pending" id="lbl_row_37">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_37" placeholder="비고 입력..." oninput="onNote(this, 'row_37')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>오수민</strong></td>
+                    <td>대학 1-5</td>
+                    <td>황인희(심방부과장)</td>
+                    <td>친분자와 만남 잡는 것과 심방부과장(황인희) 통해서 통화로 총회 물내림 전해주고 대면으로 만남 잡기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_38" onchange="onCheck(this, 'row_38')">
+                            <span class="check-label pending" id="lbl_row_38">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_38" placeholder="비고 입력..." oninput="onNote(this, 'row_38')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>윤예은</strong></td>
+                    <td>대학 3-1</td>
+                    <td>최유정(친분자)</td>
+                    <td>해외에 가있는 인원으로 시간내 노트 제출이 안될 때가 많아서 친분자(최유정) 통하여서 꾸준히 친분 연락 및 영상 예배 마무리 될 수 있도록 권면하고 있음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_39" onchange="onCheck(this, 'row_39')">
+                            <span class="check-label pending" id="lbl_row_39">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_39" placeholder="비고 입력..." oninput="onNote(this, 'row_39')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이화평</strong></td>
+                    <td>대학 사랑-2</td>
+                    <td>조채윤(구역장)</td>
+                    <td>매주 어머니 통해서만 챙겨지는 인원으로 구역장에게는 답변이 잘 오지 않음. 어머니 통해서 말씀광장 영상 시청 후 노트 보낼 수 있도록 미리 금요일에 소통하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_40" onchange="onCheck(this, 'row_40')">
+                            <span class="check-label pending" id="lbl_row_40">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_40" placeholder="비고 입력..." oninput="onNote(this, 'row_40')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>정태웅</strong></td>
+                    <td>대학 사랑-2</td>
+                    <td>조채윤(구역장)</td>
+                    <td>매주 친분자 통해서만 챙겨지는 인원으로 구역장에게는 답변 오지 않음. 친분자 통해서 말씀광장 영상 시청 후 노트 보낼 수 있도록 권면하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_41" onchange="onCheck(this, 'row_41')">
+                            <span class="check-label pending" id="lbl_row_41">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_41" placeholder="비고 입력..." oninput="onNote(this, 'row_41')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>천영주</strong></td>
+                    <td>도봉 1-1</td>
+                    <td>이하늘(구역장)</td>
+                    <td>교사와 내부복도 진행한 인원으로 이번 주일에 대면으로 성전에서 만날 예정, 대면예배 지침 전달 후 꾸준히 나올 수 있게 약속받기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_42" onchange="onCheck(this, 'row_42')">
+                            <span class="check-label pending" id="lbl_row_42">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_42" placeholder="비고 입력..." oninput="onNote(this, 'row_42')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>최세림</strong></td>
+                    <td>대학 1-4</td>
+                    <td>이현아(구역장)</td>
+                    <td>구역장과 내부복 진행하던 인원으로 현재 잠수 탄지 오래 되었음. 구역장님이 매주 집앞기도 가고 있고 친분끈이 유지되고 있는 섬김이와 금요일 피드백 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_43" onchange="onCheck(this, 'row_43')">
+                            <span class="check-label pending" id="lbl_row_43">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_43" placeholder="비고 입력..." oninput="onNote(this, 'row_43')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>최유림</strong></td>
+                    <td>중랑 사랑-3</td>
+                    <td>김영옥(어머이)</td>
+                    <td>어머니통해서만 소통이 되는 심령으로 관리창에서 소통하였으며 차주 예배드릴 수 있도록 미리 이야기하고 소통하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_44" onchange="onCheck(this, 'row_44')">
+                            <span class="check-label pending" id="lbl_row_44">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_44" placeholder="비고 입력..." oninput="onNote(this, 'row_44')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>한아름</strong></td>
+                    <td>성북 3-3</td>
+                    <td>황한주(구역장)</td>
+                    <td>4.17일에 구역장님 만남 잡아서 예배 권면예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_45" onchange="onCheck(this, 'row_45')">
+                            <span class="check-label pending" id="lbl_row_45">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_45" placeholder="비고 입력..." oninput="onNote(this, 'row_45')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 18일 (토)</span>
+            <span class="badge">총 90건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-자문회">자문회</td>
+                    <td><strong>김성규</strong></td>
+                    <td>강북 2-7</td>
+                    <td>임원</td>
+                    <td>임원 전화관리하여 대면예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_46" onchange="onCheck(this, 'row_46')">
+                            <span class="check-label pending" id="lbl_row_46">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_46" placeholder="비고 입력..." oninput="onNote(this, 'row_46')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-자문회">자문회</td>
+                    <td><strong>조의황</strong></td>
+                    <td>노원 3-5</td>
+                    <td>인도자, 담당전도사</td>
+                    <td>인도자와 센터담당전도사 직장으로 심방하여 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_47" onchange="onCheck(this, 'row_47')">
+                            <span class="check-label pending" id="lbl_row_47">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_47" placeholder="비고 입력..." oninput="onNote(this, 'row_47')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>곽성웅</strong></td>
+                    <td>중랑 2-8</td>
+                    <td>인도자</td>
+                    <td>인도자 친분만남으로 줌 예배 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_48" onchange="onCheck(this, 'row_48')">
+                            <span class="check-label pending" id="lbl_row_48">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_48" placeholder="비고 입력..." oninput="onNote(this, 'row_48')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>권지민</strong></td>
+                    <td>도봉 3-2</td>
+                    <td>임원</td>
+                    <td>인도자, 교사가 대면심밯하여 대면예배 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_49" onchange="onCheck(this, 'row_49')">
+                            <span class="check-label pending" id="lbl_row_49">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_49" placeholder="비고 입력..." oninput="onNote(this, 'row_49')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>김문진</strong></td>
+                    <td>도봉 2026-02-05</td>
+                    <td>임원</td>
+                    <td>임원이 지역차량으로 픽업하여 대면예배 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_50" onchange="onCheck(this, 'row_50')">
+                            <span class="check-label pending" id="lbl_row_50">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_50" placeholder="비고 입력..." oninput="onNote(this, 'row_50')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>김봉기</strong></td>
+                    <td>강북 2026-04-02</td>
+                    <td>임원</td>
+                    <td>토요일 대면 심방 후 내부복음방</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_51" onchange="onCheck(this, 'row_51')">
+                            <span class="check-label pending" id="lbl_row_51">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_51" placeholder="비고 입력..." oninput="onNote(this, 'row_51')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>김성욱</strong></td>
+                    <td>강북 4-3</td>
+                    <td>임원</td>
+                    <td>토요일 대면 심방 후 내부복음방</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_52" onchange="onCheck(this, 'row_52')">
+                            <span class="check-label pending" id="lbl_row_52">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_52" placeholder="비고 입력..." oninput="onNote(this, 'row_52')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>김수만</strong></td>
+                    <td>중랑 1-3</td>
+                    <td>지파 사업부장</td>
+                    <td>사업부장님 대면 심방하여 대면 또는 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_53" onchange="onCheck(this, 'row_53')">
+                            <span class="check-label pending" id="lbl_row_53">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_53" placeholder="비고 입력..." oninput="onNote(this, 'row_53')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>김원배</strong></td>
+                    <td>노원 3-2</td>
+                    <td>구역장</td>
+                    <td>구역장이 대면심방하여 공릉선교교회로 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_54" onchange="onCheck(this, 'row_54')">
+                            <span class="check-label pending" id="lbl_row_54">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_54" placeholder="비고 입력..." oninput="onNote(this, 'row_54')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>김재선</strong></td>
+                    <td>성북 2-5</td>
+                    <td>인도자, 교사, 구역장, 임원</td>
+                    <td>친분자들 만남통해 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_55" onchange="onCheck(this, 'row_55')">
+                            <span class="check-label pending" id="lbl_row_55">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_55" placeholder="비고 입력..." oninput="onNote(this, 'row_55')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>안계오</strong></td>
+                    <td>노원 1-1</td>
+                    <td>임원, 인도자</td>
+                    <td>인도자가 친분관리하여 사랑의 예배 말씀 나눔</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_56" onchange="onCheck(this, 'row_56')">
+                            <span class="check-label pending" id="lbl_row_56">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_56" placeholder="비고 입력..." oninput="onNote(this, 'row_56')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>안기용</strong></td>
+                    <td>중랑 1-6</td>
+                    <td>구역장</td>
+                    <td>구역장 친분 만남 후 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_57" onchange="onCheck(this, 'row_57')">
+                            <span class="check-label pending" id="lbl_row_57">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_57" placeholder="비고 입력..." oninput="onNote(this, 'row_57')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>양중환</strong></td>
+                    <td>도봉 3-3</td>
+                    <td>인도자</td>
+                    <td>인도자에게 도움 요청하여 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_58" onchange="onCheck(this, 'row_58')">
+                            <span class="check-label pending" id="lbl_row_58">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_58" placeholder="비고 입력..." oninput="onNote(this, 'row_58')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>오효열</strong></td>
+                    <td>성북 3-3</td>
+                    <td>인도자, 교사</td>
+                    <td>인도자 대면 심방으로 사랑의 예배 말씀 나눔</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_59" onchange="onCheck(this, 'row_59')">
+                            <span class="check-label pending" id="lbl_row_59">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_59" placeholder="비고 입력..." oninput="onNote(this, 'row_59')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>우성희</strong></td>
+                    <td>성북 3-3</td>
+                    <td>구역장, 임원</td>
+                    <td>임원 대면 심방 후 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_60" onchange="onCheck(this, 'row_60')">
+                            <span class="check-label pending" id="lbl_row_60">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_60" placeholder="비고 입력..." oninput="onNote(this, 'row_60')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>유인옥</strong></td>
+                    <td>성북 2-5</td>
+                    <td>임원</td>
+                    <td>임원 대면 심방 후 줌 예배 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_61" onchange="onCheck(this, 'row_61')">
+                            <span class="check-label pending" id="lbl_row_61">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_61" placeholder="비고 입력..." oninput="onNote(this, 'row_61')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>이숭호</strong></td>
+                    <td>강북 3-1</td>
+                    <td>장년 회계</td>
+                    <td>식사 후 말씀광장 영상 함께 시청</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_62" onchange="onCheck(this, 'row_62')">
+                            <span class="check-label pending" id="lbl_row_62">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_62" placeholder="비고 입력..." oninput="onNote(this, 'row_62')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>이완교</strong></td>
+                    <td>노원 1-7</td>
+                    <td>교사</td>
+                    <td>구역장, 팀장 대면심방 후 인시센 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_63" onchange="onCheck(this, 'row_63')">
+                            <span class="check-label pending" id="lbl_row_63">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_63" placeholder="비고 입력..." oninput="onNote(this, 'row_63')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>이화식</strong></td>
+                    <td>성북 2-5</td>
+                    <td>인도자, 전도사</td>
+                    <td>담당 전도사님 내부 복음방</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_64" onchange="onCheck(this, 'row_64')">
+                            <span class="check-label pending" id="lbl_row_64">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_64" placeholder="비고 입력..." oninput="onNote(this, 'row_64')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>인동환</strong></td>
+                    <td>노원 1-7</td>
+                    <td>임원, 인도자</td>
+                    <td>임원 대면 심방으 통해 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_65" onchange="onCheck(this, 'row_65')">
+                            <span class="check-label pending" id="lbl_row_65">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_65" placeholder="비고 입력..." oninput="onNote(this, 'row_65')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>임상섭</strong></td>
+                    <td>중랑 1-6</td>
+                    <td>전도사, 임원</td>
+                    <td>담당 전도사님 심방 후 대면 또는 줌 예배 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_66" onchange="onCheck(this, 'row_66')">
+                            <span class="check-label pending" id="lbl_row_66">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_66" placeholder="비고 입력..." oninput="onNote(this, 'row_66')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>임세열</strong></td>
+                    <td>노원 4-3</td>
+                    <td>임원, 인도자</td>
+                    <td>임원과 인도자가 함께 대면심방후 말씀 나눔 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_67" onchange="onCheck(this, 'row_67')">
+                            <span class="check-label pending" id="lbl_row_67">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_67" placeholder="비고 입력..." oninput="onNote(this, 'row_67')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>정성민A</strong></td>
+                    <td>성북 2-1</td>
+                    <td>인도자</td>
+                    <td>인도자가 친분관리통해 인시센 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_68" onchange="onCheck(this, 'row_68')">
+                            <span class="check-label pending" id="lbl_row_68">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_68" placeholder="비고 입력..." oninput="onNote(this, 'row_68')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>조원형</strong></td>
+                    <td>중랑 1-4</td>
+                    <td>임원</td>
+                    <td>임원 대면 심방 후 인시센 예배 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_69" onchange="onCheck(this, 'row_69')">
+                            <span class="check-label pending" id="lbl_row_69">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_69" placeholder="비고 입력..." oninput="onNote(this, 'row_69')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>최상용</strong></td>
+                    <td>새신자 2-2</td>
+                    <td>장년 회장</td>
+                    <td>이번주 입석 예배 참석 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_70" onchange="onCheck(this, 'row_70')">
+                            <span class="check-label pending" id="lbl_row_70">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_70" placeholder="비고 입력..." oninput="onNote(this, 'row_70')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>현상용</strong></td>
+                    <td>중랑 1-6</td>
+                    <td>임원</td>
+                    <td>임원 대면 심방 후 줌 예배 인도</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_71" onchange="onCheck(this, 'row_71')">
+                            <span class="check-label pending" id="lbl_row_71">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_71" placeholder="비고 입력..." oninput="onNote(this, 'row_71')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-장년회">장년회</td>
+                    <td><strong>홍병기</strong></td>
+                    <td>성북 3-2</td>
+                    <td>인도자, 임원</td>
+                    <td>인도자와 협력하여 인시센 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_72" onchange="onCheck(this, 'row_72')">
+                            <span class="check-label pending" id="lbl_row_72">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_72" placeholder="비고 입력..." oninput="onNote(this, 'row_72')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김명희</strong></td>
+                    <td>노사 1-2</td>
+                    <td>구역장</td>
+                    <td>박찬숙 구역장이 심방하여 내부복음방 하기로 함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_73" onchange="onCheck(this, 'row_73')">
+                            <span class="check-label pending" id="lbl_row_73">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_73" placeholder="비고 입력..." oninput="onNote(this, 'row_73')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김소진</strong></td>
+                    <td>노사 2-5</td>
+                    <td>인,섬,교</td>
+                    <td>인섬교 줌회의를 통해 인섬교가 4/18일 심방해서 예배중요성 심어 주일 대면 예배 올수 있도록함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_74" onchange="onCheck(this, 'row_74')">
+                            <span class="check-label pending" id="lbl_row_74">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_74" placeholder="비고 입력..." oninput="onNote(this, 'row_74')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김은숙</strong></td>
+                    <td>강북 2-3</td>
+                    <td>올케</td>
+                    <td>인도자(가족)와 만남 연락 언제든 가능하므로 대면 예배 독려</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_75" onchange="onCheck(this, 'row_75')">
+                            <span class="check-label pending" id="lbl_row_75">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_75" placeholder="비고 입력..." oninput="onNote(this, 'row_75')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김은정</strong></td>
+                    <td>노믿 2-2</td>
+                    <td>섬,교</td>
+                    <td>심방부과장과 구역장, 인섬교가 피드백을 통해 교사가 4/18일 심방해서 예배중요성 심어 주일 대면 예배 올수 있도록함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_76" onchange="onCheck(this, 'row_76')">
+                            <span class="check-label pending" id="lbl_row_76">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_76" placeholder="비고 입력..." oninput="onNote(this, 'row_76')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>안정옥</strong></td>
+                    <td>도믿 1-5</td>
+                    <td>구역장</td>
+                    <td>가족인 인도자와 소통하여 피아노학원 심방 약속하고 만남하여 사랑의예배로 내부복음방 실행(매번 심방일정이 미뤄짐으로 약속 다짐하기)</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_77" onchange="onCheck(this, 'row_77')">
+                            <span class="check-label pending" id="lbl_row_77">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_77" placeholder="비고 입력..." oninput="onNote(this, 'row_77')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>윤행숙</strong></td>
+                    <td>노믿 3-3</td>
+                    <td>인도자</td>
+                    <td>인도자 구역장 피드백후 인도자 동행하여 인시센 드릴수 있도록 하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_78" onchange="onCheck(this, 'row_78')">
+                            <span class="check-label pending" id="lbl_row_78">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_78" placeholder="비고 입력..." oninput="onNote(this, 'row_78')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>정봉화</strong></td>
+                    <td>성북 3-7</td>
+                    <td>교사,전도사</td>
+                    <td>교사,전도사 4/18일 심방해서 예배중요성 심어 내부복음방 하도록함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_79" onchange="onCheck(this, 'row_79')">
+                            <span class="check-label pending" id="lbl_row_79">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_79" placeholder="비고 입력..." oninput="onNote(this, 'row_79')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>강승목</strong></td>
+                    <td>도봉 1-3</td>
+                    <td>이정아(인도자)</td>
+                    <td>인도자와 구역장이 다시 한 번 연락 넣어서 이번주 주일 언제 올 수 있는지 다시 한 번 체크하기.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_80" onchange="onCheck(this, 'row_80')">
+                            <span class="check-label pending" id="lbl_row_80">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_80" placeholder="비고 입력..." oninput="onNote(this, 'row_80')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>강인선</strong></td>
+                    <td>도봉 사랑-가족1</td>
+                    <td>김남희(구역장)</td>
+                    <td>어머니와 대면예배 드린 적이 있음, 어머니와 소통하여 주일예배때 방문시 선물드리기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_81" onchange="onCheck(this, 'row_81')">
+                            <span class="check-label pending" id="lbl_row_81">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_81" placeholder="비고 입력..." oninput="onNote(this, 'row_81')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>계승철</strong></td>
+                    <td>강북 사랑-5</td>
+                    <td>이영선(팀장)</td>
+                    <td>인시센으로 예배드리기로 약속하였으나 지켜지지 않아 담당 팀장 통하여 예배의 중요성 언급하며 재권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_82" onchange="onCheck(this, 'row_82')">
+                            <span class="check-label pending" id="lbl_row_82">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_82" placeholder="비고 입력..." oninput="onNote(this, 'row_82')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>고광필</strong></td>
+                    <td>이음 1-4</td>
+                    <td>최성애<br>(전도사)</td>
+                    <td>구역장과 만남이 잡히지 않아서 담당 전도사와 연락이 닿았고 대상자와 만남잡은후 피드백 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_83" onchange="onCheck(this, 'row_83')">
+                            <span class="check-label pending" id="lbl_row_83">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_83" placeholder="비고 입력..." oninput="onNote(this, 'row_83')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>구경민</strong></td>
+                    <td>중랑 1-6</td>
+                    <td>최지혜(구역장)</td>
+                    <td>차주 만남 잡아 당일인증 중요성 권면</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_84" onchange="onCheck(this, 'row_84')">
+                            <span class="check-label pending" id="lbl_row_84">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_84" placeholder="비고 입력..." oninput="onNote(this, 'row_84')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>구혜진</strong></td>
+                    <td>노원 사랑-3</td>
+                    <td>정현남(어머니)</td>
+                    <td>어머니 통해 예배 권면하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_85" onchange="onCheck(this, 'row_85')">
+                            <span class="check-label pending" id="lbl_row_85">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_85" placeholder="비고 입력..." oninput="onNote(this, 'row_85')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>권나경</strong></td>
+                    <td>노원 사랑-2</td>
+                    <td>최연진(구역장)</td>
+                    <td>구역장이 예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_86" onchange="onCheck(this, 'row_86')">
+                            <span class="check-label pending" id="lbl_row_86">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_86" placeholder="비고 입력..." oninput="onNote(this, 'row_86')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>권순영</strong></td>
+                    <td>중랑 2-6</td>
+                    <td>이예슬(구역장)</td>
+                    <td>구역장과 소통이 원활하지 않아 인섬교강전 피드백 잡아 논의 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_87" onchange="onCheck(this, 'row_87')">
+                            <span class="check-label pending" id="lbl_row_87">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_87" placeholder="비고 입력..." oninput="onNote(this, 'row_87')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김나연</strong></td>
+                    <td>도봉 2-5</td>
+                    <td>김은비(구역장)</td>
+                    <td>통화로 상황을 파악하고 좋아하는 주제로를 물어봄으로 영상이나 나눔 할 수 있도록 계획하여 심령에 맞는 영상 보내기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_88" onchange="onCheck(this, 'row_88')">
+                            <span class="check-label pending" id="lbl_row_88">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_88" placeholder="비고 입력..." oninput="onNote(this, 'row_88')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김도일</strong></td>
+                    <td>강북 1-5</td>
+                    <td>정철규(구역장)</td>
+                    <td>인시센으로 예배드리는 인원이었으나 번호 변경에 따라 인시센 접속이 되지 않아 예배드리지 못하여 빠르게 조치될 수 있도록 할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_89" onchange="onCheck(this, 'row_89')">
+                            <span class="check-label pending" id="lbl_row_89">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_89" placeholder="비고 입력..." oninput="onNote(this, 'row_89')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김도희</strong></td>
+                    <td>도봉 사랑-1</td>
+                    <td>이지은(구역장)</td>
+                    <td>친분자가 4.18일에 만남하여 신앙대화 후에 예배 출석 권면할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_90" onchange="onCheck(this, 'row_90')">
+                            <span class="check-label pending" id="lbl_row_90">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_90" placeholder="비고 입력..." oninput="onNote(this, 'row_90')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김민정</strong></td>
+                    <td>도봉 사랑-가족1</td>
+                    <td>김남희(구역장)</td>
+                    <td>이방 남편과 함께 살고 있어 연락이 늦는 경우가 많아 구역장이 적극적으로 챙기기 어려운 부분이 있으므로, 지속적으로 연락하여 잘 드릴 수 있도록 관리하기.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_91" onchange="onCheck(this, 'row_91')">
+                            <span class="check-label pending" id="lbl_row_91">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_91" placeholder="비고 입력..." oninput="onNote(this, 'row_91')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김민주</strong></td>
+                    <td>노원 2-2</td>
+                    <td>박지영(구역장)</td>
+                    <td>예배 느낀점을 주지 않던 인원인데 금주에는 느낀점 한두줄이라도 달라고 얘기하며 예배 당부하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_92" onchange="onCheck(this, 'row_92')">
+                            <span class="check-label pending" id="lbl_row_92">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_92" placeholder="비고 입력..." oninput="onNote(this, 'row_92')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김보민</strong></td>
+                    <td>도봉 사랑-2</td>
+                    <td>황태연(구역장)</td>
+                    <td>상황을 먼저 파악하고 협조를 구해 부담 없는 방식으로 예배를 이어가게 하며 작은 참여 하나씩 만들어가는 방향으로 심방 진행.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_93" onchange="onCheck(this, 'row_93')">
+                            <span class="check-label pending" id="lbl_row_93">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_93" placeholder="비고 입력..." oninput="onNote(this, 'row_93')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김새롬</strong></td>
+                    <td>도봉 사랑-가족1</td>
+                    <td>김남희(구역장)</td>
+                    <td>구역장과 친분자와 함께 만날 수 있도록 약속 다시 잡고, 어머니께 새롬 자매 신앙 상황 공유하기.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_94" onchange="onCheck(this, 'row_94')">
+                            <span class="check-label pending" id="lbl_row_94">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_94" placeholder="비고 입력..." oninput="onNote(this, 'row_94')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김솔</strong></td>
+                    <td>강북 사랑-4</td>
+                    <td>조현우(구역장)</td>
+                    <td>성전에 방문하기로 하였으나 지켜지지 않아 구역장 통하여 인증 권면해보되 어렵다면 인시센으로라도 예배드릴 수 있도록 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_95" onchange="onCheck(this, 'row_95')">
+                            <span class="check-label pending" id="lbl_row_95">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_95" placeholder="비고 입력..." oninput="onNote(this, 'row_95')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김수민</strong></td>
+                    <td>중랑 3-1</td>
+                    <td>문현은(구역장)</td>
+                    <td>병가와 가정사로 어려운 상황에 있어 예배를 잘 드리지 못하고 있음. 구역장과 소통해서 이번주에 예배 권면 해보기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_96" onchange="onCheck(this, 'row_96')">
+                            <span class="check-label pending" id="lbl_row_96">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_96" placeholder="비고 입력..." oninput="onNote(this, 'row_96')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김수정</strong></td>
+                    <td>성북 사랑-2</td>
+                    <td>이서연(구역장)</td>
+                    <td>금주에 구역장이 다시한번 온라인예배 권면예정임. 인섬교와 피드백하였고 그 방향대로 움직일예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_97" onchange="onCheck(this, 'row_97')">
+                            <span class="check-label pending" id="lbl_row_97">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_97" placeholder="비고 입력..." oninput="onNote(this, 'row_97')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김은진</strong></td>
+                    <td>도봉 1-1</td>
+                    <td>이하늘(구역장)</td>
+                    <td>인도자와 대면출결을 진행하였던 적도 있었고 신앙의 회복하고자 하기에 온라인으로 제안하기 혹은 새로운 구역장과 친분관리로 연락할 예정입니다.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_98" onchange="onCheck(this, 'row_98')">
+                            <span class="check-label pending" id="lbl_row_98">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_98" placeholder="비고 입력..." oninput="onNote(this, 'row_98')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김재현</strong></td>
+                    <td>강북 1-2</td>
+                    <td>임이랑(구역장)</td>
+                    <td>구역장이 강화된 예배지침 안내하였으나 호의적인 반응이 아니어서 당분간 인시센으로라도 예배드리고 노트 제출할 수 있도록 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_99" onchange="onCheck(this, 'row_99')">
+                            <span class="check-label pending" id="lbl_row_99">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_99" placeholder="비고 입력..." oninput="onNote(this, 'row_99')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김정은</strong></td>
+                    <td>도봉 사랑-가족2</td>
+                    <td>김현림(구역장)</td>
+                    <td>말씀광장 영상을 어머니나 언니에게 이야기해야 답장을 주기 때문에, 먼저 가족에게 연락 드리고 예배드릴 수 있는 방향으로 권면 하기.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_100" onchange="onCheck(this, 'row_100')">
+                            <span class="check-label pending" id="lbl_row_100">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_100" placeholder="비고 입력..." oninput="onNote(this, 'row_100')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김태환</strong></td>
+                    <td>노원 사랑-3</td>
+                    <td>이해민(구역장)</td>
+                    <td>구역장이 예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_101" onchange="onCheck(this, 'row_101')">
+                            <span class="check-label pending" id="lbl_row_101">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_101" placeholder="비고 입력..." oninput="onNote(this, 'row_101')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>남성원</strong></td>
+                    <td>노원 사랑-2</td>
+                    <td>최연진(구역장)</td>
+                    <td>구역장이 예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_102" onchange="onCheck(this, 'row_102')">
+                            <span class="check-label pending" id="lbl_row_102">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_102" placeholder="비고 입력..." oninput="onNote(this, 'row_102')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>남원식</strong></td>
+                    <td>노원 사랑-2</td>
+                    <td>양시우(친분자)</td>
+                    <td>친분자가 계쏙 연락 시도중이나 연락이 닿지 않음. 친분자가 다시연락하여 예배강회 기준을 알리고 예배권면하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_103" onchange="onCheck(this, 'row_103')">
+                            <span class="check-label pending" id="lbl_row_103">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_103" placeholder="비고 입력..." oninput="onNote(this, 'row_103')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>류지민</strong></td>
+                    <td>도봉 사랑-1</td>
+                    <td>이지은(구역장)</td>
+                    <td>4월 말 만남 계획으로 대면 예배를 전달하고 선교교회로 인도하여 예배 큐알까지 함께 진행할 예정.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_104" onchange="onCheck(this, 'row_104')">
+                            <span class="check-label pending" id="lbl_row_104">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_104" placeholder="비고 입력..." oninput="onNote(this, 'row_104')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박나윤</strong></td>
+                    <td>이음 1-9</td>
+                    <td>이슬<br>(구역장)</td>
+                    <td>연락이 되다가 갑자기 안되서 구역장이 연락시도중이며 연락이 되는데로 결석사유와 심방예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_105" onchange="onCheck(this, 'row_105')">
+                            <span class="check-label pending" id="lbl_row_105">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_105" placeholder="비고 입력..." oninput="onNote(this, 'row_105')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박빛나</strong></td>
+                    <td>도봉 2-2</td>
+                    <td>염선진(구역장)</td>
+                    <td>현재 구역장이 주일예배 드리지 못한 이유를 확인하고 있어 들어보고 금주 주일예배는 드릴 수 있도록 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_106" onchange="onCheck(this, 'row_106')">
+                            <span class="check-label pending" id="lbl_row_106">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_106" placeholder="비고 입력..." oninput="onNote(this, 'row_106')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박상준</strong></td>
+                    <td>이음 1-5</td>
+                    <td>염용기<br>(구역장)</td>
+                    <td>구역장과 소통이 잘 안되며 예배드리면 혼자드리고 가는 인원. 친분자가 가끔 만나주긴하는데 끈이 약한편</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_107" onchange="onCheck(this, 'row_107')">
+                            <span class="check-label pending" id="lbl_row_107">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_107" placeholder="비고 입력..." oninput="onNote(this, 'row_107')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>박혜인</strong></td>
+                    <td>강북 사랑-1</td>
+                    <td>이다혜(구역장)</td>
+                    <td>인시센으로 주 1회 예배드리기로 하였으나 지켜지지 않아 구역장 및 섬김이와 만남 진행하여 신앙에 대한 마음 파악 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_108" onchange="onCheck(this, 'row_108')">
+                            <span class="check-label pending" id="lbl_row_108">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_108" placeholder="비고 입력..." oninput="onNote(this, 'row_108')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>배경환</strong></td>
+                    <td>노원 사랑-1</td>
+                    <td>손희수(인도자)</td>
+                    <td>인도자가 인시센 영상 권면하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_109" onchange="onCheck(this, 'row_109')">
+                            <span class="check-label pending" id="lbl_row_109">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_109" placeholder="비고 입력..." oninput="onNote(this, 'row_109')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>서수민</strong></td>
+                    <td>강북 사랑-1</td>
+                    <td>이다혜(구역장)</td>
+                    <td>담당 구역장과 주 1회 인시센으로 예배드려보기로 약속하였으나 잘 지켜지지 않아 구역장 통해 재권면 예정, 가족 신앙이므로 가족 통해서라도 예배지켜질 수 있도록 요청할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_110" onchange="onCheck(this, 'row_110')">
+                            <span class="check-label pending" id="lbl_row_110">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_110" placeholder="비고 입력..." oninput="onNote(this, 'row_110')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>손승환</strong></td>
+                    <td>이음 1-5</td>
+                    <td>염용기<br>(구역장)</td>
+                    <td>구역장이 연락하여 결석한 사유를 파악중이며 만남잡할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_111" onchange="onCheck(this, 'row_111')">
+                            <span class="check-label pending" id="lbl_row_111">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_111" placeholder="비고 입력..." oninput="onNote(this, 'row_111')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>송은지</strong></td>
+                    <td>도봉 2-5</td>
+                    <td>김은비(구역장)</td>
+                    <td>구역장이 이번 주 내 편한 시간·장소에서 은지 자매님을 만나 예배 기준 전달보다 현재 어려움을 먼저 공감하고 듣고, 부담을 낮춰 6/21 전까지는 줌 등으로 연결 유지하며 이후 한 달 1회 수준의 작은 실천을 자연스럽게 제안하는 방향으로 심방 진행.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_112" onchange="onCheck(this, 'row_112')">
+                            <span class="check-label pending" id="lbl_row_112">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_112" placeholder="비고 입력..." oninput="onNote(this, 'row_112')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>오찬웅</strong></td>
+                    <td>강북 3-6</td>
+                    <td>박상정(구역장)</td>
+                    <td>원거리 거주자로 대면 예배드리기는 어려워 하나 주 1회 온라인으로 예배드려보기로 약속하여 구역장 통하여 지켜질 수 있도록 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_113" onchange="onCheck(this, 'row_113')">
+                            <span class="check-label pending" id="lbl_row_113">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_113" placeholder="비고 입력..." oninput="onNote(this, 'row_113')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>윤동민</strong></td>
+                    <td>강북 1-4</td>
+                    <td>김수진(구역장)</td>
+                    <td>예배노트 제출하기로 약속하였으나 지켜지지 않아 구역장 통하여 예배의 중요성 다시 심겨줄 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_114" onchange="onCheck(this, 'row_114')">
+                            <span class="check-label pending" id="lbl_row_114">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_114" placeholder="비고 입력..." oninput="onNote(this, 'row_114')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>윤수정</strong></td>
+                    <td>노원 사랑-5</td>
+                    <td>김성진2(구역장)</td>
+                    <td>구역장이 예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_115" onchange="onCheck(this, 'row_115')">
+                            <span class="check-label pending" id="lbl_row_115">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_115" placeholder="비고 입력..." oninput="onNote(this, 'row_115')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이승현</strong></td>
+                    <td>이음 1-4</td>
+                    <td>임현우(구역장)</td>
+                    <td>구역장이 연락하여 결석한 사유를 파악중이며 만남잡을 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_116" onchange="onCheck(this, 'row_116')">
+                            <span class="check-label pending" id="lbl_row_116">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_116" placeholder="비고 입력..." oninput="onNote(this, 'row_116')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이유진</strong></td>
+                    <td>도봉 사랑-가족1</td>
+                    <td>김남희(구역장)</td>
+                    <td>현재 어머니가 장거리에서 권면을 하고 있으며 친분자 통해 심방하여 타지파에서 온만큼 마음 붙이기 먼저 달성해야함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_117" onchange="onCheck(this, 'row_117')">
+                            <span class="check-label pending" id="lbl_row_117">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_117" placeholder="비고 입력..." oninput="onNote(this, 'row_117')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이윤정</strong></td>
+                    <td>도봉 2-5</td>
+                    <td>김은비(구역장)</td>
+                    <td>이번 주 안에 가볍게 안부 중심으로 다시 접근해 답장 하나라도 나오게 만들고 이후 타이밍 맞춰 자연스럽게 예배로 연결하는 흐름으로 심방 진행.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_118" onchange="onCheck(this, 'row_118')">
+                            <span class="check-label pending" id="lbl_row_118">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_118" placeholder="비고 입력..." oninput="onNote(this, 'row_118')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이진경</strong></td>
+                    <td>도봉 사랑-가족2</td>
+                    <td>김현림(구역장)</td>
+                    <td>가정사로 예배드리기 어려우나 친분자와 연락이 되며  말씀 느낀점들 보내줄 수 있으므로 토요일부터 연락하여 안내하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_119" onchange="onCheck(this, 'row_119')">
+                            <span class="check-label pending" id="lbl_row_119">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_119" placeholder="비고 입력..." oninput="onNote(this, 'row_119')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이채린</strong></td>
+                    <td>강북 3-6</td>
+                    <td>정윤정(전도사)</td>
+                    <td>담당 전도사 통하여 내부복음방 진행될 수 있도록 요청 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_120" onchange="onCheck(this, 'row_120')">
+                            <span class="check-label pending" id="lbl_row_120">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_120" placeholder="비고 입력..." oninput="onNote(this, 'row_120')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이채민</strong></td>
+                    <td>강북 3-5</td>
+                    <td>유영미(구역장)</td>
+                    <td>지교회에서 예배드리는 인원이나, 학업으로 예배드리지 못하여 담당 구역장 통하여 돌아오는 주일에는 대면 예배드릴 수 있도록 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_121" onchange="onCheck(this, 'row_121')">
+                            <span class="check-label pending" id="lbl_row_121">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_121" placeholder="비고 입력..." oninput="onNote(this, 'row_121')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이채현</strong></td>
+                    <td>도봉 사랑-가족1</td>
+                    <td>김남희(구역장)</td>
+                    <td>현재 최선옥 전도사님이 내부복 진행 중이므로, 내부복이 잘 진행될 수 있도록 지속적으로 챙기기.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_122" onchange="onCheck(this, 'row_122')">
+                            <span class="check-label pending" id="lbl_row_122">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_122" placeholder="비고 입력..." oninput="onNote(this, 'row_122')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>임소현</strong></td>
+                    <td>노원 사랑-5</td>
+                    <td>김성진2(구역장)</td>
+                    <td>예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_123" onchange="onCheck(this, 'row_123')">
+                            <span class="check-label pending" id="lbl_row_123">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_123" placeholder="비고 입력..." oninput="onNote(this, 'row_123')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>임한주</strong></td>
+                    <td>강북 2-1</td>
+                    <td>전유나(구역장)</td>
+                    <td>사고 처리 기간에 지침 안내하며 인시센으로 예배드리기로 약속하였으나 잘 지켜지지 않아 구역장 통하여 재권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_124" onchange="onCheck(this, 'row_124')">
+                            <span class="check-label pending" id="lbl_row_124">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_124" placeholder="비고 입력..." oninput="onNote(this, 'row_124')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>전동현</strong></td>
+                    <td>도봉 2-2</td>
+                    <td>황성찬(구역장)</td>
+                    <td>구역장이 저녁 편한 장소에서 만나 예배 기준 전달하주며 전동현 형제의 어려움을 먼저 공감하고 듣고 온라인 예배 드릴 수 있는 방향으로 심방 진행.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_125" onchange="onCheck(this, 'row_125')">
+                            <span class="check-label pending" id="lbl_row_125">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_125" placeholder="비고 입력..." oninput="onNote(this, 'row_125')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>전한구</strong></td>
+                    <td>노원 사랑-5</td>
+                    <td>김성진2(구역장)</td>
+                    <td>예배 중요성 이야기하며 금주 예배 당부</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_126" onchange="onCheck(this, 'row_126')">
+                            <span class="check-label pending" id="lbl_row_126">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_126" placeholder="비고 입력..." oninput="onNote(this, 'row_126')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>정주희</strong></td>
+                    <td>이음 1-4</td>
+                    <td>임현우(구역장)</td>
+                    <td>직장으로 예배를 못나오는 경우가 있는데 잠깐이라도 인증할 수 있도록 하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_127" onchange="onCheck(this, 'row_127')">
+                            <span class="check-label pending" id="lbl_row_127">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_127" placeholder="비고 입력..." oninput="onNote(this, 'row_127')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>조창훈</strong></td>
+                    <td>도봉 사랑-가족2</td>
+                    <td>김현림(구역장)</td>
+                    <td>어머니와 대면예배 드린 적이 있음, 어머니와 소통하여 주일예배때 방문시 선물드리기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_128" onchange="onCheck(this, 'row_128')">
+                            <span class="check-label pending" id="lbl_row_128">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_128" placeholder="비고 입력..." oninput="onNote(this, 'row_128')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>주용권</strong></td>
+                    <td>도봉 사랑-가족2</td>
+                    <td>김현림(구역장)</td>
+                    <td>주일에 대면으로 예배 드리겠다고 약속하였고 꾸준히 연락하고 방문하였을때, 선물 등 드리기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_129" onchange="onCheck(this, 'row_129')">
+                            <span class="check-label pending" id="lbl_row_129">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_129" placeholder="비고 입력..." oninput="onNote(this, 'row_129')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>진효주</strong></td>
+                    <td>강북 사랑-4</td>
+                    <td>조현우(구역장)</td>
+                    <td>인시센으로 예배드리기로 구역장과 소통하였으나 지켜지지 않아 구역장 통하여 재권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_130" onchange="onCheck(this, 'row_130')">
+                            <span class="check-label pending" id="lbl_row_130">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_130" placeholder="비고 입력..." oninput="onNote(this, 'row_130')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>최연수</strong></td>
+                    <td>성북 2-1</td>
+                    <td>박지선(구역장)</td>
+                    <td>구역장이 만남 잡아서 예배의중요성 이야기예정임.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_131" onchange="onCheck(this, 'row_131')">
+                            <span class="check-label pending" id="lbl_row_131">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_131" placeholder="비고 입력..." oninput="onNote(this, 'row_131')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>한승현</strong></td>
+                    <td>도봉 3-5</td>
+                    <td>이영일(구역장)</td>
+                    <td>가족들이 권면시 듣지 않은 상황이나 예배의 지침에 대해 안내하여 구역장통해 통화가 이어질 수 있게 하기, 이후에 좋아하는 주제를 중심으로 말씀 전달하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_132" onchange="onCheck(this, 'row_132')">
+                            <span class="check-label pending" id="lbl_row_132">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_132" placeholder="비고 입력..." oninput="onNote(this, 'row_132')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>한희경</strong></td>
+                    <td>성북 사랑-2</td>
+                    <td>유정은(구역장)</td>
+                    <td>교사님과 협력하여 예배 권면하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_133" onchange="onCheck(this, 'row_133')">
+                            <span class="check-label pending" id="lbl_row_133">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_133" placeholder="비고 입력..." oninput="onNote(this, 'row_133')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>홍길동</strong></td>
+                    <td>도봉 2026-01-04</td>
+                    <td>영향력큰자</td>
+                    <td>식사 후 말씀광장 영상 함께 시청</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_134" onchange="onCheck(this, 'row_134')">
+                            <span class="check-label pending" id="lbl_row_134">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_134" placeholder="비고 입력..." oninput="onNote(this, 'row_134')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>홍동진</strong></td>
+                    <td>노원 3-3</td>
+                    <td>이용경(인도자)</td>
+                    <td>인섬과 친분만남하여 말씀나눔하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_135" onchange="onCheck(this, 'row_135')">
+                            <span class="check-label pending" id="lbl_row_135">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_135" placeholder="비고 입력..." oninput="onNote(this, 'row_135')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 19일 (일)</span>
+            <span class="badge">총 29건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-부녀회">부녀회</td>
+                    <td><strong>김혜경</strong></td>
+                    <td>도믿 6-2</td>
+                    <td>구역장</td>
+                    <td>병원 응급실 3교대로 예배출석이 어려우며 만남도 어려움. 인도자 심방하여 사랑의예배 영상 틀어주도록 방법 만들어 실행</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_136" onchange="onCheck(this, 'row_136')">
+                            <span class="check-label pending" id="lbl_row_136">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_136" placeholder="비고 입력..." oninput="onNote(this, 'row_136')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김건우</strong></td>
+                    <td>성북 4-2</td>
+                    <td>김재훈(구역장)</td>
+                    <td>팀장과 같이 연락해서 예배 나올수 잇도록 권면할 예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_137" onchange="onCheck(this, 'row_137')">
+                            <span class="check-label pending" id="lbl_row_137">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_137" placeholder="비고 입력..." oninput="onNote(this, 'row_137')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김대현</strong></td>
+                    <td>대학 2-1</td>
+                    <td>고근오(구역장)</td>
+                    <td>최선옥부장님과 매주 내부복 되는 인원이나, 지난주 학교 일정으로 어렵다고 했어서 이번주에는 다시 주일당일에 내부복 예정이며 구역장이 내부복 당일 동행함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_138" onchange="onCheck(this, 'row_138')">
+                            <span class="check-label pending" id="lbl_row_138">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_138" placeholder="비고 입력..." oninput="onNote(this, 'row_138')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김성경</strong></td>
+                    <td>대학 사랑-1</td>
+                    <td>박지원(구역장)</td>
+                    <td>어머니 통해서만 온라인예배 권면 가능한 인원으로 어머니와 미리 소통해서 시간 내 노트 제출 할 수 있도록 챙기기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_139" onchange="onCheck(this, 'row_139')">
+                            <span class="check-label pending" id="lbl_row_139">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_139" placeholder="비고 입력..." oninput="onNote(this, 'row_139')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김은정</strong></td>
+                    <td>중랑 1-4</td>
+                    <td>김남현(인도자)</td>
+                    <td>집앞기도 다녀왔으며 인도자가 이번주 주일로 만남잡고 있음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_140" onchange="onCheck(this, 'row_140')">
+                            <span class="check-label pending" id="lbl_row_140">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_140" placeholder="비고 입력..." oninput="onNote(this, 'row_140')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김정환</strong></td>
+                    <td>성북 1-1</td>
+                    <td>윤건호(구역장)</td>
+                    <td>구역장이 예배드려야한다고 소통했으며 온라인예배부터 드린다고함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_141" onchange="onCheck(this, 'row_141')">
+                            <span class="check-label pending" id="lbl_row_141">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_141" placeholder="비고 입력..." oninput="onNote(this, 'row_141')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김지연</strong></td>
+                    <td>성북 사랑-3</td>
+                    <td>최인경(심방부과장)</td>
+                    <td>강사님에게 내부복 언제하는지 물어보고 금주안에 할수 있도록 지역에서 움직일예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_142" onchange="onCheck(this, 'row_142')">
+                            <span class="check-label pending" id="lbl_row_142">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_142" placeholder="비고 입력..." oninput="onNote(this, 'row_142')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김찬율</strong></td>
+                    <td>중랑 3-3</td>
+                    <td>장유진(팀장)</td>
+                    <td>연락이 닿지않아 가족통해 마음 파악 후 재연락 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_143" onchange="onCheck(this, 'row_143')">
+                            <span class="check-label pending" id="lbl_row_143">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_143" placeholder="비고 입력..." oninput="onNote(this, 'row_143')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>김형찬</strong></td>
+                    <td>강북 사랑-3</td>
+                    <td>김비아(구역장)</td>
+                    <td>구역장과 당일 인증하기로 약속하였으나 늦잠으로 지켜지지 않아 구역장이 미리 연락하여 챙길 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_144" onchange="onCheck(this, 'row_144')">
+                            <span class="check-label pending" id="lbl_row_144">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_144" placeholder="비고 입력..." oninput="onNote(this, 'row_144')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>문민혁</strong></td>
+                    <td>성북 3-2</td>
+                    <td>권남국(구역장)</td>
+                    <td>예배 중요성 이야기하면서 온라인예배로 드릴수 있게 권면하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_145" onchange="onCheck(this, 'row_145')">
+                            <span class="check-label pending" id="lbl_row_145">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_145" placeholder="비고 입력..." oninput="onNote(this, 'row_145')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>백지수</strong></td>
+                    <td>성북 사랑-3</td>
+                    <td>최인경(심방부과장)</td>
+                    <td>이번주 주일 예배의 중요성 설명후 아내인 한솔자매와 드릴수 잇게하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_146" onchange="onCheck(this, 'row_146')">
+                            <span class="check-label pending" id="lbl_row_146">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_146" placeholder="비고 입력..." oninput="onNote(this, 'row_146')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>송한솔</strong></td>
+                    <td>성북 사랑-3</td>
+                    <td>최인경(심방부과장)</td>
+                    <td>이번주 주일 예배의 중요성 설명후 남편인 지수형제와 드릴수 잇게하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_147" onchange="onCheck(this, 'row_147')">
+                            <span class="check-label pending" id="lbl_row_147">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_147" placeholder="비고 입력..." oninput="onNote(this, 'row_147')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>신혜정</strong></td>
+                    <td>강북 사랑-4</td>
+                    <td>조현우(구역장)</td>
+                    <td>인시센으로 예배드리는 인원이었으나 신혼여행으로 예배드리지 못하여 돌아오는 주일에는 예배지켜질 수 있도록 구역장 통하여 챙길 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_148" onchange="onCheck(this, 'row_148')">
+                            <span class="check-label pending" id="lbl_row_148">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_148" placeholder="비고 입력..." oninput="onNote(this, 'row_148')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>안재혁</strong></td>
+                    <td>대학 사랑-2</td>
+                    <td>조채윤(구역장)</td>
+                    <td>구역장과 주일 사랑의 예배 드리기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_149" onchange="onCheck(this, 'row_149')">
+                            <span class="check-label pending" id="lbl_row_149">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_149" placeholder="비고 입력..." oninput="onNote(this, 'row_149')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>옥미나</strong></td>
+                    <td>강북 사랑-2</td>
+                    <td>박선오(구역장)</td>
+                    <td>타지파에서 예배드리는 인원이나 직장으로 예배드리지 못할 경우가 있어 인도자 통하여 도움 요청할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_150" onchange="onCheck(this, 'row_150')">
+                            <span class="check-label pending" id="lbl_row_150">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_150" placeholder="비고 입력..." oninput="onNote(this, 'row_150')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>우학균</strong></td>
+                    <td>성북 사랑-4</td>
+                    <td>최인경(심방부과장)</td>
+                    <td>어머님에게 주일예배 권면하여서 나올수 잇게하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_151" onchange="onCheck(this, 'row_151')">
+                            <span class="check-label pending" id="lbl_row_151">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_151" placeholder="비고 입력..." oninput="onNote(this, 'row_151')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>유장훈</strong></td>
+                    <td>성북 2-2</td>
+                    <td>오송이(팀장)</td>
+                    <td>인도자랑 금주 주일에 같이 타지파가서 예배드릴예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_152" onchange="onCheck(this, 'row_152')">
+                            <span class="check-label pending" id="lbl_row_152">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_152" placeholder="비고 입력..." oninput="onNote(this, 'row_152')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>윤민준</strong></td>
+                    <td>강북 사랑-5</td>
+                    <td>이영선(팀장)</td>
+                    <td>담당 사명자와 소통이 원활하지 않아 어머니 통하여 예배지켜질 수 있도록 요청할 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_153" onchange="onCheck(this, 'row_153')">
+                            <span class="check-label pending" id="lbl_row_153">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_153" placeholder="비고 입력..." oninput="onNote(this, 'row_153')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>윤영지</strong></td>
+                    <td>대학 1-1</td>
+                    <td>이채현(구역장)</td>
+                    <td>현재 재수 준비 중에 있어서 구역장이 찾아가서 만남 진행하기로 하였음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_154" onchange="onCheck(this, 'row_154')">
+                            <span class="check-label pending" id="lbl_row_154">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_154" placeholder="비고 입력..." oninput="onNote(this, 'row_154')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>윤정우</strong></td>
+                    <td>성북 2-4</td>
+                    <td>이채정(교관)</td>
+                    <td>금주에는 구역장과 내부복자와 같이 밥먹고 큐알찍기로 약속함</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_155" onchange="onCheck(this, 'row_155')">
+                            <span class="check-label pending" id="lbl_row_155">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_155" placeholder="비고 입력..." oninput="onNote(this, 'row_155')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이아영</strong></td>
+                    <td>성북 4-4</td>
+                    <td>남수정(구역장)</td>
+                    <td>금주에 예배 관련해서 이야기 했고, 본예배는 어렵지만 큐알인증 찍으러 나온다고이야기함.</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_156" onchange="onCheck(this, 'row_156')">
+                            <span class="check-label pending" id="lbl_row_156">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_156" placeholder="비고 입력..." oninput="onNote(this, 'row_156')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이예진</strong></td>
+                    <td>대학 1-3</td>
+                    <td>박혜원(부구역장)</td>
+                    <td>매주 사랑의 예배 드리는 인원이나 현재 개편으로 연락이 원활하지 않음. 부구역장 통하여서 금요일날 연락하여 주일에 사랑의 예배 후 모임도 하고 갈 수 있도록 약속 잡기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_157" onchange="onCheck(this, 'row_157')">
+                            <span class="check-label pending" id="lbl_row_157">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_157" placeholder="비고 입력..." oninput="onNote(this, 'row_157')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이은지</strong></td>
+                    <td>강북 1-4</td>
+                    <td>최은희(인도자)</td>
+                    <td>주 1회 예배드려보기로 하였으나 약속이 지켜지지 않아 인도자 및 담당 전도사 통하여 심방 진행 예정, 주 1회 내부복음방 연결될 수 있도록 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_158" onchange="onCheck(this, 'row_158')">
+                            <span class="check-label pending" id="lbl_row_158">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_158" placeholder="비고 입력..." oninput="onNote(this, 'row_158')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이혜선</strong></td>
+                    <td>성북 1-1</td>
+                    <td>윤건호(구역장)</td>
+                    <td>인섬교가 연락해서 신앙에 대해 상담 나누고, 구역장또한 잠수 타는 부분에 있어서 다시 이야기 나누기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_159" onchange="onCheck(this, 'row_159')">
+                            <span class="check-label pending" id="lbl_row_159">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_159" placeholder="비고 입력..." oninput="onNote(this, 'row_159')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>이화평</strong></td>
+                    <td>대학 사랑-2</td>
+                    <td>어머니</td>
+                    <td>이번주 어머니 통해서 온라인 예배 권면 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_160" onchange="onCheck(this, 'row_160')">
+                            <span class="check-label pending" id="lbl_row_160">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_160" placeholder="비고 입력..." oninput="onNote(this, 'row_160')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>정기쁨</strong></td>
+                    <td>성북 3-4</td>
+                    <td>김서현(구역장)</td>
+                    <td>매주 인시센 예배로 드릴수 있게 권면예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_161" onchange="onCheck(this, 'row_161')">
+                            <span class="check-label pending" id="lbl_row_161">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_161" placeholder="비고 입력..." oninput="onNote(this, 'row_161')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>정산성</strong></td>
+                    <td>대학 사랑-1</td>
+                    <td>박지원(구역장)</td>
+                    <td>어머니 통해서만 온라인예배 권면 가능한 인원으로 어머니와 미리 소통해서 시간 내 노트 제출 할 수 있도록 챙기기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_162" onchange="onCheck(this, 'row_162')">
+                            <span class="check-label pending" id="lbl_row_162">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_162" placeholder="비고 입력..." oninput="onNote(this, 'row_162')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>지수빈</strong></td>
+                    <td>대학 사랑-2</td>
+                    <td>조채윤(구역장)</td>
+                    <td>구역장과 4.19(일) 안으로 친분만남 먼저 잡고 있음</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_163" onchange="onCheck(this, 'row_163')">
+                            <span class="check-label pending" id="lbl_row_163">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_163" placeholder="비고 입력..." oninput="onNote(this, 'row_163')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>채수연</strong></td>
+                    <td>성북 1-2</td>
+                    <td>이서연(구역장)</td>
+                    <td>직장으로 인해 예배 못드림. 예배드릴수 있게 권면예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_164" onchange="onCheck(this, 'row_164')">
+                            <span class="check-label pending" id="lbl_row_164">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_164" placeholder="비고 입력..." oninput="onNote(this, 'row_164')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 20일 (월)</span>
+            <span class="badge">총 3건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>고준희</strong></td>
+                    <td>성북 4-2</td>
+                    <td>김재훈(구역장)</td>
+                    <td>인도자와 구역장과 같이 만남해서 신앙에 대해서 이야기 예정임</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_165" onchange="onCheck(this, 'row_165')">
+                            <span class="check-label pending" id="lbl_row_165">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_165" placeholder="비고 입력..." oninput="onNote(this, 'row_165')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>오효빈</strong></td>
+                    <td>성북 3-2</td>
+                    <td>권남국(구역장)</td>
+                    <td>심방과장과 내부복중임. 금주엔 픽스 될수 있도록 가족신앙인원과 긴밀히 소통하기</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_166" onchange="onCheck(this, 'row_166')">
+                            <span class="check-label pending" id="lbl_row_166">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_166" placeholder="비고 입력..." oninput="onNote(this, 'row_166')"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>천용주</strong></td>
+                    <td>대학 2-1</td>
+                    <td>윤정민(섭외과장)</td>
+                    <td>윤정민(섭외과장) 만남 통하여서 인터넷 침 맞은 부분에 대해서 심방 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_167" onchange="onCheck(this, 'row_167')">
+                            <span class="check-label pending" id="lbl_row_167">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_167" placeholder="비고 입력..." oninput="onNote(this, 'row_167')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="date-section">
+        <div class="date-header">
+            <span>2026년 04월 22일 (수)</span>
+            <span class="badge">총 1건</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 7%">부서</th>
+                    <th style="width: 8%">이름</th>
+                    <th style="width: 10%">소속</th>
+                    <th style="width: 12%">심방자</th>
+                    <th style="width: 35%">심방 계획</th>
+                    <th style="width: 8%; text-align:center;">진행여부</th>
+                    <th style="width: 20%">비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="dept-청년회">청년회</td>
+                    <td><strong>정지호</strong></td>
+                    <td>대학 사랑-3</td>
+                    <td>최지연(친분자)</td>
+                    <td>매주 친분자 통해서 말씀광장 영상 시청 후 노트 보내는 인원이나 기복이 있고, 대면 만남 22일까지 잡아서 심방 예정</td>
+                    <td class="check-cell">
+                        <div class="check-wrap">
+                            <input type="checkbox" id="row_168" onchange="onCheck(this, 'row_168')">
+                            <span class="check-label pending" id="lbl_row_168">미완료</span>
+                        </div>
+                    </td>
+                    <td class="note-cell">
+                        <textarea class="note-input" id="note_row_168" placeholder="비고 입력..." oninput="onNote(this, 'row_168')"></textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+<button class="save-btn" onclick="saveAll()">💾 저장</button>
+<div class="save-toast" id="saveToast">✅ 저장되었습니다!</div>
+
+<script>
+// ═══════════════════════════════════════
+//   Supabase 설정
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://gpbrkuxulyrcbllrchkn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwYnJrdXh1bHlyY2JsbHJjaGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjUwNjUsImV4cCI6MjA5MTk0MTA2NX0.KVCahNVpPcJk7NvpBVUnSNyYTUnHavLVt_WMBIMkNfU';
+const TABLE = 'shimfang_progress';
+const CORRECT_PW = '12341234';
+
+// ── Supabase REST API 헬퍼 ──
+async function sbFetch(path, method='GET', body=null) {
+  const opts = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'resolution=merge-duplicates,return=minimal' : ''
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+  return res.json();
+}
+
+// ── 전체 데이터 불러오기 ──
+async function loadFromSupabase() {
+  showLoading(true);
+  try {
+    const rows = await sbFetch(TABLE + '?select=*');
+    if (!rows) return;
+    rows.forEach(r => {
+      const cb = document.getElementById(r.row_id);
+      if (cb) {
+        cb.checked = r.is_done;
+        onCheck(cb, r.row_id);
+      }
+      const ta = document.getElementById('note_' + r.row_id);
+      if (ta && r.note) {
+        ta.value = r.note;
+        onNote(ta, r.row_id);
+      }
+    });
+  } catch(e) {
+    console.error('로드 오류:', e);
+    showToast('❌ 데이터 불러오기 실패: ' + e.message, true);
+  } finally {
+    showLoading(false);
+  }
+}
+
+// ── 단일 행 upsert ──
+async function upsertRow(rowId) {
+  const cb = document.getElementById(rowId);
+  const ta = document.getElementById('note_' + rowId);
+  if (!cb) return;
+  try {
+    await sbFetch(TABLE, 'POST', [{
+      row_id: rowId,
+      is_done: cb.checked,
+      note: ta ? ta.value : '',
+      updated_at: new Date().toISOString()
+    }]);
+  } catch(e) {
+    console.error('저장 오류:', e);
+    showToast('❌ 저장 실패: ' + e.message, true);
+  }
+}
+
+// ── 디바운스 저장 ──
+const saveTimers = {};
+function scheduleUpsert(rowId) {
+  clearTimeout(saveTimers[rowId]);
+  saveTimers[rowId] = setTimeout(() => {
+    upsertRow(rowId);
+    showToast('💾 저장됨');
+  }, 600);
+}
+
+// ═══════════════════════════════════════
+//   비밀번호
+// ═══════════════════════════════════════
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === CORRECT_PW) {
+    document.getElementById('pw-overlay').style.display = 'none';
+    loadFromSupabase();
+  } else {
+    const err = document.getElementById('pw-error');
+    err.style.display = 'block';
+    const inp = document.getElementById('pw-input');
+    inp.style.borderColor = '#e74c3c';
+    inp.value = '';
+    setTimeout(() => {
+      err.style.display = 'none';
+      inp.style.borderColor = '#ddd';
+    }, 2000);
+  }
+}
+
+// ═══════════════════════════════════════
+//   상태
+// ═══════════════════════════════════════
+const TOTAL = 168;
+let currentStatusFilter = 'all';
+let currentDeptFilter = 'all';
+
+function showLoading(show) {
+  const el = document.getElementById('loading-overlay');
+  el.style.display = show ? 'flex' : 'none';
+}
+
+function showToast(msg, isError=false) {
+  const toast = document.getElementById('saveToast');
+  toast.textContent = msg;
+  toast.style.background = isError ? '#e74c3c' : '#2c3e50';
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 2200);
+}
+
+// ═══════════════════════════════════════
+//   체크박스
+// ═══════════════════════════════════════
+function onCheck(cb, rowId) {
+  const row = cb.closest('tr');
+  const lbl = document.getElementById('lbl_' + rowId);
+  if (cb.checked) {
+    row.classList.add('row-done');
+    lbl.textContent = '완료 ✅';
+    lbl.className = 'check-label done';
+  } else {
+    row.classList.remove('row-done');
+    lbl.textContent = '미완료';
+    lbl.className = 'check-label pending';
+  }
+  updateProgress();
+  updateDateBadges();
+  // 수파베이스에 저장 (초기 로드 중엔 저장 안함)
+  if (document.getElementById('pw-overlay').style.display === 'none') {
+    scheduleUpsert(rowId);
+  }
+}
+
+// ═══════════════════════════════════════
+//   비고
+// ═══════════════════════════════════════
+function onNote(ta, rowId) {
+  if (ta.value.trim()) {
+    ta.classList.add('has-note');
+  } else {
+    ta.classList.remove('has-note');
+  }
+  if (document.getElementById('pw-overlay').style.display === 'none') {
+    scheduleUpsert(rowId);
+  }
+}
+
+// ═══════════════════════════════════════
+//   진행 현황
+// ═══════════════════════════════════════
+function updateProgress() {
+  const cbs = document.querySelectorAll('input[type=checkbox]');
+  let done = 0;
+  const deptDone = {'자문회':0,'장년회':0,'부녀회':0,'청년회':0};
+  cbs.forEach(cb => {
+    if (cb.checked) {
+      done++;
+      const row = cb.closest('tr');
+      const dept = row?.querySelector('td:first-child')?.textContent?.trim();
+      if (dept && deptDone[dept] !== undefined) deptDone[dept]++;
+    }
+  });
+  const pct = Math.round(done / TOTAL * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `진행: ${done} / ${TOTAL}건 (${pct}%)`;
+  const allCard = document.getElementById('card-all');
+  if (allCard) allCard.textContent = `완료 ${done}건`;
+  Object.entries(deptDone).forEach(([dept, cnt]) => {
+    const el = document.getElementById('card-' + dept);
+    if (el) el.textContent = `완료 ${cnt}건`;
+  });
+}
+
+// ═══════════════════════════════════════
+//   날짜별 완료 배지
+// ═══════════════════════════════════════
+function updateDateBadges() {
+  document.querySelectorAll('.date-section').forEach(section => {
+    const rows = section.querySelectorAll('tbody tr');
+    let done = 0;
+    rows.forEach(r => { if (r.classList.contains('row-done')) done++; });
+    let badge = section.querySelector('.date-done-badge');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'date-done-badge';
+      section.querySelector('.date-header').appendChild(badge);
+    }
+    badge.textContent = `완료 ${done}/${rows.length}`;
+  });
+}
+
+// ═══════════════════════════════════════
+//   필터
+// ═══════════════════════════════════════
+function filterRows(status) {
+  currentStatusFilter = status;
+  document.querySelectorAll('.filter-bar button').forEach(btn => {
+    const m = btn.getAttribute('onclick')?.match(/filterRows\('(\w+)'\)/);
+    if (m) btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  applyFilters();
+}
+function filterDept(dept) {
+  currentDeptFilter = dept;
+  document.querySelectorAll('.filter-bar button').forEach(b => {
+    if (b.getAttribute('onclick')?.includes('filterDept')) b.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  applyFilters();
+}
+function applyFilters() {
+  document.querySelectorAll('tbody tr').forEach(row => {
+    const isDone = row.classList.contains('row-done');
+    const dept = row.querySelector('td:first-child')?.textContent?.trim();
+    let show = true;
+    if (currentStatusFilter === 'done' && !isDone) show = false;
+    if (currentStatusFilter === 'pending' && isDone) show = false;
+    if (currentDeptFilter !== 'all' && dept !== currentDeptFilter) show = false;
+    row.style.display = show ? '' : 'none';
+  });
+  document.querySelectorAll('.date-section').forEach(sec => {
+    const visible = [...sec.querySelectorAll('tbody tr')].some(r => r.style.display !== 'none');
+    sec.style.display = visible ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════
+//   수동 저장 버튼 (전체 일괄 저장)
+// ═══════════════════════════════════════
+async function saveAll() {
+  showLoading(true);
+  try {
+    const rows = [];
+    document.querySelectorAll('input[type=checkbox]').forEach(cb => {
+      const id = cb.id;
+      const ta = document.getElementById('note_' + id);
+      rows.push({ row_id: id, is_done: cb.checked, note: ta ? ta.value : '', updated_at: new Date().toISOString() });
+    });
+    // 50개씩 나눠서 upsert
+    for (let i = 0; i < rows.length; i += 50) {
+      await sbFetch(TABLE, 'POST', rows.slice(i, i+50));
+    }
+    showToast('✅ 전체 저장 완료!');
+  } catch(e) {
+    showToast('❌ 저장 실패: ' + e.message, true);
+  } finally {
+    showLoading(false);
+  }
+}
+
+// ═══════════════════════════════════════
+//   초기화
+// ═══════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  updateProgress();
+  updateDateBadges();
+  // Enter 키 포커스
+  setTimeout(() => {
+    const inp = document.getElementById('pw-input');
+    if (inp) inp.focus();
+  }, 100);
+});
+</script>
+
+</body>
+</html>
