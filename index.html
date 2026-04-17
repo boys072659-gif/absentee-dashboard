@@ -26,13 +26,22 @@ html,body{height:100%;font-family:'Noto Sans KR',-apple-system,sans-serif;backgr
 .l-emb{width:58px;height:58px;background:linear-gradient(135deg,var(--accent),var(--a2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;}
 .l-ttl{font-size:20px;font-weight:900;color:var(--txt);}
 .l-org{font-size:12px;color:var(--txt3);margin-bottom:26px;}
-.l-field{margin-bottom:12px;text-align:left;}
-.l-field label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:4px;}
-.l-field input, .l-field select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--txt);font-family:inherit;outline:none;background:var(--s2);transition:.2s;}
-.l-field input:focus, .l-field select:focus{border-color:var(--accent);background:#fff;}
-.l-field input::placeholder{color:var(--txt3);}
-.role-btn{margin-top:10px;width:100%;padding:13px;background:linear-gradient(135deg,var(--ok),#15803d);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
-.l-err{min-height:17px;font-size:12px;color:var(--danger);margin-top:8px;font-weight:600;}
+.pdots{display:flex;justify-content:center;gap:9px;margin-bottom:20px;}
+.pdot{width:13px;height:13px;border-radius:50%;background:var(--s3);border:2px solid var(--border);transition:.2s;}
+.pdot.on{background:var(--accent);border-color:var(--accent);}
+.kpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:232px;margin:0 auto 10px;}
+.kk{padding:14px;border:1.5px solid var(--border);background:var(--s2);border-radius:11px;font-size:18px;font-weight:700;color:var(--txt);cursor:pointer;transition:.15s;touch-action:manipulation;font-family:'Oswald',sans-serif;}
+.kk:active,.kk:hover{background:#dbeafe;border-color:var(--accent);color:var(--accent);}
+.kk-del{background:#fef2f2;border-color:#fecaca;color:var(--danger);}
+.kk-ok{background:linear-gradient(135deg,var(--accent),var(--a2));border-color:var(--accent);color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;}
+.l-err{min-height:17px;font-size:12px;color:var(--danger);margin-top:5px;font-weight:600;}
+.role-box{margin-top:12px;text-align:left;}
+.role-lbl{font-size:11px;color:var(--txt2);font-weight:700;margin-bottom:4px;display:block;}
+.role-sel{width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:9px;color:var(--txt);font-size:13px;font-family:inherit;outline:none;}
+.role-sel:focus{border-color:var(--accent);}
+.role-btn{margin-top:9px;width:100%;padding:12px;background:linear-gradient(135deg,var(--ok),#15803d);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.admin-inp{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:9px;text-align:center;font-size:18px;letter-spacing:6px;margin-bottom:10px;outline:none;font-family:'Oswald',sans-serif;color:var(--txt);}
+.admin-inp:focus{border-color:var(--accent);}
 
 /* APP & COMPONENTS */
 #app{display:none;flex-direction:column;height:100vh;overflow:hidden;}
@@ -153,6 +162,8 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
 .ulist{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
 .ulist th{background:var(--s3);padding:8px;text-align:left;color:var(--txt2);font-weight:700;border-bottom:1px solid var(--border);}
 .ulist td{padding:8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;}
+.bg-ok{background:#dcfce7;color:var(--ok);} .bg-pend{background:#fef3c7;color:var(--warn);}
 
 .mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:8000;align-items:center;justify-content:center;padding:14px;}
 .mbg.on{display:flex;}
@@ -185,30 +196,47 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
     <div class="l-ttl">서울야고보지파</div>
     <div class="l-org">신앙관리 대시보드</div>
     
-    <div class="l-field">
-      <label>직책</label>
-      <select id="l-role">
-        <option value="">-- 직책 선택 --</option>
-        <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
-        <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
-        <option>자문회심방과장</option><option>장년회심방과장</option><option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
-      </select>
+    <div id="pin-sec">
+      <div class="pdots" id="pdots">
+        <div class="pdot" id="pd0"></div><div class="pdot" id="pd1"></div>
+        <div class="pdot" id="pd2"></div><div class="pdot" id="pd3"></div>
+        <div class="pdot" id="pd4"></div><div class="pdot" id="pd5"></div>
+        <div class="pdot" id="pd6"></div><div class="pdot" id="pd7"></div>
+      </div>
+      <div class="kpad">
+        <button class="kk" onclick="pk('1')">1</button><button class="kk" onclick="pk('2')">2</button><button class="kk" onclick="pk('3')">3</button>
+        <button class="kk" onclick="pk('4')">4</button><button class="kk" onclick="pk('5')">5</button><button class="kk" onclick="pk('6')">6</button>
+        <button class="kk" onclick="pk('7')">7</button><button class="kk" onclick="pk('8')">8</button><button class="kk" onclick="pk('9')">9</button>
+        <button class="kk kk-del" onclick="pd()">⌫</button><button class="kk" onclick="pk('0')">0</button><button class="kk kk-ok" onclick="doLogin()">확인</button>
+      </div>
     </div>
-    <div class="l-field">
-      <label>고유번호 (예: 00000000-00000)</label>
-      <input type="text" id="l-uid" placeholder="00000000-00000">
-    </div>
-    <div class="l-field">
-      <label>이름</label>
-      <input type="text" id="l-name" placeholder="이름 입력">
-    </div>
-    <div class="l-field">
-      <label>비밀번호</label>
-      <input type="password" id="l-pw" placeholder="비밀번호 입력">
-    </div>
-    
-    <button class="role-btn" onclick="doLogin()">접속하기</button>
+
     <div class="l-err" id="l-err"></div>
+    
+    <div id="role-sec" style="display:none;">
+      <div class="role-box">
+        <div style="font-size:12px;color:var(--warn);margin-bottom:8px;font-weight:700;">등록되지 않은 PIN입니다. 가입 신청을 진행합니다.</div>
+        <span class="role-lbl">신청할 직책 선택</span>
+        <select class="role-sel" id="role-sel">
+          <option value="">-- 직책 선택 --</option>
+          <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
+          <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
+          <option>자문회심방과장</option><option>장년회심방과장</option>
+          <option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
+        </select>
+        <button class="role-btn" onclick="applyRole()">가입 신청하기</button>
+        <button style="background:none;border:none;color:var(--txt3);font-size:11px;margin-top:10px;width:100%;cursor:pointer;" onclick="cancelLogin()">← 돌아가기</button>
+      </div>
+    </div>
+
+    <div id="admin-pw-sec" style="display:none;">
+      <div style="font-size:13px;color:var(--txt);margin-bottom:12px;font-weight:700;">관리자 2차 인증이 필요합니다.</div>
+      <input type="password" id="admin-pw-inp" class="admin-inp" placeholder="공통 비밀번호">
+      <button class="role-btn" onclick="verifyAdminPw()">인증하기</button>
+      <div class="l-err" id="admin-pw-err" style="margin-top:5px;"></div>
+      <button style="background:none;border:none;color:var(--txt3);font-size:11px;margin-top:10px;cursor:pointer;" onclick="cancelLogin()">← 처음으로</button>
+    </div>
+
   </div>
 </div>
 
@@ -314,29 +342,36 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
 
     <div class="pg" id="p3">
       <div class="asec">
-        <h3>🔐 접속자 관리 (DB 연동)</h3>
+        <h3>🛡️ 관리자 보안 (2차 비밀번호)</h3>
+        <div class="arow">
+          <div class="afield"><label>현재/새 관리자 비밀번호</label><input type="text" id="adm-master-pw" placeholder="기본: 144000"></div>
+          <button class="asave" onclick="saveAdminPw()">변경/저장</button>
+        </div>
+        <div style="font-size:11px;color:var(--txt3);margin-top:5px;">※ 지파장, 지파총무, 내무부장, 내무부서무 계정 접속 시 요구되는 공통 비밀번호입니다.</div>
+      </div>
+
+      <div class="asec">
+        <h3>🔐 접속 권한 및 직책 추가</h3>
         <div style="overflow-x:auto;">
           <table class="ulist">
-            <thead><tr><th>직책</th><th>고유번호</th><th>이름</th><th>비밀번호</th><th>관리</th></tr></thead>
+            <thead><tr><th>PIN (비밀번호)</th><th>직책</th><th>상태</th><th>관리</th></tr></thead>
             <tbody id="user-list"></tbody>
           </table>
         </div>
         <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
-          <div style="font-size:12px; font-weight:700; margin-bottom:8px;">➕ 새로운 접속자 추가/수정</div>
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px;">➕ 새로운 관리자/사용자 수동 추가</div>
           <div class="arow">
-            <div class="afield"><label>직책</label>
+            <div class="afield"><label>새 PIN (8자리 숫자)</label><input type="text" id="np-val" maxlength="8"></div>
+            <div class="afield"><label>부여할 직책</label>
               <select id="np-role">
                 <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
                 <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
                 <option>자문회심방과장</option><option>장년회심방과장</option><option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
               </select>
             </div>
-            <div class="afield"><label>고유번호 (00000000-00000)</label><input type="text" id="np-uid" placeholder="00000000-00000"></div>
-            <div class="afield"><label>이름</label><input type="text" id="np-name" placeholder="홍길동"></div>
-            <div class="afield"><label>비밀번호</label><input type="text" id="np-pw" placeholder="비밀번호"></div>
-            <button class="asave" onclick="addUserAdmin()">등록/수정</button>
+            <button class="asave" onclick="addUserAdmin()">권한 추가</button>
           </div>
-          <div style="font-size:11px;color:var(--txt3);margin-top:5px;">※ 이 목록에 정확히 일치하는 정보가 있어야만 로그인이 가능합니다.</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:5px;">※ 관리자가 직접 추가한 계정은 즉시 승인 처리되어 접속 가능합니다.</div>
         </div>
       </div>
 
@@ -442,14 +477,21 @@ async function initSB() {
 
 // ═══════════════ STATE ═══════════════
 const CHURCHES = ['서울','포천','구리','동대문','의정부'];
-const ADMIN_ROLES = ['지파장','지파총무','지파내무부장','지파내무부서무']; 
+const ADMIN_ROLES = ['지파장','지파총무','지파내무부장','지파내무부서무']; // 최고 관리자 그룹
 
-// App Users (권한 관리) - DB가 없을 때를 대비한 기본값
-let appUsers = [
-  { unique_id: '11111111-11111', role: '지파장', name: '마스터', pw: '144000' }
-];
+// App Users (권한 관리)
+let appUsers = {
+  '00000000': { role: '지파장', approved: true },
+  '12345678': { role: '지파총무', approved: true },
+  '87654321': { role: '지파내무부장', approved: true },
+  '11112222': { role: '지파내무부서무', approved: true },
+  '99990000': { role: '일반', approved: true }
+};
 
-let role='';
+let pin='', role='';
+let adminPassword = localStorage.getItem('sj_admin_pw') || '144000'; // 관리자 2단계 비밀번호
+let pendingAdminRole = ''; // 2단계 대기중인 직책
+
 let recs=[], att={}, selWk='', selCh=null;
 let fSt='all', fDp='all', fCt='all';
 
@@ -463,46 +505,96 @@ async function syncUsersFromDB() {
   if(!SB) return;
   try {
     const {data} = await SB.from('app_users').select('*');
-    if(data && data.length > 0) {
-      appUsers = data.map(d => ({ unique_id: d.unique_id, role: d.role_name, name: d.user_name, pw: d.password }));
+    if(data) {
+      data.forEach(u => { appUsers[u.pin] = { role: u.role_name, approved: u.is_approved }; });
       localStorage.setItem('sj_users', JSON.stringify(appUsers));
     }
   } catch(e){}
 }
+async function saveUserToDB(p, r, a) {
+  if(!SB) return;
+  await SB.from('app_users').upsert({pin: p, role_name: r, is_approved: a});
+}
+async function deleteUserFromDB(p) {
+  if(!SB) return;
+  await SB.from('app_users').delete().eq('pin', p);
+}
+
+function pk(v){ 
+  if(pin.length>=8)return; 
+  pin+=v; dots(); 
+  if(pin.length===8)setTimeout(doLogin,140); 
+}
+
+function pd(){ 
+  pin=pin.slice(0,-1); dots(); 
+  document.getElementById('l-err').textContent=''; 
+}
+
+function dots(){ 
+  for(let i=0;i<8;i++) document.getElementById('pd'+i).classList.toggle('on',i<pin.length); 
+}
+
+function cancelLogin() {
+  pin = ''; pendingAdminRole = ''; dots();
+  document.getElementById('admin-pw-inp').value = '';
+  document.getElementById('l-err').textContent = '';
+  document.getElementById('admin-pw-err').textContent = '';
+  document.getElementById('role-sec').style.display = 'none';
+  document.getElementById('admin-pw-sec').style.display = 'none';
+  document.getElementById('pin-sec').style.display = 'block';
+}
 
 async function doLogin(){
-  const r = document.getElementById('l-role').value;
-  const u = document.getElementById('l-uid').value.trim();
-  const n = document.getElementById('l-name').value.trim();
-  const p = document.getElementById('l-pw').value.trim();
-  const errBox = document.getElementById('l-err');
-
-  if(!r || !u || !n || !p) { errBox.textContent = '모든 필드를 입력해주세요.'; return; }
-  if(!/^\d{8}-\d{5}$/.test(u)) { errBox.textContent = '고유번호 형식이 올바르지 않습니다 (예: 00000000-00000).'; return; }
-
-  errBox.textContent = 'DB 정보를 확인 중입니다...';
-  
-  // 로컬 저장소 캐시 먼저 불러오기
   const saved = JSON.parse(localStorage.getItem('sj_users'));
-  if(saved && saved.length > 0) appUsers = saved;
+  if(saved) appUsers = saved;
   
-  await initSB();
   await syncUsersFromDB();
 
-  // 4가지 조건이 정확히 일치하는 객체 찾기
-  const match = appUsers.find(user => 
-    user.role === r && 
-    user.unique_id === u && 
-    user.name === n && 
-    user.pw === p
-  );
-
-  if(match) {
-    errBox.textContent = '';
-    completeLogin(r);
+  if(appUsers[pin] !== undefined) {
+    const u = appUsers[pin];
+    if(u.approved) {
+      if (ADMIN_ROLES.includes(u.role)) {
+        // 관리자 직책이면 2단계 인증 모달 표시
+        pendingAdminRole = u.role;
+        document.getElementById('pin-sec').style.display = 'none';
+        document.getElementById('admin-pw-sec').style.display = 'block';
+        document.getElementById('l-err').textContent = '';
+      } else {
+        // 일반 직책은 즉시 로그인
+        completeLogin(u.role);
+      }
+    } else {
+      document.getElementById('l-err').textContent = '⚠️ 승인 대기 중인 계정입니다. 관리자에게 문의하세요.';
+    }
   } else {
-    errBox.textContent = '입력하신 4가지 정보(직책, 고유번호, 이름, 비밀번호)가 DB 정보와 일치하지 않습니다.';
+    // 없는 PIN -> 신규 가입
+    document.getElementById('pin-sec').style.display = 'none';
+    document.getElementById('role-sec').style.display = 'block';
+    document.getElementById('l-err').textContent = '';
   }
+}
+
+// 2단계: 관리자 비밀번호 검증
+function verifyAdminPw() {
+  const inp = document.getElementById('admin-pw-inp').value;
+  if(inp === adminPassword) {
+    completeLogin(pendingAdminRole);
+  } else {
+    document.getElementById('admin-pw-err').textContent = '비밀번호가 일치하지 않습니다.';
+  }
+}
+
+async function applyRole(){
+  const r=document.getElementById('role-sel').value;
+  if(!r){ alert('직책을 선택해주세요.'); return; }
+  
+  appUsers[pin] = { role: r, approved: false };
+  localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await saveUserToDB(pin, r, false);
+  
+  cancelLogin();
+  document.getElementById('l-err').textContent = '✅ 가입 신청 완료. 관리자 승인 후 접속 가능합니다.';
 }
 
 async function completeLogin(r){
@@ -521,6 +613,7 @@ async function completeLogin(r){
   const sTgt = localStorage.getItem('sj_ch_targets'); if(sTgt) chTargets = JSON.parse(sTgt);
   const sThr = localStorage.getItem('sj_thresholds'); if(sThr) thresholds = JSON.parse(sThr);
   const sRng = localStorage.getItem('sj_chart_ranges'); if(sRng) chartRanges = JSON.parse(sRng);
+  const sAPw = localStorage.getItem('sj_admin_pw'); if(sAPw) adminPassword = sAPw;
   
   const sbOk=await initSB();
   if(sbOk) await loadDB(); else loadLS();
@@ -528,6 +621,7 @@ async function completeLogin(r){
   document.getElementById('adm-gdate').value=new Date().toISOString().slice(0,10);
   document.getElementById('sb-url').value=localStorage.getItem('sb_url')||'';
   document.getElementById('sb-key').value=localStorage.getItem('sb_key')||'';
+  document.getElementById('adm-master-pw').value=adminPassword;
   
   renderAdminSetup();
   renderUserList();
@@ -536,22 +630,24 @@ async function completeLogin(r){
 }
 
 function doLogout(){
-  document.getElementById('l-role').value = '';
-  document.getElementById('l-uid').value = '';
-  document.getElementById('l-name').value = '';
-  document.getElementById('l-pw').value = '';
-  document.getElementById('l-err').textContent = '';
-  
+  cancelLogin();
   document.getElementById('login-page').style.display='flex';
   document.getElementById('app').style.display='none';
-  document.getElementById('tab-adm').classList.remove('vis');
-  document.getElementById('admbtns').classList.remove('vis');
   role=''; 
 }
 
+// 키보드 엔터 지원
 document.addEventListener('keydown',e=>{
-  if(document.getElementById('login-page').style.display==='flex') {
-    if(e.key === 'Enter') doLogin();
+  if(document.getElementById('login-page').style.display==='none') return;
+  const fo=document.activeElement;
+  if(fo&&['INPUT','SELECT','TEXTAREA'].includes(fo.tagName)&&fo.id&&fo.id!=='admin-pw-inp') return;
+  
+  if(document.getElementById('admin-pw-sec').style.display === 'block') {
+    if(e.key === 'Enter') verifyAdminPw();
+  } else if(document.getElementById('pin-sec').style.display === 'block') {
+    if(e.key>='0'&&e.key<='9') pk(e.key);
+    else if(e.key==='Backspace') pd();
+    else if(e.key==='Enter') doLogin();
   }
 });
 
@@ -586,6 +682,11 @@ async function loadDB(){
     if(ds){ 
       chartRanges = { c1Min:ds.c1_min, c1Max:ds.c1_max, c2Min:ds.c2_min, c2Max:ds.c2_max }; 
       localStorage.setItem('sj_chart_ranges',JSON.stringify(chartRanges)); 
+      if(ds.admin_pw) {
+        adminPassword = ds.admin_pw;
+        localStorage.setItem('sj_admin_pw', adminPassword);
+        document.getElementById('adm-master-pw').value = adminPassword;
+      }
     }
   }catch(e){ loadLS(); }
 }
@@ -1046,65 +1147,62 @@ function renderAdminSetup() {
 
 function renderUserList() {
   const tbody = document.getElementById('user-list');
-  tbody.innerHTML = appUsers.map(u => {
+  tbody.innerHTML = Object.entries(appUsers).map(([p, u]) => {
+    const badge = u.approved ? `<span class="badge bg-ok">승인됨</span>` : `<span class="badge bg-pend">승인대기</span>`;
     return `<tr>
+      <td style="font-family:'Oswald',sans-serif;letter-spacing:1px;">${p}</td>
       <td style="font-weight:600;">${u.role}</td>
-      <td style="font-family:'Oswald',sans-serif;letter-spacing:1px;">${u.unique_id}</td>
-      <td>${u.name}</td>
-      <td>${u.pw}</td>
+      <td>${badge}</td>
       <td>
-        <button class="abtn b-clr" style="padding:4px 8px;font-size:11px;" onclick="deleteUser('${u.unique_id}')">삭제</button>
+        ${!u.approved ? `<button class="abtn b-add" style="padding:4px 8px;font-size:11px;" onclick="toggleApprove('${p}')">승인</button>` : `<button class="abtn" style="background:var(--warn);padding:4px 8px;font-size:11px;" onclick="toggleApprove('${p}')">해제</button>`}
+        <button class="abtn b-clr" style="padding:4px 8px;font-size:11px;" onclick="deleteUser('${p}')">삭제</button>
       </td>
     </tr>`;
   }).join('');
 }
 
-async function deleteUser(uid) {
-  if(!confirm('해당 접속자를 삭제하시겠습니까?')) return;
-  
-  appUsers = appUsers.filter(x => x.unique_id !== uid);
+async function toggleApprove(p) {
+  appUsers[p].approved = !appUsers[p].approved;
   localStorage.setItem('sj_users', JSON.stringify(appUsers));
-  
-  if(SB) {
-    await SB.from('app_users').delete().eq('unique_id', uid);
-  }
-  
+  await saveUserToDB(p, appUsers[p].role, appUsers[p].approved);
+  renderUserList();
+  toast(appUsers[p].approved ? '승인되었습니다.' : '승인이 해제되었습니다.');
+}
+
+async function deleteUser(p) {
+  if(!confirm('해당 사용자를 삭제하시겠습니까?')) return;
+  delete appUsers[p];
+  localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await deleteUserFromDB(p);
   renderUserList();
   toast('삭제되었습니다.');
 }
 
 async function addUserAdmin() {
+  const p = document.getElementById('np-val').value;
   const r = document.getElementById('np-role').value;
-  const u = document.getElementById('np-uid').value.trim();
-  const n = document.getElementById('np-name').value.trim();
-  const p = document.getElementById('np-pw').value.trim();
+  if(!/^\d{8}$/.test(p)){ toast('PIN은 8자리 숫자여야 합니다.'); return; }
   
-  if(!r || !u || !n || !p){ toast('모든 필드를 입력하세요.'); return; }
-  if(!/^\d{8}-\d{5}$/.test(u)){ toast('고유번호 형식(00000000-00000)을 맞춰주세요.'); return; }
-  
-  const newUser = { unique_id: u, role: r, name: n, pw: p };
-  
-  const existingIndex = appUsers.findIndex(x => x.unique_id === u);
-  if(existingIndex >= 0) {
-    appUsers[existingIndex] = newUser;
-  } else {
-    appUsers.push(newUser);
-  }
-  
+  appUsers[p] = { role: r, approved: true }; 
   localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await saveUserToDB(p, r, true);
+  
+  document.getElementById('np-val').value = '';
+  renderUserList();
+  toast('사용자 권한이 추가/변경되었습니다.');
+}
+
+async function saveAdminPw() {
+  const newVal = document.getElementById('adm-master-pw').value.trim();
+  if(!newVal) { toast('비밀번호를 입력하세요.'); return; }
+  
+  adminPassword = newVal;
+  localStorage.setItem('sj_admin_pw', adminPassword);
   
   if(SB) {
-    await SB.from('app_users').upsert({
-      unique_id: u, role_name: r, user_name: n, password: p
-    });
+    await SB.from('dashboard_settings').upsert({ id: 1, admin_pw: adminPassword });
   }
-  
-  document.getElementById('np-uid').value = '';
-  document.getElementById('np-name').value = '';
-  document.getElementById('np-pw').value = '';
-  
-  renderUserList();
-  toast('접속자가 등록/수정되었습니다.');
+  toast('관리자 보안 비밀번호가 변경되었습니다.');
 }
 
 function saveSB(){
@@ -1154,7 +1252,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 
 const ub=document.getElementById('upbox');
 ub.addEventListener('dragover',e=>{e.preventDefault();ub.classList.add('drag');});
-ub.addEventListener('dragleave',()=>ub.classList.remove('drag');});
+ub.addEventListener('dragleave',()=>ub.classList.remove('drag'));
 ub.addEventListener('drop',e=>{e.preventDefault();ub.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){const inp=document.getElementById('xinp');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;handleXlsx(inp);}});
 </script>
 </body>
