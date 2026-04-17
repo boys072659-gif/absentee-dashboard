@@ -118,6 +118,7 @@ table.dtbl tr:hover td{background:var(--s3);}
 .kpi.kgr{border-top:3px solid var(--ok);}
 .kpi.kpu{border-top:3px solid var(--a3);}
 .kpi.kte{border-top:3px solid #0891b2;}
+.kpi.kgy{border-top:3px solid #64748b;}
 .kpi-l{font-size:10px;color:var(--txt3);font-weight:600;margin-bottom:2px;}
 .kpi-v{font-family:'Oswald',sans-serif;font-size:24px;font-weight:600;color:var(--txt);}
 .kpi-s{font-size:10px;color:var(--txt3);margin-top:1px;}
@@ -268,13 +269,12 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
   </header>
   <nav class="tabs" id="tabs">
     <div class="tab on" onclick="showPg(0,this)">📊 출석률</div>
-    <div class="tab" onclick="showPg(1,this)">🏠 심방</div>
+    <div class="tab" onclick="showPg(1,this)">🏠 결석자 심방</div>
     <div class="tab" onclick="showPg(2,this)">📈 예배분석</div>
     <div class="tab adm" id="tab-adm" onclick="showPg(3,this)">⚙️ 관리자</div>
   </nav>
   <div class="pages">
 
-    <!-- PAGE 0: 출석률 -->
     <div class="pg on" id="p0">
       <div class="card">
         <div class="ctitle">출석률 데이터 업로드</div>
@@ -282,7 +282,7 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
           <input type="file" accept=".xlsx,.xls" id="xinp" onchange="handleXlsx(this)">
           <div style="font-size:30px;margin-bottom:7px;">📂</div>
           <div style="font-size:13px;font-weight:600;">엑셀 파일 클릭 또는 드래그</div>
-          <div style="font-size:11px;color:var(--txt3);margin-top:3px;">마감기준 시트 자동 인식</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:3px;">마감기준 시트 자동 인식 (새로운 엑셀 수동 업로드 시)</div>
           <div style="font-size:11px;color:var(--accent);margin-top:4px;">형식: 43-MM-DD 마감기준 시트</div>
         </div>
         <div id="upst" style="margin-top:7px;font-size:12px;color:var(--ok);text-align:center;min-height:16px;"></div>
@@ -295,18 +295,19 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
       <div id="dp-wrap"></div>
     </div>
 
-    <!-- PAGE 1: 심방 -->
     <div class="pg" id="p1">
+      <div class="kpi-row" id="worship-kpis">
+        </div>
       <div class="kpi-row">
         <div class="kpi kred"><div class="kpi-l">총 결석자</div><div class="kpi-v" id="kp0">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kor"><div class="kpi-l">가족 8회+</div><div class="kpi-v" id="kp1">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kbl"><div class="kpi-l">가족외 8회+</div><div class="kpi-v" id="kp2">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kgr"><div class="kpi-l">일반 4회+</div><div class="kpi-v" id="kp3">0</div><div class="kpi-s">명</div></div>
+        <div class="kpi kor"><div class="kpi-l">가족 타겟</div><div class="kpi-v" id="kp1">0</div><div class="kpi-s">명</div></div>
+        <div class="kpi kbl"><div class="kpi-l">가족외 타겟</div><div class="kpi-v" id="kp2">0</div><div class="kpi-s">명</div></div>
+        <div class="kpi kgr"><div class="kpi-l">일반 타겟</div><div class="kpi-v" id="kp3">0</div><div class="kpi-s">명</div></div>
         <div class="kpi kpu"><div class="kpi-l">총 타겟</div><div class="kpi-v" id="kp4">0</div><div class="kpi-s">명</div></div>
         <div class="kpi kte"><div class="kpi-l">타겟 심방완료</div><div class="kpi-v" id="kp5">0/0</div><div class="kpi-s">명</div></div>
       </div>
       <div class="card">
-        <div class="ctitle">부서별 타겟 현황</div>
+        <div class="ctitle">부서별 타겟 현황 (완료/전체)</div>
         <div id="dp-kpi" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
       </div>
       <div class="tb">
@@ -339,14 +340,13 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
       <div id="tbl-area"></div>
     </div>
 
-    <!-- PAGE 2: 예배분석 -->
     <div class="pg" id="p2">
       <div class="card">
         <div class="ctitle">주일예배 교회별 주차별 출석률 추이</div>
         <div class="chwrap"><canvas id="cw1"></canvas></div>
       </div>
       <div class="card">
-        <div class="ctitle">주차별 누계 평균 출석률 (지파 전체)</div>
+        <div class="ctitle">주차별 인증출석률 추이</div>
         <div class="chwrap"><canvas id="cw2"></canvas></div>
       </div>
       <div class="card">
@@ -355,13 +355,6 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
       </div>
       <div class="card">
         <div class="ctitle">목표 달성을 위한 교회·부서별 타겟 필요인원</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-          <span style="font-size:13px;font-weight:600;color:var(--txt2);">🎯 목표 출석률</span>
-          <input type="number" id="goal-inp" value="90" min="1" max="100"
-            style="width:76px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'Oswald';color:var(--accent);outline:none;background:#fff;">
-          <span style="font-weight:700;">%</span>
-          <button onclick="calcTgt()" style="padding:8px 16px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">적용</button>
-        </div>
         <div class="tw" style="border-radius:var(--r);border:1px solid var(--border);">
           <table class="ttbl"><thead><tr>
             <th>교회</th><th>부서</th><th>재적</th><th>현재 출석률</th><th>목표</th><th>필요 추가인원</th><th>결석자 중 타겟</th>
@@ -370,7 +363,6 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
       </div>
     </div>
 
-    <!-- PAGE 3: 관리자 -->
     <div class="pg" id="p3">
       <div class="asec">
         <h3>🔗 Supabase 연결 설정</h3>
@@ -379,17 +371,30 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
           <div class="afield" style="flex:2;"><label>ANON KEY</label><input type="text" id="sb-key" placeholder="eyJhbGci..."></div>
           <button class="asave" onclick="saveSB()">저장</button>
         </div>
-        <div id="sb-st" style="font-size:12px;color:var(--txt3);"></div>
+        <div id="sb-st" style="font-size:12px;color:var(--txt3);">※ 설정이 없으면 기본 탑재된 DB로 자동 연동됩니다.</div>
       </div>
+      
       <div class="asec">
-        <h3>🎯 목표 출석률 설정</h3>
-        <div class="arow">
-          <div class="afield"><label>목표 출석률 (%)</label><input type="number" id="adm-goal" min="1" max="100" value="90"></div>
+        <h3>🎯 교회별 목표 출석률 설정 (%)</h3>
+        <div class="arow" id="ch-targets-row" style="gap:15px;">
+           </div>
+        <div class="arow" style="margin-top:10px;">
           <div class="afield"><label>적용 기준일</label><input type="date" id="adm-gdate"></div>
-          <button class="asave" onclick="saveGoal()">저장</button>
+          <button class="asave" onclick="saveTargets()">저장</button>
         </div>
         <div id="cur-goal" style="font-size:13px;color:var(--txt2);margin-top:7px;"></div>
       </div>
+
+      <div class="asec">
+        <h3>📌 결석자 심방 타겟 조건 설정 (연속 결석 횟수)</h3>
+        <div class="arow" style="gap:15px;">
+          <div class="afield"><label>가족</label><input type="number" id="th-fam" min="1" value="8"></div>
+          <div class="afield"><label>가족외</label><input type="number" id="th-ext" min="1" value="8"></div>
+          <div class="afield"><label>일반</label><input type="number" id="th-gen" min="1" value="4"></div>
+          <button class="asave" onclick="saveThresholds()">저장</button>
+        </div>
+      </div>
+
       <div class="asec">
         <h3>🔐 PIN 번호 관리</h3>
         <div class="pin-grid" id="pin-list"></div>
@@ -405,6 +410,7 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
           </div>
         </div>
       </div>
+
       <div class="asec">
         <h3>🗄️ 데이터 관리</h3>
         <div style="display:flex;gap:9px;flex-wrap:wrap;">
@@ -421,7 +427,6 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
 <button class="fab" onclick="saveAll()">💾 저장</button>
 <div id="toast"></div>
 
-<!-- 추가 모달 -->
 <div class="mbg" id="m-add">
   <div class="modal">
     <h3>➕ 결석자 추가</h3>
@@ -441,7 +446,6 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
   </div>
 </div>
 
-<!-- 확인 모달 -->
 <div class="mbg" id="m-conf">
   <div class="modal" style="max-width:330px;text-align:center;">
     <h3 id="cm-t">확인</h3>
@@ -453,9 +457,12 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
 <script>
 // ═══════════════ SUPABASE ═══════════════
 let SB = null;
+const DEFAULT_SB_URL = "https://gpbrkuxulyrcbllrchkn.supabase.co";
+const DEFAULT_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwYnJrdXh1bHlyY2JsbHJjaGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjUwNjUsImV4cCI6MjA5MTk0MTA2NX0.KVCahNVpPcJk7NvpBVUnSNyYTUnHavLVt_WMBIMkNfU";
+
 async function initSB() {
-  const url = localStorage.getItem('sb_url');
-  const key = localStorage.getItem('sb_key');
+  const url = localStorage.getItem('sb_url') || DEFAULT_SB_URL;
+  const key = localStorage.getItem('sb_key') || DEFAULT_SB_KEY;
   if (!url || !key) return false;
   try {
     const m = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
@@ -471,7 +478,10 @@ let PINS = { '00000000':'지파장','12345678':'지파총무','87654321':'내무
 let pin='', role='';
 let recs=[], att={}, selWk='', selCh=null;
 let fSt='all', fDp='all', fCt='all';
-let goalR=90;
+
+// 설정들
+let chTargets = { '서울':90, '포천':90, '구리':90, '동대문':90, '의정부':90 };
+let thresholds = { '가족':8, '가족외':8, '일반':4 };
 let cw1=null, cw2=null;
 
 // ═══════════════ LOGIN ═══════════════
@@ -506,19 +516,26 @@ async function completeLogin(r){
     document.getElementById('tab-adm').classList.add('vis');
     document.getElementById('admbtns').classList.add('vis');
   }
+  
+  // 로컬 설정 불러오기
+  const sTgt = localStorage.getItem('sj_ch_targets');
+  if(sTgt) chTargets = JSON.parse(sTgt);
+  const sThr = localStorage.getItem('sj_thresholds');
+  if(sThr) thresholds = JSON.parse(sThr);
+  
   const sbOk=await initSB();
   if(sbOk) await loadDB(); else loadLS();
-  const sg=localStorage.getItem('sj_goal');
-  if(sg) goalR=parseFloat(sg);
-  document.getElementById('adm-goal').value=goalR;
-  document.getElementById('goal-inp').value=goalR;
+  
   document.getElementById('adm-gdate').value=new Date().toISOString().slice(0,10);
   document.getElementById('sb-url').value=localStorage.getItem('sb_url')||'';
   document.getElementById('sb-key').value=localStorage.getItem('sb_key')||'';
+  
+  renderAdminSetup();
   renderPins();
   renderP1(); renderP2();
   showLoad(false);
 }
+
 function doLogout(){
   pin=''; role=''; dots();
   document.getElementById('login-page').style.display='flex';
@@ -527,7 +544,6 @@ function doLogout(){
   document.getElementById('l-err').textContent='';
 }
 
-// 키보드 지원
 document.addEventListener('keydown',e=>{
   if(document.getElementById('login-page').style.display==='none') return;
   const fo=document.activeElement;
@@ -552,6 +568,7 @@ async function loadDB(){
   try{
     const {data:rows}=await SB.from('absent_visit').select('*');
     if(rows) recs=rows.map(r=>({_id:r.id,date:r.absent_date,church:r.church,dept:r.dept,name:r.member_name,group:r.member_group,cat:r.category,absent:r.absent_count,pastor:r.pastor_name,plan:r.visit_plan,visited:r.visit_done,worship:r.worship_confirm,note:r.memo}));
+    
     const {data:ac}=await SB.from('attendance_church').select('*');
     if(ac) ac.forEach(r=>{
       if(!att[r.week_key]) att[r.week_key]={churches:[],depts:[]};
@@ -560,10 +577,8 @@ async function loadDB(){
     const {data:ad}=await SB.from('attendance_dept').select('*');
     if(ad) ad.forEach(r=>{
       if(!att[r.week_key]) att[r.week_key]={churches:[],depts:[]};
-      att[r.week_key].depts.push({dept:r.dept,base:r.total_count,att:r.attend_count,rate:r.attend_rate,trend:r.week_trend,cert:r.cert_count,crate:r.cert_rate,sayu:r.reason_count,srate:r.reason_rate});
+      att[r.week_key].depts.push({church:r.church||'서울', dept:r.dept,base:r.total_count,att:r.attend_count,rate:r.attend_rate,trend:r.week_trend,cert:r.cert_count,crate:r.cert_rate,sayu:r.reason_count,srate:r.reason_rate});
     });
-    const {data:gs}=await SB.from('goal_settings').select('*').order('created_at',{ascending:false}).limit(1);
-    if(gs&&gs.length){ goalR=parseFloat(gs[0].goal_rate); localStorage.setItem('sj_goal',goalR); }
   }catch(e){ console.warn('DB load:',e); loadLS(); }
 }
 async function syncDB(){
@@ -608,32 +623,42 @@ function parseWB(wb){
     const wk='43-'+m[1];
     if(nm.includes('마감기준')) wmap[wk]={nm,rows:XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,defval:null})};
   });
+  
   Object.entries(wmap).forEach(([wk,{nm,rows}])=>{
     let hi=-1;
     for(let r=0;r<6;r++){if(rows[r]&&rows[r][0]==='교회'){hi=r;break;}}
     if(hi<0) return;
     const hd=rows[hi];
-    const bI=hd.indexOf('출결재적');
-    const aI=hd.indexOf('당일출석')>=0?hd.indexOf('당일출석'):hd.indexOf('출석수');
+    const bI=hd.indexOf('출결재적'), aI=hd.indexOf('당일출석')>=0?hd.indexOf('당일출석'):hd.indexOf('출석수');
     const rI=hd.indexOf('출석율'), cI=hd.indexOf('인증출석'), crI=hd.indexOf('인증출석율');
     const sI=hd.indexOf('사유출석'), srI=hd.indexOf('사유출석율'), tI=hd.indexOf('전주대비');
+    
     const churches=[];
-    for(let r=hi+1;r<hi+8;r++){
+    let lastCh='서울';
+    
+    // 교회의 기본 정보 파싱
+    for(let r=hi+1;r<Math.min(hi+10, rows.length);r++){
       const row=rows[r]; if(!row||!row[0]||!CHURCHES.includes(row[0])) continue;
       const base=n(row[bI]),at=n(row[aI]);
       churches.push({church:row[0],base,att:at,rate:n(row[rI])||(base?at/base:0),cert:n(row[cI]),crate:n(row[crI])||(base?n(row[cI])/base:0),sayu:n(row[sI]),srate:n(row[srI])||(base?n(row[sI])/base:0),trend:typeof row[tI]==='number'?row[tI]:null});
     }
+    
+    // 부서 정보 파싱 (오른쪽에 위치한다고 가정)
     const dh=hd.slice(12);
     const db=12+dh.indexOf('출결재적'), da=12+(dh.indexOf('당일출석')>=0?dh.indexOf('당일출석'):dh.indexOf('출석수'));
     const dr=12+dh.indexOf('출석율'), dt=12+dh.indexOf('전주대비');
     const dc=12+dh.indexOf('인증출석'), dcr=12+dh.indexOf('인증출석율');
     const ds=12+dh.indexOf('사유출석'), dsr=12+dh.indexOf('사유출석율');
     const depts=[];
-    for(let r=hi+1;r<hi+8;r++){
+    
+    for(let r=hi+1;r<rows.length;r++){
       const row=rows[r]; if(!row||row.length<13) continue;
-      const dept=row[12]; if(!dept||typeof dept!=='string') continue;
+      if(row[0] && CHURCHES.includes(row[0])) lastCh = row[0];
+      const dept=row[12]; 
+      if(!dept||typeof dept!=='string') continue;
+      
       const base=n(row[db]),at=n(row[da]);
-      depts.push({dept,base,att:at,rate:n(row[dr])||(base?at/base:0),trend:typeof row[dt]==='number'?row[dt]:null,cert:n(row[dc]),crate:n(row[dcr])||(base?n(row[dc])/base:0),sayu:n(row[ds]),srate:n(row[dsr])||(base?n(row[ds])/base:0)});
+      depts.push({church: lastCh, dept, base, att:at, rate:n(row[dr])||(base?at/base:0), trend:typeof row[dt]==='number'?row[dt]:null, cert:n(row[dc]), crate:n(row[dcr])||(base?n(row[dc])/base:0), sayu:n(row[ds]), srate:n(row[dsr])||(base?n(row[ds])/base:0)});
     }
     att[wk]={churches,depts};
   });
@@ -646,15 +671,36 @@ async function pushAttDB(){
       await SB.from('attendance_church').upsert({week_key:wk,service_type:'주일예배',church:c.church,total_count:c.base,attend_count:c.att,attend_rate:c.rate,cert_count:c.cert,cert_rate:c.crate,reason_count:c.sayu,reason_rate:c.srate,week_trend:c.trend},{onConflict:'week_key,service_type,church'});
     }
     for(const dep of (d.depts||[])){
-      await SB.from('attendance_dept').upsert({week_key:wk,service_type:'주일예배',church:'서울',dept:dep.dept,total_count:dep.base,attend_count:dep.att,attend_rate:dep.rate,cert_count:dep.cert,cert_rate:dep.crate,reason_count:dep.sayu,reason_rate:dep.srate,week_trend:dep.trend},{onConflict:'week_key,service_type,church,dept'});
+      await SB.from('attendance_dept').upsert({week_key:wk,service_type:'주일예배',church:dep.church,dept:dep.dept,total_count:dep.base,attend_count:dep.att,attend_rate:dep.rate,cert_count:dep.cert,cert_rate:dep.crate,reason_count:dep.sayu,reason_rate:dep.srate,week_trend:dep.trend},{onConflict:'week_key,service_type,church,dept'});
     }
+  }
+}
+
+// 인증율 전주대비 계산 유틸리티
+function getCertTrend(church, dept=null) {
+  const wks=Object.keys(att).sort();
+  const idx = wks.indexOf(selWk);
+  if(idx <= 0) return null; // 이전 주 데이터 없음
+  const prevWk = wks[idx-1];
+  const curD = att[selWk];
+  const prevD = att[prevWk];
+  if(!prevD) return null;
+  
+  if(dept === null) {
+    const curC = curD.churches.find(x => x.church === church);
+    const prevC = prevD.churches.find(x => x.church === church);
+    return (curC && prevC) ? (curC.crate - prevC.crate) : null;
+  } else {
+    const curDep = (curD.depts||[]).find(x => x.church === church && x.dept === dept);
+    const prevDep = (prevD.depts||[]).find(x => x.church === church && x.dept === dept);
+    return (curDep && prevDep) ? (curDep.crate - prevDep.crate) : null;
   }
 }
 
 function renderP1(){
   const wks=Object.keys(att).sort();
   if(!wks.length){
-    document.getElementById('ch-wrap').innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3);">엑셀 파일을 업로드하면 출석률이 표시됩니다.</div>';
+    document.getElementById('ch-wrap').innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3);">엑셀 파일을 업로드하거나 시스템이 DB를 불러오면 출석률이 표시됩니다.</div>';
     return;
   }
   if(!selWk||!att[selWk]) selWk=wks[wks.length-1];
@@ -668,20 +714,25 @@ function selWeek(w,el){
   el.classList.add('on');
   renderCH();
 }
+
 function renderCH(){
   const d=att[selWk]; if(!d) return;
   document.getElementById('ch-wrap').innerHTML=d.churches.map(c=>{
     const pct=(c.rate*100).toFixed(1);
     const cls=c.rate>=0.9?'h':c.rate>=0.8?'m':'l';
     const tr=c.trend!==null?`<span class="${c.trend>=0?'tg-up':'tg-dn'}">${c.trend>=0?'▲':'▼'}${Math.abs((c.trend*100).toFixed(1))}%p</span>`:'';
+    
+    const cTrendVal = getCertTrend(c.church);
+    const cTrendStr = cTrendVal !== null ? `<span style="font-size:10px;color:${cTrendVal>=0?'var(--ok)':'var(--danger)'};font-weight:700;">${cTrendVal>=0?'▲':'▼'}${Math.abs((cTrendVal*100).toFixed(1))}%p</span>` : '-';
+
     const isSel=selCh===c.church;
     return `<div class="chcard ${isSel?'sel':''}" onclick="selChurch('${c.church}')">
       <div class="ch-nm">${c.church} ${tr}</div>
       <div class="ch-rate ${cls}">${pct}%</div>
       <div class="ch-meta">${c.att.toLocaleString()} / ${c.base.toLocaleString()}명 출석</div>
       <div class="ch-row">
-        <div class="ch-it"><div class="ch-it-l">인증출석</div><div class="ch-it-v">${c.cert.toLocaleString()}</div></div>
         <div class="ch-it"><div class="ch-it-l">인증율</div><div class="ch-it-v">${(c.crate*100).toFixed(1)}%</div></div>
+        <div class="ch-it" style="background:${cTrendVal!==null?(cTrendVal>=0?'#dcfce7':'#fee2e2'):'var(--s3)'};"><div class="ch-it-l">인증(전주)</div><div class="ch-it-v">${cTrendStr}</div></div>
         <div class="ch-it"><div class="ch-it-l">사유출석</div><div class="ch-it-v">${c.sayu.toLocaleString()}</div></div>
       </div>
     </div>`;
@@ -696,25 +747,31 @@ function selChurch(ch){
   });
   renderDP();
 }
+
 function renderDP(){
   const wrap=document.getElementById('dp-wrap');
   const d=att[selWk];
   if(!d||!selCh){wrap.innerHTML='';return;}
-  const depts=selCh==='서울'?(d.depts||[]):[];
+  
+  const depts = (d.depts||[]).filter(dep => dep.church === selCh);
   if(!depts.length){
-    wrap.innerHTML=`<div class="dpanel"><div class="dpanel-ttl">🏛 ${selCh} 교회 부서별 현황</div><div style="font-size:13px;color:var(--txt3);">서울교회만 부서별 데이터가 제공됩니다.</div></div>`;
+    wrap.innerHTML=`<div class="dpanel"><div class="dpanel-ttl">🏛 ${selCh} 교회 부서별 현황</div><div style="font-size:13px;color:var(--txt3);">해당 교회의 부서 데이터가 엑셀에 없습니다.</div></div>`;
     return;
   }
+  
   const rows=depts.map(dep=>{
     const pct=(dep.rate*100).toFixed(1);
     const cls=dep.rate>=0.9?'rfh':dep.rate>=0.8?'rfm':'rfl';
     const tr=dep.trend!==null?`<span style="color:${dep.trend>=0?'var(--ok)':'var(--danger)'};font-size:11px;font-weight:700;">${dep.trend>=0?'▲':'▼'}${Math.abs((dep.trend*100).toFixed(1))}%p</span>`:'—';
+    const cTrendVal = getCertTrend(selCh, dep.dept);
+    const ctr=cTrendVal!==null?`<span style="color:${cTrendVal>=0?'var(--ok)':'var(--danger)'};font-size:11px;font-weight:700;">${cTrendVal>=0?'▲':'▼'}${Math.abs((cTrendVal*100).toFixed(1))}%p</span>`:'—';
+
     return `<tr>
       <td style="font-weight:700;text-align:left;padding-left:13px;">${dep.dept}</td>
       <td>${dep.base.toLocaleString()}</td><td>${dep.att.toLocaleString()}</td>
       <td><div style="font-weight:700;">${pct}%</div><div class="rbar"><div class="rfill ${cls}" style="width:${Math.min(parseFloat(pct),100)}%"></div></div></td>
-      <td>${dep.cert.toLocaleString()}</td><td>${(dep.crate*100).toFixed(1)}%</td>
-      <td>${dep.sayu.toLocaleString()}</td><td>${(dep.srate*100).toFixed(1)}%</td><td>${tr}</td>
+      <td>${(dep.crate*100).toFixed(1)}%</td><td>${ctr}</td>
+      <td>${dep.sayu.toLocaleString()}</td><td>${tr}</td>
     </tr>`;
   }).join('');
   wrap.innerHTML=`<div class="dpanel">
@@ -722,36 +779,64 @@ function renderDP(){
     <div style="overflow-x:auto;">
     <table class="dtbl"><thead><tr>
       <th>부서</th><th>재적</th><th>출석수</th><th>출석률</th>
-      <th>인증출석</th><th>인증율</th><th>사유출석</th><th>사유율</th><th>전주대비</th>
+      <th>인증율</th><th>인증율(전주대비)</th><th>사유출석</th><th>출석률(전주대비)</th>
     </tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 // ═══════════════ PAGE2: 심방 ═══════════════
-function isTgt(r){ return (r.cat==='가족'||r.cat==='가족외')&&r.absent>=8 || r.cat==='일반'&&r.absent>=4; }
+function isTgt(r){ 
+  const th = thresholds[r.cat] || 4; // fallback
+  return r.absent >= th;
+}
+
+function getWorshipSummary() {
+  const s = { confirmed:0, planned:0, rejected:0, unknown:0 };
+  recs.forEach(r => {
+    if(r.worship === '확정' || r.worship === '주일확답' || r.worship === '삼일확답') s.confirmed++;
+    else if(r.worship === '예정') s.planned++;
+    else if(r.worship === '거절') s.rejected++;
+    else s.unknown++;
+  });
+  return s;
+}
+
 function renderP2(){
   updateKPI(); renderTbl();
 }
+
 function updateKPI(){
-  const fam8=recs.filter(r=>r.cat==='가족'&&r.absent>=8).length;
-  const ext8=recs.filter(r=>r.cat==='가족외'&&r.absent>=8).length;
-  const gen4=recs.filter(r=>r.cat==='일반'&&r.absent>=4).length;
-  const tgts=recs.filter(r=>isTgt(r));
-  const tdone=tgts.filter(r=>r.visited).length;
+  const famT = recs.filter(r=>r.cat==='가족'&&r.absent>=thresholds['가족']).length;
+  const extT = recs.filter(r=>r.cat==='가족외'&&r.absent>=thresholds['가족외']).length;
+  const genT = recs.filter(r=>r.cat==='일반'&&r.absent>=thresholds['일반']).length;
+  const tgts = recs.filter(r=>isTgt(r));
+  const tdone= tgts.filter(r=>r.visited).length;
+  
   document.getElementById('kp0').textContent=recs.length;
-  document.getElementById('kp1').textContent=fam8;
-  document.getElementById('kp2').textContent=ext8;
-  document.getElementById('kp3').textContent=gen4;
+  document.getElementById('kp1').textContent=famT;
+  document.getElementById('kp2').textContent=extT;
+  document.getElementById('kp3').textContent=genT;
   document.getElementById('kp4').textContent=tgts.length;
-  document.getElementById('kp5').textContent=`${tdone}/${tgts.length}`;
+  document.getElementById('kp5').textContent=`${tdone} / ${tgts.length}`;
+  
+  // 예배확답 KPI 렌더링
+  const ws = getWorshipSummary();
+  document.getElementById('worship-kpis').innerHTML = `
+    <div class="kpi kgr"><div class="kpi-l">예배 확정</div><div class="kpi-v" style="font-size:20px;">${ws.confirmed}</div></div>
+    <div class="kpi kor"><div class="kpi-l">예배 예정</div><div class="kpi-v" style="font-size:20px;">${ws.planned}</div></div>
+    <div class="kpi kgy"><div class="kpi-l">미정/무응답</div><div class="kpi-v" style="font-size:20px;">${ws.unknown}</div></div>
+    <div class="kpi kred"><div class="kpi-l">거절</div><div class="kpi-v" style="font-size:20px;">${ws.rejected}</div></div>
+  `;
+
   document.getElementById('dp-kpi').innerHTML=['자문회','장년회','부녀회','청년회'].map(d=>{
     const t=recs.filter(r=>r.dept===d&&isTgt(r));
     const done=t.filter(r=>r.visited).length;
     return `<div class="kpi" style="min-width:85px;flex:0 0 auto;border-top:3px solid var(--accent);">
-      <div class="kpi-l">${d}</div><div class="kpi-v" style="font-size:20px;">${t.length}</div>
-      <div class="kpi-s">완료 ${done}명</div></div>`;
+      <div class="kpi-l">${d}</div><div class="kpi-v" style="font-size:20px;">${done}/${t.length}</div>
+      <div class="kpi-s" style="color:${done===t.length&&t.length>0?'var(--ok)':'var(--txt3)'};">완료 ${done}명</div></div>`;
   }).join('');
 }
-function getVis(){ return recs.filter(r=>{ if(fSt==='pend'&&r.visited) return false; if(fDp!=='all'&&r.dept!==fDp) return false; if(fCt!=='all'&&r.cat!==fCt) return false; return true; }); }
+
+function getVis(){ return recs.filter(r=>{ if(fSt==='pend'&&!r.visited) return true; if(fSt==='pend'&&r.visited) return false; if(fDp!=='all'&&r.dept!==fDp) return false; if(fCt!=='all'&&r.cat!==fCt) return false; return true; }); }
 function filt(type,val,el){
   if(type==='st') fSt=val; if(type==='dp') fDp=val; if(type==='ct') fCt=val;
   el.parentElement.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
@@ -768,13 +853,13 @@ function renderTbl(){
     html+=`<div class="dh"><span class="dh-d">📅 ${date}</span><span class="dh-c">총 ${g.length}명</span></div>
     <div class="tw"><table class="mt">
     <thead><tr>
-      <th>교회</th><th>부서</th><th>이름</th><th>소속</th><th>구분</th><th>결석</th>
+      <th>교회</th><th>부서</th><th>이름</th><th>소속</th><th>구분</th><th>연속결석</th>
       <th>심방자</th><th>심방계획</th><th>타겟</th><th>심방진행</th><th>예배확답</th><th>비고</th>
       ${ADMIN_ROLES.includes(role)?'<th>삭제</th>':''}
     </tr></thead><tbody>`;
     g.forEach(r=>{
       const idx=recs.indexOf(r), tgt=isTgt(r);
-      const abscls=r.absent>=8?'ns-d':'';
+      const abscls=tgt?'ns-d':'';
       html+=`<tr class="${r.visited?'done-r':''}">
         <td>${r.church||'—'}</td><td>${r.dept}</td>
         <td style="font-weight:700;white-space:nowrap;">${r.name}</td>
@@ -791,8 +876,8 @@ function renderTbl(){
         <td><div class="ckg"><input type="checkbox" ${r.visited?'checked':''} onchange="upd(${idx},'visited',this.checked)"><div class="ckl ${r.visited?'done':''}">${r.visited?'완료':'미완료'}</div></div></td>
         <td><select class="ss" onchange="upd(${idx},'worship',this.value)">
           <option ${!r.worship?'selected':''} value="">미정</option>
-          <option ${r.worship==='주일확답'?'selected':''}>주일확답</option>
-          <option ${r.worship==='삼일확답'?'selected':''}>삼일확답</option>
+          <option ${(r.worship==='주일확답'||r.worship==='삼일확답'||r.worship==='확정')?'selected':''} value="확정">확정(주일/삼일)</option>
+          <option ${r.worship==='예정'?'selected':''}>예정</option>
           <option ${r.worship==='거절'?'selected':''}>거절</option>
           <option ${r.worship==='무응답'?'selected':''}>무응답</option>
         </select></td>
@@ -830,30 +915,51 @@ function dlCSV(){
 // ═══════════════ PAGE3: 예배분석 ═══════════════
 function renderP3(){ drawC1(); drawC2(); renderMG(); calcTgt(); }
 function getWD(){ return Object.keys(att).sort().map(wk=>({wk,churches:att[wk].churches,depts:att[wk].depts||[]})); }
+
 function drawC1(){
   const data=getWD(); if(!data.length) return;
   const labels=data.map(d=>d.wk.replace('43-',''));
   const cols=['#2563eb','#0ea5e9','#7c3aed','#16a34a','#d97706'];
   const ds=CHURCHES.map((ch,i)=>({label:ch,data:data.map(d=>{const c=d.churches.find(x=>x.church===ch);return c?parseFloat((c.rate*100).toFixed(1)):null;}),borderColor:cols[i],backgroundColor:cols[i]+'22',tension:.4,fill:false,pointRadius:4}));
-  ds.push({label:'목표('+goalR+'%)',data:data.map(()=>goalR),borderColor:'#dc2626',borderDash:[5,5],pointRadius:0,tension:0,fill:false});
+  
+  // 지파 평균 데이터 추가
+  const tribeAvg = data.map(d=>{
+      const tAtt = d.churches.reduce((s,c)=>s+c.att, 0);
+      const tBase = d.churches.reduce((s,c)=>s+c.base, 0);
+      return tBase ? parseFloat((tAtt/tBase*100).toFixed(1)) : null;
+  });
+  ds.push({label:'지파 평균',data:tribeAvg,borderColor:'#1e293b',backgroundColor:'#1e293b22',tension:.4,fill:false,pointRadius:5,borderWidth:2.5});
+
   const ctx=document.getElementById('cw1');
   if(cw1) cw1.destroy();
-  cw1=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:60,max:100,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
+  cw1=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:80,max:100,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
 }
+
 function drawC2(){
+  // 인증출석률 추이
   const data=getWD(); if(!data.length) return;
   const labels=data.map(d=>d.wk.replace('43-',''));
-  let cs=0,cc=0;
-  const cul=data.map(d=>{const tot=d.churches.reduce((s,c)=>s+c.att,0);const base=d.churches.reduce((s,c)=>s+c.base,0);const r=base?(tot/base)*100:0;cs+=r;cc++;return parseFloat((cs/cc).toFixed(1));});
-  const ins=data.map(d=>{const tot=d.churches.reduce((s,c)=>s+c.att,0);const base=d.churches.reduce((s,c)=>s+c.base,0);return base?parseFloat((tot/base*100).toFixed(1)):null;});
+  const cols=['#2563eb','#0ea5e9','#7c3aed','#16a34a','#d97706'];
+  
+  const ds = CHURCHES.map((ch,i)=>({
+    label: ch,
+    data: data.map(d=>{const c=d.churches.find(x=>x.church===ch); return c?parseFloat((c.crate*100).toFixed(1)):null;}),
+    borderColor: cols[i], backgroundColor: cols[i]+'22', tension:.4, fill:false, pointRadius:3, borderDash:[4,4]
+  }));
+
+  // 지파 평균 인증율
+  const tribeCert = data.map(d=>{
+      const tCert = d.churches.reduce((s,c)=>s+c.cert, 0);
+      const tBase = d.churches.reduce((s,c)=>s+c.base, 0);
+      return tBase ? parseFloat((tCert/tBase*100).toFixed(1)) : null;
+  });
+  ds.push({label:'지파 인증 평균',data:tribeCert,borderColor:'#1e293b',backgroundColor:'#1e293b22',tension:.4,fill:false,pointRadius:5,borderWidth:2.5});
+
   const ctx=document.getElementById('cw2');
   if(cw2) cw2.destroy();
-  cw2=new Chart(ctx,{type:'line',data:{labels,datasets:[
-    {label:'주별 출석률',data:ins,borderColor:'#94a3b8',backgroundColor:'#94a3b820',tension:.4,fill:false,pointRadius:4,borderDash:[4,3]},
-    {label:'누계 평균',data:cul,borderColor:'#2563eb',backgroundColor:'#2563eb22',tension:.4,fill:true,pointRadius:5,borderWidth:2.5},
-    {label:'목표('+goalR+'%)',data:data.map(()=>goalR),borderColor:'#dc2626',borderDash:[5,5],pointRadius:0,tension:0,fill:false}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:60,max:100,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
+  cw2=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:50,max:80,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
 }
+
 function renderMG(){
   const data=getWD(); if(!data.length){document.getElementById('mgrid').innerHTML='<div style="color:var(--txt3);">데이터 없음</div>';return;}
   const recent=data.slice(-4);
@@ -865,57 +971,94 @@ function renderMG(){
     return `<div class="mcard"><div class="mc-n">${ch}</div><div class="mc-v" style="color:${col};">${pct}%</div><div style="font-size:10px;color:var(--txt3);margin-top:3px;">최근${rates.length}주 평균</div></div>`;
   }).join('');
 }
+
 function calcTgt(){
-  const goal=parseFloat(document.getElementById('goal-inp').value)/100;
-  goalR=goal*100; localStorage.setItem('sj_goal',goalR);
   const wks=Object.keys(att).sort(); const tbody=document.getElementById('tgt-body');
   if(!wks.length){tbody.innerHTML='<tr><td colspan="7" style="color:var(--txt3);text-align:center;padding:16px;">출석 데이터를 먼저 업로드하세요.</td></tr>';return;}
   const lat=att[wks[wks.length-1]]; let html='';
+  
+  // 전체 지파 목표율 계산 (자동 비율 계산)
+  let tBaseSum = 0;
+  let tGoalSum = 0;
+  
   lat.churches.forEach(c=>{
     const pct=(c.rate*100).toFixed(1);
-    const needed=Math.max(0,Math.ceil(c.base*goal)-c.att);
-    const ac=recs.filter(r=>r.church===c.church).length;
+    const gRate = chTargets[c.church] || 90; // 개별 목표
+    tBaseSum += c.base;
+    tGoalSum += c.base * (gRate/100);
+
+    const needed=Math.max(0,Math.ceil(c.base*(gRate/100))-c.att);
+    const ac=recs.filter(r=>r.church===c.church&&isTgt(r)).length;
     const tg=Math.min(needed,ac);
-    const col=c.rate>=0.9?'var(--ok)':c.rate>=0.8?'var(--warn)':'var(--danger)';
+    const col=c.rate>=(gRate/100)?'var(--ok)':c.rate>=(gRate/100)-0.1?'var(--warn)':'var(--danger)';
     html+=`<tr><td style="font-weight:700;">${c.church}</td><td style="color:var(--txt3);">전체</td><td>${c.base.toLocaleString()}</td>
       <td><span style="color:${col};font-weight:700;">${pct}%</span></td>
-      <td style="color:var(--accent);font-weight:700;">${Math.round(goal*100)}%</td>
+      <td style="color:var(--accent);font-weight:700;">${gRate}%</td>
       <td>${needed===0?'<span class="nok">충족 ✓</span>':`<span class="nn">${needed}명</span>`}</td>
       <td>${tg?`<span class="t-yes">${tg}명</span>`:'—'}</td></tr>`;
   });
+
+  // 부서는 속한 교회의 목표율을 따라감
   if(lat.depts&&lat.depts.length) lat.depts.forEach(dep=>{
     const pct=(dep.rate*100).toFixed(1);
-    const needed=Math.max(0,Math.ceil(dep.base*goal)-dep.att);
-    const ac=recs.filter(r=>r.dept===dep.dept).length;
+    const gRate = chTargets[dep.church] || 90;
+    const needed=Math.max(0,Math.ceil(dep.base*(gRate/100))-dep.att);
+    const ac=recs.filter(r=>r.dept===dep.dept&&r.church===dep.church&&isTgt(r)).length;
     const tg=Math.min(needed,ac);
-    const col=dep.rate>=0.9?'var(--ok)':dep.rate>=0.8?'var(--warn)':'var(--danger)';
-    html+=`<tr><td style="color:var(--txt3);">서울</td><td style="font-weight:600;">${dep.dept}</td><td>${dep.base.toLocaleString()}</td>
+    const col=dep.rate>=(gRate/100)?'var(--ok)':dep.rate>=(gRate/100)-0.1?'var(--warn)':'var(--danger)';
+    html+=`<tr><td style="color:var(--txt3);">${dep.church}</td><td style="font-weight:600;">${dep.dept}</td><td>${dep.base.toLocaleString()}</td>
       <td><span style="color:${col};font-weight:700;">${pct}%</span></td>
-      <td style="color:var(--accent);font-weight:700;">${Math.round(goal*100)}%</td>
+      <td style="color:var(--accent);font-weight:700;">${gRate}%</td>
       <td>${needed===0?'<span class="nok">충족 ✓</span>':`<span class="nn">${needed}명</span>`}</td>
       <td>${tg?`<span class="t-yes">${tg}명</span>`:'—'}</td></tr>`;
   });
-  tbody.innerHTML=html; drawC1(); drawC2();
+  
+  tbody.innerHTML=html; 
+
+  // 현재 지파 전체 목표율 표시
+  const overallTarget = tBaseSum ? ((tGoalSum / tBaseSum) * 100).toFixed(1) : 90;
+  document.getElementById('cur-goal').textContent = `현재 지파 전체 목표 평균: ${overallTarget}% (교회별 비례 합산)`;
 }
 
 // ═══════════════ ADMIN ═══════════════
+function renderAdminSetup() {
+  document.getElementById('ch-targets-row').innerHTML = CHURCHES.map(ch => 
+    `<div class="afield"><label>${ch} (%)</label><input type="number" id="adm-tg-${ch}" min="1" max="100" value="${chTargets[ch]||90}"></div>`
+  ).join('');
+
+  document.getElementById('th-fam').value = thresholds['가족'] || 8;
+  document.getElementById('th-ext').value = thresholds['가족외'] || 8;
+  document.getElementById('th-gen').value = thresholds['일반'] || 4;
+}
+
 function saveSB(){
   const url=document.getElementById('sb-url').value.trim();
   const key=document.getElementById('sb-key').value.trim();
   if(!url||!key){toast('URL과 Key를 입력하세요.');return;}
   localStorage.setItem('sb_url',url); localStorage.setItem('sb_key',key);
-  document.getElementById('sb-st').textContent='✅ 저장 완료. 다음 로그인부터 Supabase와 연동됩니다.';
+  document.getElementById('sb-st').textContent='✅ 저장 완료. 다음 로그인부터 지정된 Supabase와 연동됩니다.';
   toast('저장되었습니다.');
 }
-async function saveGoal(){
-  const g=parseFloat(document.getElementById('adm-goal').value);
-  if(isNaN(g)||g<1||g>100){toast('1~100 값을 입력하세요.');return;}
-  goalR=g; localStorage.setItem('sj_goal',g);
-  document.getElementById('goal-inp').value=g;
-  document.getElementById('cur-goal').textContent=`현재 목표: ${g}%`;
-  if(SB) await SB.from('goal_settings').insert({goal_rate:g,set_by:role,effective_from:document.getElementById('adm-gdate').value});
-  toast(`목표 출석률 ${g}%로 저장됨`);
+
+function saveTargets(){
+  CHURCHES.forEach(ch => {
+    chTargets[ch] = parseFloat(document.getElementById(`adm-tg-${ch}`).value) || 90;
+  });
+  localStorage.setItem('sj_ch_targets', JSON.stringify(chTargets));
+  toast(`교회별 목표가 저장되었습니다.`);
+  calcTgt();
 }
+
+function saveThresholds() {
+  thresholds['가족'] = parseInt(document.getElementById('th-fam').value) || 8;
+  thresholds['가족외'] = parseInt(document.getElementById('th-ext').value) || 8;
+  thresholds['일반'] = parseInt(document.getElementById('th-gen').value) || 4;
+  
+  localStorage.setItem('sj_thresholds', JSON.stringify(thresholds));
+  toast('타겟 조건이 저장되었습니다.');
+  renderP2(); // UI 업데이트
+}
+
 function renderPins(){
   const pins=JSON.parse(localStorage.getItem('sj_pins')||'null')||PINS;
   document.getElementById('pin-list').innerHTML=Object.entries(pins).map(([p,r])=>
