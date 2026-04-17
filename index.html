@@ -34,14 +34,14 @@ html,body{height:100%;font-family:'Noto Sans KR',-apple-system,sans-serif;backgr
 .kk:active,.kk:hover{background:#dbeafe;border-color:var(--accent);color:var(--accent);}
 .kk-del{background:#fef2f2;border-color:#fecaca;color:var(--danger);}
 .kk-ok{background:linear-gradient(135deg,var(--accent),var(--a2));border-color:var(--accent);color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;}
-.l-err{min-height:17px;font-size:12px;color:var(--danger);margin-top:5px;}
+.l-err{min-height:17px;font-size:12px;color:var(--danger);margin-top:5px;font-weight:600;}
 .role-box{margin-top:12px;text-align:left;}
 .role-lbl{font-size:11px;color:var(--txt2);font-weight:700;margin-bottom:4px;display:block;}
 .role-sel{width:100%;padding:9px 12px;background:var(--s2);border:1.5px solid var(--border);border-radius:9px;color:var(--txt);font-size:13px;font-family:inherit;outline:none;}
 .role-sel:focus{border-color:var(--accent);}
 .role-btn{margin-top:9px;width:100%;padding:12px;background:linear-gradient(135deg,var(--ok),#15803d);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
 
-/* APP */
+/* APP & COMPONENTS */
 #app{display:none;flex-direction:column;height:100vh;overflow:hidden;}
 .hd{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh);flex-shrink:0;}
 .hd-brand{display:flex;align-items:center;gap:9px;}
@@ -53,40 +53,32 @@ html,body{height:100%;font-family:'Noto Sans KR',-apple-system,sans-serif;backgr
 .logout-btn{background:none;border:1.5px solid var(--border);border-radius:7px;padding:4px 11px;font-size:11px;color:var(--txt3);cursor:pointer;}
 .logout-btn:hover{border-color:var(--danger);color:var(--danger);}
 
-/* TABS */
 .tabs{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 14px;flex-shrink:0;}
 .tab{padding:11px 16px;font-size:13px;font-weight:600;color:var(--txt3);cursor:pointer;border-bottom:2.5px solid transparent;transition:.2s;white-space:nowrap;}
 .tab.on{color:var(--accent);border-bottom-color:var(--accent);}
 
-/* PAGES */
 .pages{flex:1;overflow:hidden;}
 .pg{display:none;height:100%;overflow-y:auto;padding:18px;padding-bottom:64px;}
 .pg.on{display:block;}
 
-/* CARD */
 .card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh);}
 .ctitle{font-size:11px;font-weight:700;color:var(--txt2);letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;text-transform:uppercase;}
 .ctitle::before{content:'';width:3px;height:12px;background:linear-gradient(var(--accent),var(--a2));border-radius:2px;flex-shrink:0;}
 
-/* UPLOAD */
 .upbox{border:2px dashed var(--border2);border-radius:var(--r);padding:26px;text-align:center;cursor:pointer;transition:.25s;position:relative;background:var(--s2);}
 .upbox:hover,.upbox.drag{border-color:var(--accent);background:#eff6ff;}
 .upbox input{position:absolute;inset:0;opacity:0;cursor:pointer;}
 
-/* WEEK BTNS */
 .wk-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
 .wkb{padding:5px 13px;border-radius:18px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;color:var(--txt2);transition:.2s;font-family:inherit;font-weight:500;}
 .wkb.on{background:var(--accent);border-color:var(--accent);color:#fff;}
 
-/* CHURCH GRID */
 .ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px;margin-bottom:16px;}
 .chcard{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:15px;cursor:pointer;transition:.25s;box-shadow:var(--sh);}
 .chcard:hover,.chcard.sel{border-color:var(--accent);background:#eff6ff;box-shadow:0 4px 14px rgba(37,99,235,.12);}
 .ch-nm{font-size:13px;font-weight:700;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
 .ch-rate{font-family:'Oswald',sans-serif;font-size:33px;font-weight:600;}
-.ch-rate.h{color:var(--ok);}
-.ch-rate.m{color:var(--warn);}
-.ch-rate.l{color:var(--danger);}
+.ch-rate.h{color:var(--ok);} .ch-rate.m{color:var(--warn);} .ch-rate.l{color:var(--danger);}
 .ch-meta{font-size:11px;color:var(--txt3);margin-top:2px;}
 .ch-row{display:flex;gap:7px;margin-top:9px;}
 .ch-it{flex:1;background:var(--s3);border-radius:7px;padding:6px;text-align:center;}
@@ -95,7 +87,6 @@ html,body{height:100%;font-family:'Noto Sans KR',-apple-system,sans-serif;backgr
 .tg-up{background:#dcfce7;color:var(--ok);font-size:10px;padding:2px 6px;border-radius:9px;font-weight:700;}
 .tg-dn{background:#fee2e2;color:var(--danger);font-size:10px;padding:2px 6px;border-radius:9px;font-weight:700;}
 
-/* DEPT PANEL */
 .dpanel{background:#fff;border:1.5px solid var(--accent);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(37,99,235,.08);}
 .dpanel-ttl{font-size:13px;font-weight:800;color:var(--accent);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
 table.dtbl{width:100%;border-collapse:collapse;font-size:12px;}
@@ -109,33 +100,24 @@ table.dtbl tr:hover td{background:var(--s3);}
 .rfm{background:linear-gradient(90deg,var(--warn),#fbbf24);}
 .rfl{background:linear-gradient(90deg,var(--danger),#f87171);}
 
-/* KPI STRIP */
+/* KPI & 테이블 등 (생략 없이 이전 코드와 동일) */
 .kpi-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;}
 .kpi{flex:1;min-width:95px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;text-align:center;box-shadow:var(--sh);}
-.kpi.kred{border-top:3px solid var(--danger);}
-.kpi.kor{border-top:3px solid var(--warn);}
-.kpi.kbl{border-top:3px solid var(--accent);}
-.kpi.kgr{border-top:3px solid var(--ok);}
-.kpi.kpu{border-top:3px solid var(--a3);}
-.kpi.kte{border-top:3px solid #0891b2;}
-.kpi.kgy{border-top:3px solid #64748b;}
+.kpi.kred{border-top:3px solid var(--danger);} .kpi.kor{border-top:3px solid var(--warn);}
+.kpi.kbl{border-top:3px solid var(--accent);} .kpi.kgr{border-top:3px solid var(--ok);}
+.kpi.kpu{border-top:3px solid var(--a3);} .kpi.kte{border-top:3px solid #0891b2;} .kpi.kgy{border-top:3px solid #64748b;}
 .kpi-l{font-size:10px;color:var(--txt3);font-weight:600;margin-bottom:2px;}
 .kpi-v{font-family:'Oswald',sans-serif;font-size:24px;font-weight:600;color:var(--txt);}
 .kpi-s{font-size:10px;color:var(--txt3);margin-top:1px;}
 
-/* TOOLBAR */
 .tb{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:11px;}
 .ftab{padding:5px 12px;border-radius:18px;border:1.5px solid var(--border);background:#fff;font-size:12px;cursor:pointer;color:var(--txt2);font-family:inherit;transition:.2s;font-weight:500;}
 .ftab.on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .tsep{width:1px;height:20px;background:var(--border);margin:0 2px;}
 .abtn{padding:6px 12px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;}
-.b-add{background:var(--ok);}
-.b-exp{background:var(--a3);}
-.b-clr{background:var(--danger);}
-.adm{display:none!important;}
-.adm.vis{display:flex!important;}
+.b-add{background:var(--ok);} .b-exp{background:var(--a3);} .b-clr{background:var(--danger);}
+.adm{display:none!important;} .adm.vis{display:flex!important;}
 
-/* MAIN TABLE */
 .dh{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:9px 15px;border-radius:9px 9px 0 0;display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
 .dh-d{font-size:13px;font-weight:700;}
 .dh-c{background:var(--danger);color:#fff;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;}
@@ -143,52 +125,46 @@ table.dtbl tr:hover td{background:var(--s3);}
 table.mt{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px;}
 table.mt th{background:var(--s2);padding:8px 7px;text-align:center;color:var(--txt2);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;}
 table.mt td{padding:7px 6px;text-align:center;vertical-align:middle;border-bottom:1px solid var(--border);color:var(--txt);}
-table.mt tr:last-child td{border-bottom:none;}
-table.mt tr:hover td{background:#f8faff;}
-table.mt tr.done-r td{background:#f0fdf4;}
-.ss{padding:4px 5px;border:1.5px solid var(--border);background:#fff;border-radius:6px;font-size:11px;color:var(--txt);font-family:inherit;width:100%;outline:none;}
-.ns{padding:4px;border:1.5px solid var(--border);background:#fff;border-radius:6px;font-size:12px;color:var(--txt);width:42px;text-align:center;font-family:'Oswald',sans-serif;outline:none;}
+table.mt tr:last-child td{border-bottom:none;} table.mt tr:hover td{background:#f8faff;} table.mt tr.done-r td{background:#f0fdf4;}
+.ss,.ns,.tas{border:1.5px solid var(--border);background:#fff;border-radius:6px;color:var(--txt);font-family:inherit;outline:none;}
+.ss{padding:4px 5px;font-size:11px;width:100%;}
+.ns{padding:4px;font-size:12px;width:42px;text-align:center;font-family:'Oswald',sans-serif;}
 .ns-d{border-color:var(--danger);color:var(--danger);background:#fef2f2;}
-.tas{width:100%;border:1.5px solid var(--border);background:#fff;border-radius:6px;padding:4px 5px;font-size:11px;color:var(--txt);resize:vertical;min-height:33px;font-family:inherit;outline:none;}
-.ckg{display:flex;flex-direction:column;align-items:center;gap:2px;}
-.ckg input{width:16px;height:16px;accent-color:var(--ok);cursor:pointer;}
-.ckl{font-size:9px;font-weight:700;color:var(--txt3);}
-.ckl.done{color:var(--ok);}
+.tas{width:100%;padding:4px 5px;font-size:11px;resize:vertical;min-height:33px;}
+.ckg{display:flex;flex-direction:column;align-items:center;gap:2px;} .ckg input{width:16px;height:16px;accent-color:var(--ok);cursor:pointer;}
+.ckl{font-size:9px;font-weight:700;color:var(--txt3);} .ckl.done{color:var(--ok);}
 .delbtn{background:none;border:none;color:var(--danger);font-size:14px;cursor:pointer;padding:2px 5px;border-radius:4px;}
 .t-yes{display:inline-block;padding:2px 7px;border-radius:9px;background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;}
 .t-no{display:inline-block;padding:2px 7px;border-radius:9px;background:var(--s3);color:var(--txt3);font-size:10px;}
 
-/* CHART */
 .chwrap{position:relative;height:250px;}
-
-/* MONTH GRID */
 .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;}
 .mcard{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:13px;text-align:center;box-shadow:var(--sh);}
 .mc-n{font-size:11px;color:var(--txt3);font-weight:600;margin-bottom:5px;}
 .mc-v{font-family:'Oswald',sans-serif;font-size:28px;font-weight:600;}
 
-/* TARGET TABLE */
 table.ttbl{width:100%;border-collapse:collapse;font-size:12px;}
 table.ttbl th{background:var(--s3);padding:8px 11px;text-align:center;color:var(--txt2);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);}
 table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--border);color:var(--txt);}
-.nn{font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;color:var(--warn);}
-.nok{color:var(--ok);font-weight:700;}
+.nn{font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;color:var(--warn);} .nok{color:var(--ok);font-weight:700;}
 
-/* ADMIN */
+/* ADMIN & MODAL */
 .asec{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh);}
-.asec h3{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border);}
+.asec h3{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
 .arow{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;}
-.afield{flex:1;min-width:170px;}
+.afield{flex:1;min-width:140px;}
 .afield label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:4px;}
 .afield input,.afield select{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--txt);font-family:inherit;outline:none;background:#fff;}
 .afield input:focus{border-color:var(--accent);}
 .asave{padding:9px 20px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
-.pin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;}
-.pin-it{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;}
-.pin-r{font-size:13px;font-weight:700;color:var(--txt);}
-.pin-v{font-family:'Oswald',sans-serif;font-size:13px;color:var(--txt3);letter-spacing:2px;}
 
-/* MODAL */
+/* 사용자 리스트 테이블 */
+.ulist{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+.ulist th{background:var(--s3);padding:8px;text-align:left;color:var(--txt2);font-weight:700;border-bottom:1px solid var(--border);}
+.ulist td{padding:8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;}
+.bg-ok{background:#dcfce7;color:var(--ok);} .bg-pend{background:#fef3c7;color:var(--warn);}
+
 .mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:8000;align-items:center;justify-content:center;padding:14px;}
 .mbg.on{display:flex;}
 .modal{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:490px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.18);}
@@ -200,20 +176,15 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
 .fr textarea{min-height:56px;resize:vertical;}
 .mbns{display:flex;gap:9px;margin-top:14px;}
 .mbns button{flex:1;padding:10px;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
-.b-can{background:var(--s3);color:var(--txt2);}
-.b-sv{background:linear-gradient(135deg,var(--ok),#15803d);color:#fff;}
-.b-dg{background:var(--danger);color:#fff;}
+.b-can{background:var(--s3);color:var(--txt2);} .b-sv{background:linear-gradient(135deg,var(--ok),#15803d);color:#fff;} .b-dg{background:var(--danger);color:#fff;}
 
-/* TOAST/FAB */
 #toast{display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:9px 20px;border-radius:22px;font-size:13px;z-index:9800;white-space:nowrap;box-shadow:var(--sh-md);}
 .fab{position:fixed;bottom:16px;right:16px;background:linear-gradient(135deg,var(--accent),var(--a2));color:#fff;border:none;border-radius:48px;padding:11px 19px;font-size:13px;font-weight:700;cursor:pointer;z-index:999;box-shadow:0 4px 14px rgba(37,99,235,.35);font-family:inherit;}
 
-/* LOADING */
 #loading{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.82);z-index:9900;align-items:center;justify-content:center;flex-direction:column;gap:11px;}
 .spin{width:38px;height:38px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
-::-webkit-scrollbar{width:6px;height:6px;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 @media(max-width:640px){.hd{padding:0 12px;}.pg{padding:12px;padding-bottom:64px;}.hd-sub{display:none;}.fg{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -237,18 +208,19 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
       <button class="kk kk-del" onclick="pd()">⌫</button><button class="kk" onclick="pk('0')">0</button><button class="kk kk-ok" onclick="doLogin()">확인</button>
     </div>
     <div class="l-err" id="l-err"></div>
+    
     <div id="role-sec" style="display:none;">
       <div class="role-box">
-        <span class="role-lbl">직책 선택</span>
+        <div style="font-size:12px;color:var(--warn);margin-bottom:8px;font-weight:700;">등록되지 않은 PIN입니다. 가입 신청을 진행합니다.</div>
+        <span class="role-lbl">신청할 직책 선택</span>
         <select class="role-sel" id="role-sel">
           <option value="">-- 직책 선택 --</option>
-          <option>지파장</option><option>지파총무</option><option>내무부장</option>
+          <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
           <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
           <option>자문회심방과장</option><option>장년회심방과장</option>
           <option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
         </select>
-        <button class="role-btn" onclick="confirmRole()">입장하기</button>
-        <div class="l-err" id="role-err"></div>
+        <button class="role-btn" onclick="applyRole()">가입 신청하기</button>
       </div>
     </div>
   </div>
@@ -273,8 +245,8 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
     <div class="tab" onclick="showPg(2,this)">📈 예배분석</div>
     <div class="tab adm" id="tab-adm" onclick="showPg(3,this)">⚙️ 관리자</div>
   </nav>
+  
   <div class="pages">
-
     <div class="pg on" id="p0">
       <div class="card">
         <div class="ctitle">출석률 데이터 업로드</div>
@@ -282,8 +254,7 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
           <input type="file" accept=".xlsx,.xls" id="xinp" onchange="handleXlsx(this)">
           <div style="font-size:30px;margin-bottom:7px;">📂</div>
           <div style="font-size:13px;font-weight:600;">엑셀 파일 클릭 또는 드래그</div>
-          <div style="font-size:11px;color:var(--txt3);margin-top:3px;">마감기준 시트 자동 인식 (새로운 엑셀 수동 업로드 시)</div>
-          <div style="font-size:11px;color:var(--accent);margin-top:4px;">형식: 43-MM-DD 마감기준 시트</div>
+          <div style="font-size:11px;color:var(--txt3);margin-top:3px;">다양한 형태의 테이블 자동 인식 및 통합</div>
         </div>
         <div id="upst" style="margin-top:7px;font-size:12px;color:var(--ok);text-align:center;min-height:16px;"></div>
       </div>
@@ -296,8 +267,7 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
     </div>
 
     <div class="pg" id="p1">
-      <div class="kpi-row" id="worship-kpis">
-        </div>
+      <div class="kpi-row" id="worship-kpis"></div>
       <div class="kpi-row">
         <div class="kpi kred"><div class="kpi-l">총 결석자</div><div class="kpi-v" id="kp0">0</div><div class="kpi-s">명</div></div>
         <div class="kpi kor"><div class="kpi-l">가족 타겟</div><div class="kpi-v" id="kp1">0</div><div class="kpi-s">명</div></div>
@@ -322,13 +292,6 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
           <button class="ftab" onclick="filt('dp','장년회',this)">장년회</button>
           <button class="ftab" onclick="filt('dp','부녀회',this)">부녀회</button>
           <button class="ftab" onclick="filt('dp','청년회',this)">청년회</button>
-        </div>
-        <div class="tsep"></div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;">
-          <button class="ftab on" onclick="filt('ct','all',this)">전체구분</button>
-          <button class="ftab" onclick="filt('ct','가족',this)">가족</button>
-          <button class="ftab" onclick="filt('ct','가족외',this)">가족외</button>
-          <button class="ftab" onclick="filt('ct','일반',this)">일반</button>
         </div>
         <div class="tsep"></div>
         <div id="admbtns" class="adm" style="gap:5px;flex-wrap:wrap;">
@@ -371,13 +334,48 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
           <div class="afield" style="flex:2;"><label>ANON KEY</label><input type="text" id="sb-key" placeholder="eyJhbGci..."></div>
           <button class="asave" onclick="saveSB()">저장</button>
         </div>
-        <div id="sb-st" style="font-size:12px;color:var(--txt3);">※ 설정이 없으면 기본 탑재된 DB로 자동 연동됩니다.</div>
       </div>
       
       <div class="asec">
+        <h3>🔐 접속 권한 및 직책 관리</h3>
+        <div style="overflow-x:auto;">
+          <table class="ulist">
+            <thead><tr><th>PIN (비밀번호)</th><th>직책</th><th>상태</th><th>관리</th></tr></thead>
+            <tbody id="user-list"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
+          <div style="font-size:12px; font-weight:700; margin-bottom:8px;">➕ 수동 권한 추가</div>
+          <div class="arow">
+            <div class="afield"><label>새 PIN (8자리)</label><input type="text" id="np-val" maxlength="8"></div>
+            <div class="afield"><label>직책</label>
+              <select id="np-role">
+                <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
+                <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
+                <option>자문회심방과장</option><option>장년회심방과장</option><option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
+              </select>
+            </div>
+            <button class="asave" onclick="addUserAdmin()">추가/변경</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="asec">
+        <h3>📈 차트 Y축 범위 설정 (예배분석)</h3>
+        <div class="arow" style="gap:15px;">
+          <div class="afield"><label>출석률 차트 최소(%)</label><input type="number" id="c1-min" max="100"></div>
+          <div class="afield"><label>출석률 차트 최대(%)</label><input type="number" id="c1-max" max="100"></div>
+        </div>
+        <div class="arow" style="gap:15px;">
+          <div class="afield"><label>인증률 차트 최소(%)</label><input type="number" id="c2-min" max="100"></div>
+          <div class="afield"><label>인증률 차트 최대(%)</label><input type="number" id="c2-max" max="100"></div>
+        </div>
+        <div style="text-align:right;"><button class="asave" onclick="saveChartRanges()">차트 범위 적용</button></div>
+      </div>
+
+      <div class="asec">
         <h3>🎯 교회별 목표 출석률 설정 (%)</h3>
-        <div class="arow" id="ch-targets-row" style="gap:15px;">
-           </div>
+        <div class="arow" id="ch-targets-row" style="gap:15px;"></div>
         <div class="arow" style="margin-top:10px;">
           <div class="afield"><label>적용 기준일</label><input type="date" id="adm-gdate"></div>
           <button class="asave" onclick="saveTargets()">저장</button>
@@ -388,43 +386,25 @@ table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--b
       <div class="asec">
         <h3>📌 결석자 심방 타겟 조건 설정 (연속 결석 횟수)</h3>
         <div class="arow" style="gap:15px;">
-          <div class="afield"><label>가족</label><input type="number" id="th-fam" min="1" value="8"></div>
-          <div class="afield"><label>가족외</label><input type="number" id="th-ext" min="1" value="8"></div>
-          <div class="afield"><label>일반</label><input type="number" id="th-gen" min="1" value="4"></div>
+          <div class="afield"><label>가족</label><input type="number" id="th-fam" min="1"></div>
+          <div class="afield"><label>가족외</label><input type="number" id="th-ext" min="1"></div>
+          <div class="afield"><label>일반</label><input type="number" id="th-gen" min="1"></div>
           <button class="asave" onclick="saveThresholds()">저장</button>
         </div>
       </div>
 
       <div class="asec">
-        <h3>🔐 PIN 번호 관리</h3>
-        <div class="pin-grid" id="pin-list"></div>
-        <div style="margin-top:12px;">
-          <div class="arow">
-            <div class="afield"><label>직책</label>
-              <select id="np-role"><option>지파장</option><option>지파총무</option><option>내무부장</option>
-              <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
-              <option>자문회심방과장</option><option>장년회심방과장</option><option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option></select>
-            </div>
-            <div class="afield"><label>새 PIN (8자리 숫자)</label><input type="password" id="np-val" maxlength="8" placeholder="8자리 숫자"></div>
-            <button class="asave" onclick="updatePin()">변경</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="asec">
-        <h3>🗄️ 데이터 관리</h3>
+        <h3>🗄️ 데이터 초기화</h3>
         <div style="display:flex;gap:9px;flex-wrap:wrap;">
-          <button onclick="dlCSV()" style="padding:9px 16px;background:var(--a3);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">📥 심방 데이터 내보내기</button>
           <button onclick="confClear()" style="padding:9px 16px;background:var(--danger);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🗑 결석자 초기화</button>
           <button onclick="clearAtt()" style="padding:9px 16px;background:var(--warn);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">📊 출석 초기화</button>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
-<button class="fab" onclick="saveAll()">💾 저장</button>
+<button class="fab" onclick="saveAll()">💾 데이터 저장</button>
 <div id="toast"></div>
 
 <div class="mbg" id="m-add">
@@ -468,60 +448,105 @@ async function initSB() {
     const m = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
     SB = m.createClient(url, key);
     return true;
-  } catch(e) { console.warn('SB init fail', e); return false; }
+  } catch(e) { return false; }
 }
 
 // ═══════════════ STATE ═══════════════
 const CHURCHES = ['서울','포천','구리','동대문','의정부'];
-const ADMIN_ROLES = ['지파장','지파총무','내무부장'];
-let PINS = { '00000000':'지파장','12345678':'지파총무','87654321':'내무부장','11112222':'자문회장','33334444':'장년회장','55556666':'부녀회장','77778888':'청년회장','99990000':'일반' };
+const ADMIN_ROLES = ['지파장','지파총무','지파내무부장','지파내무부서무'];
+
+// App Users (권한 관리)
+let appUsers = {
+  '00000000': { role: '지파장', approved: true },
+  '12345678': { role: '지파총무', approved: true },
+  '87654321': { role: '지파내무부장', approved: true },
+  '11112222': { role: '지파내무부서무', approved: true },
+  '99990000': { role: '일반', approved: true }
+};
+
 let pin='', role='';
 let recs=[], att={}, selWk='', selCh=null;
 let fSt='all', fDp='all', fCt='all';
 
 // 설정들
+let chartRanges = { c1Min: 80, c1Max: 100, c2Min: 50, c2Max: 80 };
 let chTargets = { '서울':90, '포천':90, '구리':90, '동대문':90, '의정부':90 };
 let thresholds = { '가족':8, '가족외':8, '일반':4 };
 let cw1=null, cw2=null;
 
-// ═══════════════ LOGIN ═══════════════
+// ═══════════════ LOGIN & AUTH ═══════════════
+async function syncUsersFromDB() {
+  if(!SB) return;
+  try {
+    const {data} = await SB.from('app_users').select('*');
+    if(data) {
+      data.forEach(u => { appUsers[u.pin] = { role: u.role_name, approved: u.is_approved }; });
+      localStorage.setItem('sj_users', JSON.stringify(appUsers));
+    }
+  } catch(e){}
+}
+async function saveUserToDB(p, r, a) {
+  if(!SB) return;
+  await SB.from('app_users').upsert({pin: p, role_name: r, is_approved: a});
+}
+async function deleteUserFromDB(p) {
+  if(!SB) return;
+  await SB.from('app_users').delete().eq('pin', p);
+}
+
 function pk(v){ if(pin.length>=8)return; pin+=v; dots(); if(pin.length===8)setTimeout(doLogin,140); }
-function pd(){ pin=pin.slice(0,-1); dots(); document.getElementById('l-err').textContent=''; }
+function pd(){ pin=pin.slice(0,-1); dots(); document.getElementById('l-err').textContent=''; document.getElementById('role-sec').style.display='none'; }
 function dots(){ for(let i=0;i<8;i++) document.getElementById('pd'+i).classList.toggle('on',i<pin.length); }
 
-function doLogin(){
-  const saved = JSON.parse(localStorage.getItem('sj_pins')||'null');
-  if(saved) PINS=saved;
-  if(PINS[pin]!==undefined){
-    const p=PINS[pin];
-    if(ADMIN_ROLES.includes(p)||p==='일반'){ completeLogin(p); return; }
-    document.getElementById('role-sec').style.display='block';
-  } else if(pin.length===8){
-    document.getElementById('role-sec').style.display='block';
+async function doLogin(){
+  const saved = JSON.parse(localStorage.getItem('sj_users'));
+  if(saved) appUsers = saved;
+  
+  await syncUsersFromDB();
+
+  if(appUsers[pin] !== undefined) {
+    const u = appUsers[pin];
+    if(u.approved) {
+      completeLogin(u.role);
+    } else {
+      document.getElementById('l-err').textContent = '⚠️ 승인 대기 중인 계정입니다. 관리자에게 문의하세요.';
+      document.getElementById('role-sec').style.display = 'none';
+    }
+  } else {
+    // PIN이 없는 경우 신규 가입 폼 노출
+    document.getElementById('l-err').textContent = '';
+    document.getElementById('role-sec').style.display = 'block';
   }
-  document.getElementById('l-err').textContent='';
 }
-function confirmRole(){
+
+async function applyRole(){
   const r=document.getElementById('role-sel').value;
-  if(!r){document.getElementById('role-err').textContent='직책을 선택해주세요.';return;}
-  completeLogin(r);
+  if(!r){ alert('직책을 선택해주세요.'); return; }
+  
+  appUsers[pin] = { role: r, approved: false };
+  localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await saveUserToDB(pin, r, false);
+  
+  document.getElementById('role-sec').style.display = 'none';
+  document.getElementById('l-err').textContent = '✅ 가입 신청 완료. 관리자 승인 후 접속 가능합니다.';
 }
+
 async function completeLogin(r){
   role=r;
   showLoad(true);
   document.getElementById('login-page').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('rbadge').textContent=role;
+  
   if(ADMIN_ROLES.includes(role)){
     document.getElementById('tab-adm').classList.add('vis');
     document.getElementById('admbtns').classList.add('vis');
   }
   
   // 로컬 설정 불러오기
-  const sTgt = localStorage.getItem('sj_ch_targets');
-  if(sTgt) chTargets = JSON.parse(sTgt);
-  const sThr = localStorage.getItem('sj_thresholds');
-  if(sThr) thresholds = JSON.parse(sThr);
+  const sTgt = localStorage.getItem('sj_ch_targets'); if(sTgt) chTargets = JSON.parse(sTgt);
+  const sThr = localStorage.getItem('sj_thresholds'); if(sThr) thresholds = JSON.parse(sThr);
+  const sRng = localStorage.getItem('sj_chart_ranges'); if(sRng) chartRanges = JSON.parse(sRng);
   
   const sbOk=await initSB();
   if(sbOk) await loadDB(); else loadLS();
@@ -531,7 +556,7 @@ async function completeLogin(r){
   document.getElementById('sb-key').value=localStorage.getItem('sb_key')||'';
   
   renderAdminSetup();
-  renderPins();
+  renderUserList();
   renderP1(); renderP2();
   showLoad(false);
 }
@@ -577,26 +602,29 @@ async function loadDB(){
     const {data:ad}=await SB.from('attendance_dept').select('*');
     if(ad) ad.forEach(r=>{
       if(!att[r.week_key]) att[r.week_key]={churches:[],depts:[]};
-      att[r.week_key].depts.push({church:r.church||'서울', dept:r.dept,base:r.total_count,att:r.attend_count,rate:r.attend_rate,trend:r.week_trend,cert:r.cert_count,crate:r.cert_rate,sayu:r.reason_count,srate:r.reason_rate});
+      att[r.week_key].depts.push({church:r.church||'지파전체', dept:r.dept,base:r.total_count,att:r.attend_count,rate:r.attend_rate,trend:r.week_trend,cert:r.cert_count,crate:r.cert_rate,sayu:r.reason_count,srate:r.reason_rate});
     });
-  }catch(e){ console.warn('DB load:',e); loadLS(); }
+    
+    const {data:ds}=await SB.from('dashboard_settings').select('*').eq('id',1).single();
+    if(ds){ chartRanges = { c1Min:ds.c1_min, c1Max:ds.c1_max, c2Min:ds.c2_min, c2Max:ds.c2_max }; localStorage.setItem('sj_chart_ranges',JSON.stringify(chartRanges)); }
+  }catch(e){ loadLS(); }
 }
 async function syncDB(){
   if(!SB) return;
   try{
     const rows=recs.map(r=>({id:r._id||undefined,absent_date:r.date,church:r.church||'',dept:r.dept,member_name:r.name,member_group:r.group,category:r.cat,absent_count:r.absent||0,pastor_name:r.pastor,visit_plan:r.plan,visit_done:r.visited||false,worship_confirm:r.worship||'',memo:r.note,created_by:role}));
     await SB.from('absent_visit').upsert(rows);
-  }catch(e){console.warn('sync:',e);}
+  }catch(e){}
 }
 
-// ═══════════════ TABS ═══════════════
 function showPg(i,el){
   document.querySelectorAll('.pg').forEach((p,j)=>p.classList.toggle('on',j===i));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));
   if(i===2) renderP3();
+  if(i===3) { renderUserList(); renderAdminSetup(); }
 }
 
-// ═══════════════ PAGE1: 출석률 ═══════════════
+// ═══════════════ EXCEL PARSER (스마트 로직) ═══════════════
 function n(v){return typeof v==='number'?v:0;}
 function handleXlsx(inp){
   const f=inp.files[0]; if(!f) return;
@@ -605,10 +633,10 @@ function handleXlsx(inp){
   rd.onload=function(e){
     try{
       const wb=XLSX.read(e.target.result,{type:'array'});
-      parseWB(wb);
+      parseSmartWB(wb);
       localStorage.setItem('sj_att',JSON.stringify(att));
       if(SB) pushAttDB();
-      document.getElementById('upst').textContent=`✅ ${wb.SheetNames.length}개 시트 로드 완료`;
+      document.getElementById('upst').textContent=`✅ 데이터 파싱 완료`;
       renderP1();
     }catch(err){ document.getElementById('upst').textContent='❌ 오류: '+err.message; }
     showLoad(false);
@@ -616,51 +644,86 @@ function handleXlsx(inp){
   rd.readAsArrayBuffer(f);
 }
 
-function parseWB(wb){
-  const wmap={};
-  wb.SheetNames.forEach(nm=>{
-    const m=nm.match(/43-(\d{2}-\d{2})/); if(!m) return;
-    const wk='43-'+m[1];
-    if(nm.includes('마감기준')) wmap[wk]={nm,rows:XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,defval:null})};
-  });
-  
-  Object.entries(wmap).forEach(([wk,{nm,rows}])=>{
-    let hi=-1;
-    for(let r=0;r<6;r++){if(rows[r]&&rows[r][0]==='교회'){hi=r;break;}}
-    if(hi<0) return;
-    const hd=rows[hi];
-    const bI=hd.indexOf('출결재적'), aI=hd.indexOf('당일출석')>=0?hd.indexOf('당일출석'):hd.indexOf('출석수');
-    const rI=hd.indexOf('출석율'), cI=hd.indexOf('인증출석'), crI=hd.indexOf('인증출석율');
-    const sI=hd.indexOf('사유출석'), srI=hd.indexOf('사유출석율'), tI=hd.indexOf('전주대비');
+function parseSmartWB(wb){
+  wb.SheetNames.forEach(nm => {
+    // 43-MM-DD 형태 추출
+    const m = nm.match(/43-(\d{2}-\d{2})/);
+    if (!m) return;
+    const wk = '43-' + m[1];
+    if (!att[wk]) att[wk] = { churches: [], depts: [] };
     
-    const churches=[];
-    let lastCh='서울';
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, defval: null });
     
-    // 교회의 기본 정보 파싱
-    for(let r=hi+1;r<Math.min(hi+10, rows.length);r++){
-      const row=rows[r]; if(!row||!row[0]||!CHURCHES.includes(row[0])) continue;
-      const base=n(row[bI]),at=n(row[aI]);
-      churches.push({church:row[0],base,att:at,rate:n(row[rI])||(base?at/base:0),cert:n(row[cI]),crate:n(row[crI])||(base?n(row[cI])/base:0),sayu:n(row[sI]),srate:n(row[srI])||(base?n(row[sI])/base:0),trend:typeof row[tI]==='number'?row[tI]:null});
-    }
+    let currentContext = '지파전체'; 
     
-    // 부서 정보 파싱 (오른쪽에 위치한다고 가정)
-    const dh=hd.slice(12);
-    const db=12+dh.indexOf('출결재적'), da=12+(dh.indexOf('당일출석')>=0?dh.indexOf('당일출석'):dh.indexOf('출석수'));
-    const dr=12+dh.indexOf('출석율'), dt=12+dh.indexOf('전주대비');
-    const dc=12+dh.indexOf('인증출석'), dcr=12+dh.indexOf('인증출석율');
-    const ds=12+dh.indexOf('사유출석'), dsr=12+dh.indexOf('사유출석율');
-    const depts=[];
-    
-    for(let r=hi+1;r<rows.length;r++){
-      const row=rows[r]; if(!row||row.length<13) continue;
-      if(row[0] && CHURCHES.includes(row[0])) lastCh = row[0];
-      const dept=row[12]; 
-      if(!dept||typeof dept!=='string') continue;
+    for (let r = 0; r < rows.length; r++) {
+      const row = rows[r];
+      if (!row || row.length === 0) continue;
       
-      const base=n(row[db]),at=n(row[da]);
-      depts.push({church: lastCh, dept, base, att:at, rate:n(row[dr])||(base?at/base:0), trend:typeof row[dt]==='number'?row[dt]:null, cert:n(row[dc]), crate:n(row[dcr])||(base?n(row[dc])/base:0), sayu:n(row[ds]), srate:n(row[dsr])||(base?n(row[ds])/base:0)});
+      const rowStr = row.join('').replace(/\s/g,'');
+      
+      // 테이블의 컨텍스트(어느 교회 데이터인지) 추론
+      if (rowStr.includes('서울야고보지파') && rowStr.includes('부서')) currentContext = '지파전체';
+      else if (rowStr.includes('포천교회')) currentContext = '포천';
+      else if (rowStr.includes('구리교회')) currentContext = '구리';
+      else if (rowStr.includes('동대문교회')) currentContext = '동대문';
+      else if (rowStr.includes('의정부교회')) currentContext = '의정부';
+      else if (rowStr.includes('서울교회')) currentContext = '서울';
+
+      // 헤더 탐색
+      const bI = row.indexOf('출결재적');
+      if (bI !== -1) {
+        const aI = row.indexOf('당일출석') >= 0 ? row.indexOf('당일출석') : row.indexOf('출석수');
+        const rI = row.indexOf('출석율');
+        const cI = row.indexOf('인증출석');
+        const crI = row.indexOf('인증출석율');
+        const sI = row.indexOf('사유출석');
+        const srI = row.indexOf('사유출석율');
+        const tI = row.indexOf('전주대비');
+
+        const chIdx = row.indexOf('교회');
+        const dpIdx = row.indexOf('부서');
+
+        // [교회별 통합 테이블]인 경우
+        if (chIdx !== -1 && dpIdx === -1) {
+          while (++r < rows.length && rows[r] && rows[r][chIdx]) {
+            const dRow = rows[r];
+            if (!CHURCHES.includes(dRow[chIdx])) continue;
+            const base=n(dRow[bI]), at=n(dRow[aI]);
+            // 기존 데이터가 있다면 덮어쓰거나 무시
+            const exists = att[wk].churches.findIndex(x => x.church === dRow[chIdx]);
+            const newObj = {
+              church: dRow[chIdx], base, att:at, rate:n(dRow[rI])||(base?at/base:0),
+              cert:n(dRow[cI]), crate:n(dRow[crI])||(base?n(dRow[cI])/base:0),
+              sayu:n(dRow[sI]), srate:n(dRow[srI])||(base?n(dRow[sI])/base:0),
+              trend:typeof dRow[tI]==='number'?dRow[tI]:null
+            };
+            if(exists >= 0) att[wk].churches[exists] = newObj; else att[wk].churches.push(newObj);
+          }
+        } 
+        // [부서별 테이블]인 경우 (지파 전체 부서, 또는 특정 교회 부서)
+        else if (dpIdx !== -1) {
+          while (++r < rows.length && rows[r] && rows[r][dpIdx]) {
+            const dRow = rows[r];
+            if (dRow[dpIdx].includes('계') || dRow[dpIdx].includes('총합')) continue;
+            const base=n(dRow[bI]), at=n(dRow[aI]);
+            
+            // 교회 명시가 안되어있으면 위에서 추론한 context 사용
+            let cName = currentContext;
+            if (chIdx !== -1 && dRow[chIdx]) cName = dRow[chIdx];
+            
+            const exists = att[wk].depts.findIndex(x => x.church === cName && x.dept === dRow[dpIdx]);
+            const newObj = {
+              church: cName, dept: dRow[dpIdx], base, att:at, rate:n(dRow[rI])||(base?at/base:0),
+              trend:typeof dRow[tI]==='number'?dRow[tI]:null,
+              cert:n(dRow[cI]), crate:n(dRow[crI])||(base?n(dRow[cI])/base:0),
+              sayu:n(dRow[sI]), srate:n(dRow[srI])||(base?n(dRow[sI])/base:0)
+            };
+            if(exists >= 0) att[wk].depts[exists] = newObj; else att[wk].depts.push(newObj);
+          }
+        }
+      }
     }
-    att[wk]={churches,depts};
   });
 }
 
@@ -676,14 +739,12 @@ async function pushAttDB(){
   }
 }
 
-// 인증율 전주대비 계산 유틸리티
+// ═══════════════ PAGE1: 출석률 ═══════════════
 function getCertTrend(church, dept=null) {
   const wks=Object.keys(att).sort();
   const idx = wks.indexOf(selWk);
-  if(idx <= 0) return null; // 이전 주 데이터 없음
-  const prevWk = wks[idx-1];
-  const curD = att[selWk];
-  const prevD = att[prevWk];
+  if(idx <= 0) return null;
+  const curD = att[selWk], prevD = att[wks[idx-1]];
   if(!prevD) return null;
   
   if(dept === null) {
@@ -714,14 +775,12 @@ function selWeek(w,el){
   el.classList.add('on');
   renderCH();
 }
-
 function renderCH(){
   const d=att[selWk]; if(!d) return;
   document.getElementById('ch-wrap').innerHTML=d.churches.map(c=>{
     const pct=(c.rate*100).toFixed(1);
     const cls=c.rate>=0.9?'h':c.rate>=0.8?'m':'l';
     const tr=c.trend!==null?`<span class="${c.trend>=0?'tg-up':'tg-dn'}">${c.trend>=0?'▲':'▼'}${Math.abs((c.trend*100).toFixed(1))}%p</span>`:'';
-    
     const cTrendVal = getCertTrend(c.church);
     const cTrendStr = cTrendVal !== null ? `<span style="font-size:10px;color:${cTrendVal>=0?'var(--ok)':'var(--danger)'};font-weight:700;">${cTrendVal>=0?'▲':'▼'}${Math.abs((cTrendVal*100).toFixed(1))}%p</span>` : '-';
 
@@ -747,15 +806,17 @@ function selChurch(ch){
   });
   renderDP();
 }
-
 function renderDP(){
   const wrap=document.getElementById('dp-wrap');
   const d=att[selWk];
-  if(!d||!selCh){wrap.innerHTML='';return;}
+  if(!d){wrap.innerHTML='';return;}
   
-  const depts = (d.depts||[]).filter(dep => dep.church === selCh);
+  // 교회가 선택되지 않았으면 '지파전체' 부서를 보여줌
+  const targetCh = selCh || '지파전체';
+  const depts = (d.depts||[]).filter(dep => dep.church === targetCh);
+  
   if(!depts.length){
-    wrap.innerHTML=`<div class="dpanel"><div class="dpanel-ttl">🏛 ${selCh} 교회 부서별 현황</div><div style="font-size:13px;color:var(--txt3);">해당 교회의 부서 데이터가 엑셀에 없습니다.</div></div>`;
+    wrap.innerHTML=`<div class="dpanel"><div class="dpanel-ttl">🏛 ${targetCh} 부서별 현황</div><div style="font-size:13px;color:var(--txt3);">해당 영역의 부서 데이터가 엑셀에 없습니다.</div></div>`;
     return;
   }
   
@@ -763,7 +824,7 @@ function renderDP(){
     const pct=(dep.rate*100).toFixed(1);
     const cls=dep.rate>=0.9?'rfh':dep.rate>=0.8?'rfm':'rfl';
     const tr=dep.trend!==null?`<span style="color:${dep.trend>=0?'var(--ok)':'var(--danger)'};font-size:11px;font-weight:700;">${dep.trend>=0?'▲':'▼'}${Math.abs((dep.trend*100).toFixed(1))}%p</span>`:'—';
-    const cTrendVal = getCertTrend(selCh, dep.dept);
+    const cTrendVal = getCertTrend(targetCh, dep.dept);
     const ctr=cTrendVal!==null?`<span style="color:${cTrendVal>=0?'var(--ok)':'var(--danger)'};font-size:11px;font-weight:700;">${cTrendVal>=0?'▲':'▼'}${Math.abs((cTrendVal*100).toFixed(1))}%p</span>`:'—';
 
     return `<tr>
@@ -775,7 +836,7 @@ function renderDP(){
     </tr>`;
   }).join('');
   wrap.innerHTML=`<div class="dpanel">
-    <div class="dpanel-ttl">🏛 ${selCh} 교회 부서별 출석 현황</div>
+    <div class="dpanel-ttl">🏛 ${targetCh} 부서별 출석 현황</div>
     <div style="overflow-x:auto;">
     <table class="dtbl"><thead><tr>
       <th>부서</th><th>재적</th><th>출석수</th><th>출석률</th>
@@ -784,11 +845,7 @@ function renderDP(){
 }
 
 // ═══════════════ PAGE2: 심방 ═══════════════
-function isTgt(r){ 
-  const th = thresholds[r.cat] || 4; // fallback
-  return r.absent >= th;
-}
-
+function isTgt(r){ const th = thresholds[r.cat] || 4; return r.absent >= th; }
 function getWorshipSummary() {
   const s = { confirmed:0, planned:0, rejected:0, unknown:0 };
   recs.forEach(r => {
@@ -800,9 +857,7 @@ function getWorshipSummary() {
   return s;
 }
 
-function renderP2(){
-  updateKPI(); renderTbl();
-}
+function renderP2(){ updateKPI(); renderTbl(); }
 
 function updateKPI(){
   const famT = recs.filter(r=>r.cat==='가족'&&r.absent>=thresholds['가족']).length;
@@ -818,7 +873,6 @@ function updateKPI(){
   document.getElementById('kp4').textContent=tgts.length;
   document.getElementById('kp5').textContent=`${tdone} / ${tgts.length}`;
   
-  // 예배확답 KPI 렌더링
   const ws = getWorshipSummary();
   document.getElementById('worship-kpis').innerHTML = `
     <div class="kpi kgr"><div class="kpi-l">예배 확정</div><div class="kpi-v" style="font-size:20px;">${ws.confirmed}</div></div>
@@ -836,7 +890,7 @@ function updateKPI(){
   }).join('');
 }
 
-function getVis(){ return recs.filter(r=>{ if(fSt==='pend'&&!r.visited) return true; if(fSt==='pend'&&r.visited) return false; if(fDp!=='all'&&r.dept!==fDp) return false; if(fCt!=='all'&&r.cat!==fCt) return false; return true; }); }
+function getVis(){ return recs.filter(r=>{ if(fSt==='pend'&&r.visited) return false; if(fDp!=='all'&&r.dept!==fDp) return false; if(fCt!=='all'&&r.cat!==fCt) return false; return true; }); }
 function filt(type,val,el){
   if(type==='st') fSt=val; if(type==='dp') fDp=val; if(type==='ct') fCt=val;
   el.parentElement.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
@@ -922,7 +976,6 @@ function drawC1(){
   const cols=['#2563eb','#0ea5e9','#7c3aed','#16a34a','#d97706'];
   const ds=CHURCHES.map((ch,i)=>({label:ch,data:data.map(d=>{const c=d.churches.find(x=>x.church===ch);return c?parseFloat((c.rate*100).toFixed(1)):null;}),borderColor:cols[i],backgroundColor:cols[i]+'22',tension:.4,fill:false,pointRadius:4}));
   
-  // 지파 평균 데이터 추가
   const tribeAvg = data.map(d=>{
       const tAtt = d.churches.reduce((s,c)=>s+c.att, 0);
       const tBase = d.churches.reduce((s,c)=>s+c.base, 0);
@@ -932,22 +985,19 @@ function drawC1(){
 
   const ctx=document.getElementById('cw1');
   if(cw1) cw1.destroy();
-  cw1=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:80,max:100,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
+  cw1=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:chartRanges.c1Min,max:chartRanges.c1Max,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
 }
 
 function drawC2(){
-  // 인증출석률 추이
   const data=getWD(); if(!data.length) return;
   const labels=data.map(d=>d.wk.replace('43-',''));
   const cols=['#2563eb','#0ea5e9','#7c3aed','#16a34a','#d97706'];
-  
   const ds = CHURCHES.map((ch,i)=>({
     label: ch,
     data: data.map(d=>{const c=d.churches.find(x=>x.church===ch); return c?parseFloat((c.crate*100).toFixed(1)):null;}),
     borderColor: cols[i], backgroundColor: cols[i]+'22', tension:.4, fill:false, pointRadius:3, borderDash:[4,4]
   }));
 
-  // 지파 평균 인증율
   const tribeCert = data.map(d=>{
       const tCert = d.churches.reduce((s,c)=>s+c.cert, 0);
       const tBase = d.churches.reduce((s,c)=>s+c.base, 0);
@@ -957,7 +1007,7 @@ function drawC2(){
 
   const ctx=document.getElementById('cw2');
   if(cw2) cw2.destroy();
-  cw2=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:50,max:80,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
+  cw2=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:chartRanges.c2Min,max:chartRanges.c2Max,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
 }
 
 function renderMG(){
@@ -976,16 +1026,12 @@ function calcTgt(){
   const wks=Object.keys(att).sort(); const tbody=document.getElementById('tgt-body');
   if(!wks.length){tbody.innerHTML='<tr><td colspan="7" style="color:var(--txt3);text-align:center;padding:16px;">출석 데이터를 먼저 업로드하세요.</td></tr>';return;}
   const lat=att[wks[wks.length-1]]; let html='';
-  
-  // 전체 지파 목표율 계산 (자동 비율 계산)
-  let tBaseSum = 0;
-  let tGoalSum = 0;
+  let tBaseSum=0, tGoalSum=0;
   
   lat.churches.forEach(c=>{
     const pct=(c.rate*100).toFixed(1);
-    const gRate = chTargets[c.church] || 90; // 개별 목표
-    tBaseSum += c.base;
-    tGoalSum += c.base * (gRate/100);
+    const gRate = chTargets[c.church] || 90;
+    tBaseSum += c.base; tGoalSum += c.base * (gRate/100);
 
     const needed=Math.max(0,Math.ceil(c.base*(gRate/100))-c.att);
     const ac=recs.filter(r=>r.church===c.church&&isTgt(r)).length;
@@ -998,12 +1044,14 @@ function calcTgt(){
       <td>${tg?`<span class="t-yes">${tg}명</span>`:'—'}</td></tr>`;
   });
 
-  // 부서는 속한 교회의 목표율을 따라감
   if(lat.depts&&lat.depts.length) lat.depts.forEach(dep=>{
+    const chName = dep.church === '지파전체' ? '서울' : dep.church; // 지파전체 부서는 보통 서울 소속이거나 메인목표 적용
     const pct=(dep.rate*100).toFixed(1);
-    const gRate = chTargets[dep.church] || 90;
+    const gRate = chTargets[chName] || 90;
     const needed=Math.max(0,Math.ceil(dep.base*(gRate/100))-dep.att);
-    const ac=recs.filter(r=>r.dept===dep.dept&&r.church===dep.church&&isTgt(r)).length;
+    
+    // 타겟 계산시 church 필터
+    const ac=recs.filter(r=>r.dept===dep.dept && (r.church===chName||dep.church==='지파전체') && isTgt(r)).length;
     const tg=Math.min(needed,ac);
     const col=dep.rate>=(gRate/100)?'var(--ok)':dep.rate>=(gRate/100)-0.1?'var(--warn)':'var(--danger)';
     html+=`<tr><td style="color:var(--txt3);">${dep.church}</td><td style="font-weight:600;">${dep.dept}</td><td>${dep.base.toLocaleString()}</td>
@@ -1014,13 +1062,11 @@ function calcTgt(){
   });
   
   tbody.innerHTML=html; 
-
-  // 현재 지파 전체 목표율 표시
   const overallTarget = tBaseSum ? ((tGoalSum / tBaseSum) * 100).toFixed(1) : 90;
   document.getElementById('cur-goal').textContent = `현재 지파 전체 목표 평균: ${overallTarget}% (교회별 비례 합산)`;
 }
 
-// ═══════════════ ADMIN ═══════════════
+// ═══════════════ ADMIN PAGE ═══════════════
 function renderAdminSetup() {
   document.getElementById('ch-targets-row').innerHTML = CHURCHES.map(ch => 
     `<div class="afield"><label>${ch} (%)</label><input type="number" id="adm-tg-${ch}" min="1" max="100" value="${chTargets[ch]||90}"></div>`
@@ -1029,6 +1075,58 @@ function renderAdminSetup() {
   document.getElementById('th-fam').value = thresholds['가족'] || 8;
   document.getElementById('th-ext').value = thresholds['가족외'] || 8;
   document.getElementById('th-gen').value = thresholds['일반'] || 4;
+  
+  document.getElementById('c1-min').value = chartRanges.c1Min;
+  document.getElementById('c1-max').value = chartRanges.c1Max;
+  document.getElementById('c2-min').value = chartRanges.c2Min;
+  document.getElementById('c2-max').value = chartRanges.c2Max;
+}
+
+function renderUserList() {
+  const tbody = document.getElementById('user-list');
+  tbody.innerHTML = Object.entries(appUsers).map(([p, u]) => {
+    const badge = u.approved ? `<span class="badge bg-ok">승인됨</span>` : `<span class="badge bg-pend">승인대기</span>`;
+    return `<tr>
+      <td style="font-family:'Oswald',sans-serif;letter-spacing:1px;">${p}</td>
+      <td style="font-weight:600;">${u.role}</td>
+      <td>${badge}</td>
+      <td>
+        ${!u.approved ? `<button class="abtn b-add" style="padding:4px 8px;font-size:11px;" onclick="toggleApprove('${p}')">승인</button>` : `<button class="abtn" style="background:var(--warn);padding:4px 8px;font-size:11px;" onclick="toggleApprove('${p}')">해제</button>`}
+        <button class="abtn b-clr" style="padding:4px 8px;font-size:11px;" onclick="deleteUser('${p}')">삭제</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleApprove(p) {
+  appUsers[p].approved = !appUsers[p].approved;
+  localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await saveUserToDB(p, appUsers[p].role, appUsers[p].approved);
+  renderUserList();
+  toast(appUsers[p].approved ? '승인되었습니다.' : '승인이 해제되었습니다.');
+}
+
+async function deleteUser(p) {
+  if(!confirm('해당 사용자를 삭제하시겠습니까?')) return;
+  delete appUsers[p];
+  localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await deleteUserFromDB(p);
+  renderUserList();
+  toast('삭제되었습니다.');
+}
+
+async function addUserAdmin() {
+  const p = document.getElementById('np-val').value;
+  const r = document.getElementById('np-role').value;
+  if(!/^\d{8}$/.test(p)){ toast('PIN은 8자리 숫자여야 합니다.'); return; }
+  
+  appUsers[p] = { role: r, approved: true }; // 관리자가 직접 추가하므로 자동 승인
+  localStorage.setItem('sj_users', JSON.stringify(appUsers));
+  await saveUserToDB(p, r, true);
+  
+  document.getElementById('np-val').value = '';
+  renderUserList();
+  toast('권한이 추가/변경되었습니다.');
 }
 
 function saveSB(){
@@ -1036,14 +1134,11 @@ function saveSB(){
   const key=document.getElementById('sb-key').value.trim();
   if(!url||!key){toast('URL과 Key를 입력하세요.');return;}
   localStorage.setItem('sb_url',url); localStorage.setItem('sb_key',key);
-  document.getElementById('sb-st').textContent='✅ 저장 완료. 다음 로그인부터 지정된 Supabase와 연동됩니다.';
-  toast('저장되었습니다.');
+  toast('저장 완료. 새로고침 후 연동됩니다.');
 }
 
 function saveTargets(){
-  CHURCHES.forEach(ch => {
-    chTargets[ch] = parseFloat(document.getElementById(`adm-tg-${ch}`).value) || 90;
-  });
+  CHURCHES.forEach(ch => { chTargets[ch] = parseFloat(document.getElementById(`adm-tg-${ch}`).value) || 90; });
   localStorage.setItem('sj_ch_targets', JSON.stringify(chTargets));
   toast(`교회별 목표가 저장되었습니다.`);
   calcTgt();
@@ -1053,32 +1148,32 @@ function saveThresholds() {
   thresholds['가족'] = parseInt(document.getElementById('th-fam').value) || 8;
   thresholds['가족외'] = parseInt(document.getElementById('th-ext').value) || 8;
   thresholds['일반'] = parseInt(document.getElementById('th-gen').value) || 4;
-  
   localStorage.setItem('sj_thresholds', JSON.stringify(thresholds));
   toast('타겟 조건이 저장되었습니다.');
-  renderP2(); // UI 업데이트
+  renderP2();
 }
 
-function renderPins(){
-  const pins=JSON.parse(localStorage.getItem('sj_pins')||'null')||PINS;
-  document.getElementById('pin-list').innerHTML=Object.entries(pins).map(([p,r])=>
-    `<div class="pin-it"><span class="pin-r">${r}</span><span class="pin-v">${p}</span></div>`).join('');
-}
-function updatePin(){
-  const r=document.getElementById('np-role').value;
-  const p=document.getElementById('np-val').value;
-  if(!/^\d{8}$/.test(p)){toast('PIN은 8자리 숫자여야 합니다.');return;}
-  const pins=JSON.parse(localStorage.getItem('sj_pins')||'null')||{...PINS};
-  Object.keys(pins).forEach(k=>{if(pins[k]===r) delete pins[k];});
-  pins[p]=r; localStorage.setItem('sj_pins',JSON.stringify(pins)); PINS=pins;
-  renderPins(); document.getElementById('np-val').value=''; toast(`${r} PIN 변경됨`);
+async function saveChartRanges() {
+  chartRanges.c1Min = parseInt(document.getElementById('c1-min').value) || 80;
+  chartRanges.c1Max = parseInt(document.getElementById('c1-max').value) || 100;
+  chartRanges.c2Min = parseInt(document.getElementById('c2-min').value) || 50;
+  chartRanges.c2Max = parseInt(document.getElementById('c2-max').value) || 100;
+  
+  localStorage.setItem('sj_chart_ranges', JSON.stringify(chartRanges));
+  
+  if(SB) {
+    await SB.from('dashboard_settings').upsert({
+      id: 1, c1_min: chartRanges.c1Min, c1_max: chartRanges.c1Max, c2_min: chartRanges.c2Min, c2_max: chartRanges.c2Max
+    });
+  }
+  toast('차트 범위가 적용되었습니다.');
+  drawC1(); drawC2();
 }
 
 // ═══════════════ UTIL ═══════════════
 function showLoad(v){document.getElementById('loading').style.display=v?'flex':'none';}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>{t.style.display='none';},2200);}
 
-// 드래그앤드랍
 const ub=document.getElementById('upbox');
 ub.addEventListener('dragover',e=>{e.preventDefault();ub.classList.add('drag');});
 ub.addEventListener('dragleave',()=>ub.classList.remove('drag'));
