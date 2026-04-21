@@ -1,302 +1,316 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>결석자 타겟 심방 현황</title>
+<title>Absentee Target Visit Dashboard</title>
 <style>
   :root{
     --bg:#f4f7fb;
-    --card:#ffffff;
-    --line:#dbe4ef;
+    --card:#fff;
+    --line:#dde6f1;
     --text:#1f2937;
-    --muted:#64748b;
+    --muted:#6b7280;
     --primary:#2563eb;
-    --primary-weak:#eaf2ff;
+    --primary-soft:#eaf2ff;
     --success:#16a34a;
-    --success-weak:#ecfdf3;
+    --success-soft:#ecfdf3;
     --danger:#dc2626;
-    --danger-weak:#fef2f2;
+    --danger-soft:#fef2f2;
     --warning:#d97706;
-    --warning-weak:#fff7ed;
+    --warning-soft:#fff7ed;
     --purple:#7c3aed;
-    --purple-weak:#f5f3ff;
+    --purple-soft:#f5f3ff;
     --shadow:0 10px 30px rgba(15,23,42,.08);
   }
-  * { box-sizing:border-box; }
-  body {
-    margin:0; padding:18px;
-    background:linear-gradient(180deg,#f8fbff 0%, var(--bg) 100%);
-    color:var(--text);
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:14px;
     font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    color:var(--text);
+    background:linear-gradient(180deg,#eef4ff 0%,#f8fbff 180px,#f4f7fb 100%);
   }
   .container{
-    max-width:1680px; margin:0 auto;
-    background:var(--card); border-radius:22px; padding:24px;
+    max-width:1700px; margin:0 auto;
+    background:var(--card);
+    border-radius:22px; padding:18px;
     box-shadow:var(--shadow);
   }
   h1{
-    margin:0 0 18px; text-align:center; color:#0f172a;
-    font-size:30px; padding-bottom:16px; border-bottom:2px solid #e6eef8;
+    margin:0 0 14px; font-size:28px; text-align:center; color:#0f172a;
+    padding-bottom:14px; border-bottom:2px solid #e7eef8;
   }
 
   #pw-overlay{
     position:fixed; inset:0; z-index:9999;
-    background:linear-gradient(135deg,#16233d 0%,#253c63 100%);
+    background:linear-gradient(135deg,#13233f 0%,#27466f 100%);
     display:flex; align-items:center; justify-content:center;
   }
   .pw-box{
     width:min(420px, calc(100vw - 28px));
-    background:#fff; border-radius:22px; padding:34px 26px; text-align:center;
-    box-shadow:0 30px 70px rgba(0,0,0,.32);
+    background:#fff; border-radius:22px; padding:30px 22px; text-align:center;
+    box-shadow:0 32px 80px rgba(0,0,0,.35);
   }
   .pw-box h2{ margin:0 0 8px; font-size:24px; color:#0f172a; }
-  .pw-box p{ margin:0 0 24px; color:var(--muted); }
+  .pw-box p{ margin:0 0 22px; color:var(--muted); font-size:14px; }
   .pw-input{
-    width:100%; border:2px solid #d7e0ea; border-radius:14px;
-    padding:15px 16px; font-size:24px; letter-spacing:6px; text-align:center;
-    outline:none;
+    width:100%; border:2px solid #dbe5f0; border-radius:14px; padding:14px 16px;
+    font-size:24px; letter-spacing:6px; text-align:center; outline:none;
   }
-  .pw-input:focus{ border-color:var(--primary); box-shadow:0 0 0 4px rgba(37,99,235,.08); }
+  .pw-input:focus{ border-color:var(--primary); box-shadow:0 0 0 4px rgba(37,99,235,.08);}
   .pw-btn{
-    width:100%; margin-top:14px; padding:14px 16px; border:none; border-radius:14px;
-    background:var(--primary); color:#fff; font-size:16px; font-weight:bold; cursor:pointer;
+    width:100%; margin-top:12px; border:none; border-radius:14px; padding:14px;
+    background:var(--primary); color:#fff; font-size:16px; font-weight:800; cursor:pointer;
   }
-  .pw-keypad{ margin-top:14px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .pw-keypad{ margin-top:12px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   .pw-key{
-    border:1px solid #d6e0ec; background:#f8fbff; color:#1e293b;
-    border-radius:12px; padding:13px 8px; font-size:17px; font-weight:bold; cursor:pointer;
+    border:1px solid #d7e2ef; border-radius:12px; background:#f8fbff; color:#0f172a;
+    padding:13px 8px; font-size:17px; font-weight:800; cursor:pointer;
   }
   .pw-key.action{ font-size:13px; }
-  .pw-error{ display:none; margin-top:10px; color:#dc2626; font-size:13px; }
+  .pw-error{ display:none; margin-top:10px; color:var(--danger); font-size:13px; }
 
   #loading-overlay{
-    position:fixed; inset:0; z-index:8000; background:rgba(255,255,255,.82);
-    display:none; align-items:center; justify-content:center; flex-direction:column; gap:14px;
+    position:fixed; inset:0; z-index:8000; display:none;
+    background:rgba(255,255,255,.82); align-items:center; justify-content:center; flex-direction:column; gap:14px;
   }
   .spinner{
-    width:54px; height:54px; border-radius:999px;
-    border:5px solid #e6eef8; border-top-color:var(--primary);
+    width:52px; height:52px; border-radius:999px;
+    border:5px solid #e8eef6; border-top-color:var(--primary);
     animation:spin .8s linear infinite;
   }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-  .sticky{
-    position:sticky; top:0; z-index:200;
-    background:rgba(255,255,255,.92); backdrop-filter:blur(10px);
-    border:1px solid #edf2f8; border-radius:18px; padding:16px; margin-bottom:18px;
-    box-shadow:0 8px 22px rgba(15,23,42,.06);
+  .sticky-panel{
+    position:sticky; top:0; z-index:300;
+    background:rgba(255,255,255,.9); backdrop-filter:blur(10px);
+    border:1px solid #edf2f8; border-radius:18px; padding:12px; margin-bottom:14px;
+    box-shadow:0 8px 22px rgba(15,23,42,.05);
   }
   .topbar{
-    display:flex; gap:12px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap;
-    margin-bottom:14px;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;
+    margin-bottom:10px;
   }
-  .selectors{ display:flex; flex-direction:column; gap:10px; flex:1; min-width:320px; }
-  .selector-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  .selector-label{ min-width:72px; color:#334155; font-weight:bold; font-size:13px; }
-  .btn-group{ display:flex; gap:8px; flex-wrap:wrap; }
-  .chip-btn{
-    border:2px solid #d8e2ef; background:#fff; border-radius:999px;
-    padding:9px 14px; font-weight:bold; cursor:pointer; color:#334155;
+  .controls{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .control-group{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .control-label{ font-size:13px; color:#475569; font-weight:800; }
+  select, input[type="text"], input[type="date"], textarea{
+    border:1px solid #d9e3ef; border-radius:12px; padding:9px 10px; font-size:13px;
+    font-family:inherit; background:#fff; color:#0f172a;
   }
-  .chip-btn.active{ background:var(--primary); border-color:var(--primary); color:#fff; }
-  .action-btn{
-    border:none; border-radius:14px; padding:12px 16px; cursor:pointer; font-weight:bold;
-    background:#0f172a; color:#fff;
+  .top-select{ min-width:120px; }
+  .top-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn{
+    border:none; border-radius:12px; padding:10px 14px; font-size:13px; font-weight:800; cursor:pointer;
   }
-  .subtle-btn{
-    border:1px solid #d8e2ef; border-radius:14px; padding:11px 16px; cursor:pointer;
-    font-weight:bold; background:#fff; color:#0f172a;
-  }
-  .current-label{ color:var(--muted); font-size:13px; font-weight:bold; }
+  .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-dark{ background:#0f172a; color:#fff; }
+  .btn-light{ background:#fff; color:#0f172a; border:1px solid #dbe4ef; }
+  .current-week{ font-size:13px; color:var(--muted); font-weight:800; }
 
-  .tabs{
-    display:flex; gap:10px; flex-wrap:wrap; margin:2px 0 16px;
-  }
+  .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 12px; }
   .tab-btn{
-    padding:10px 16px; border:none; border-radius:14px; cursor:pointer; font-weight:bold;
+    border:none; border-radius:12px; padding:9px 14px; font-size:13px; font-weight:800; cursor:pointer;
     background:#eef4fb; color:#334155;
   }
   .tab-btn.active{ background:#dbeafe; color:#1d4ed8; }
 
   .progress-wrap{
-    position:relative; height:30px; background:#edf2f7; border-radius:999px; overflow:hidden; margin-bottom:16px;
+    position:relative; height:28px; background:#edf2f7; border-radius:999px; overflow:hidden; margin-bottom:12px;
   }
   .progress-fill{
-    position:absolute; inset:0 auto 0 0; width:0; background:linear-gradient(90deg,#16a34a,#22c55e);
-    transition:width .25s ease;
+    position:absolute; inset:0 auto 0 0; width:0;
+    background:linear-gradient(90deg,#16a34a,#22c55e);
+    transition:width .25s;
   }
   .progress-label{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:bold; color:#0f172a;
+    font-size:13px; font-weight:800; color:#0f172a;
   }
 
-  .summary-cards{
-    display:grid; grid-template-columns:repeat(8, minmax(150px,1fr)); gap:12px; margin-bottom:16px;
+  .summary-grid{
+    display:grid; grid-template-columns:repeat(6,minmax(140px,1fr)); gap:10px; margin-bottom:12px;
   }
   .card{
-    background:#fff; border:1px solid #e5edf6; border-radius:18px; padding:16px;
-    box-shadow:0 6px 18px rgba(15,23,42,.04);
+    background:#fff; border:1px solid #e5edf6; border-radius:16px; padding:14px;
+    box-shadow:0 4px 12px rgba(15,23,42,.04);
   }
   .card.clickable{ cursor:pointer; }
-  .card.active-card{ box-shadow:0 0 0 2px rgba(37,99,235,.18) inset; background:#f8fbff; }
-  .card h3{ margin:0 0 8px; color:var(--muted); font-size:14px; font-weight:bold; }
-  .card p{ margin:0; font-size:28px; font-weight:800; color:#0f172a; }
-  .card .sub{ margin-top:6px; font-size:12px; white-space:pre-line; color:var(--muted); font-weight:bold; }
+  .card.active-card{ box-shadow:0 0 0 2px rgba(37,99,235,.15) inset; background:#fbfdff; }
+  .card h3{ margin:0 0 8px; color:var(--muted); font-size:13px; font-weight:800; }
+  .card p{ margin:0; font-size:26px; font-weight:900; color:#0f172a; }
+  .card .sub{ margin-top:6px; white-space:pre-line; font-size:12px; color:var(--muted); font-weight:800; line-height:1.45; }
   .card.total{ border-top:4px solid #ef4444; }
   .card.target{ border-top:4px solid var(--purple); }
-  .card.done{ border-top:4px solid #16a34a; }
-  .card.attendance{ border-top:4px solid #0284c7; }
   .card.dept-jamun{ border-top:4px solid #8b5cf6; }
   .card.dept-jang{ border-top:4px solid #16a34a; }
   .card.dept-bunyeo{ border-top:4px solid #ea580c; }
   .card.dept-young{ border-top:4px solid #2563eb; }
 
   .filter-panel{
-    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    padding:14px; border:1px solid #e7eef7; border-radius:16px; background:#fbfdff;
-    margin-bottom:18px;
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    padding:12px; border:1px solid #e7eef8; border-radius:16px; background:#fbfdff;
   }
-  .filter-label{ font-size:13px; font-weight:bold; color:var(--muted); }
+  .filter-label{ font-size:12px; color:var(--muted); font-weight:800; margin-left:2px; }
   .filter-panel button{
-    padding:7px 13px; border-radius:999px; border:2px solid #d9e3ef; background:#fff; cursor:pointer; font-size:13px;
+    border:2px solid #d9e3ef; border-radius:999px; background:#fff; padding:6px 12px; font-size:12px; cursor:pointer;
   }
-  .filter-panel button.active{ background:#0f172a; border-color:#0f172a; color:#fff; }
+  .filter-panel button.active{ background:#0f172a; color:#fff; border-color:#0f172a; }
 
-  .import-panel{
-    display:none; margin-bottom:20px; padding:18px;
-    border:1px solid #e6eef7; border-radius:18px; background:linear-gradient(180deg,#fbfdff,#f5f9ff);
+  .upload-panel{
+    display:none; margin:14px 0 18px;
+    border:1px solid #e6eef8; border-radius:18px; padding:16px;
+    background:linear-gradient(180deg,#fbfdff,#f6faff);
   }
-  .import-panel h3{ margin:0 0 8px; }
-  .import-help{ margin:0 0 14px; color:var(--muted); font-size:13px; line-height:1.6; }
-  .import-grid{
+  .upload-panel h3{ margin:0 0 8px; font-size:18px; }
+  .upload-help{ margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
+  .upload-grid{
     display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:12px;
   }
-  .import-grid label{ display:flex; flex-direction:column; gap:6px; font-weight:bold; font-size:13px; color:#334155; }
-  .import-grid input{
-    border:1px solid #d7e0ea; border-radius:12px; padding:11px 12px; font-size:14px;
-  }
+  .upload-grid label{ display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:800; color:#334155; }
   #importTextarea{
-    width:100%; min-height:190px; resize:vertical;
-    border:1px solid #d7e0ea; border-radius:14px; padding:12px; font-size:13px; line-height:1.55;
-    font-family:Consolas, "Malgun Gothic", monospace;
+    width:100%; min-height:170px; resize:vertical; font-family:Consolas,"Malgun Gothic",monospace; line-height:1.55;
   }
-  .import-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .upload-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
 
   .empty-state{
-    display:none; padding:38px 20px; text-align:center; color:var(--muted);
-    border:2px dashed #d7e2ef; border-radius:18px; background:#fbfdff; line-height:1.7;
+    display:none; border:2px dashed #d9e3ef; border-radius:18px; background:#fbfdff; text-align:center;
+    color:var(--muted); padding:34px 20px; line-height:1.7; margin-top:14px;
   }
 
-  .section{
-    margin-bottom:24px; border:1px solid #e7eef7; border-radius:18px; overflow:hidden; background:#fff;
-    box-shadow:0 8px 20px rgba(15,23,42,.03);
+  .board-section{
+    margin-top:14px; border:1px solid #e7eef8; border-radius:18px; overflow:hidden; background:#fff;
+    box-shadow:0 6px 18px rgba(15,23,42,.03);
   }
   .section-header{
-    padding:14px 16px; background:linear-gradient(90deg,#0f172a,#243c5a); color:#fff;
-    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:12px 14px; background:linear-gradient(90deg,#13233f,#284567); color:#fff;
+    display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;
   }
-  .section-title{ font-size:18px; font-weight:bold; }
+  .section-title{ font-size:18px; font-weight:900; }
   .badge-row{ display:flex; gap:8px; flex-wrap:wrap; }
   .badge{
-    padding:5px 10px; border-radius:999px; font-size:12px; font-weight:bold; color:#fff;
+    border-radius:999px; padding:5px 10px; font-size:12px; font-weight:900; color:#fff;
   }
-  .badge.total{ background:#ef4444; }
-  .badge.target{ background:#7c3aed; }
-  .badge.done{ background:#16a34a; }
+  .badge.red{ background:#ef4444; }
+  .badge.purple{ background:#7c3aed; }
+  .badge.green{ background:#16a34a; }
 
   .table-wrap{ overflow:auto; }
-  table{ width:100%; border-collapse:collapse; min-width:1540px; }
+  table{ width:100%; border-collapse:collapse; min-width:1420px; table-layout:fixed; }
   th, td{
-    border-bottom:1px solid #edf2f7; padding:10px 10px; font-size:13px; text-align:left; vertical-align:top;
+    border-bottom:1px solid #edf2f7; padding:8px 8px; font-size:12px; text-align:left; vertical-align:top;
   }
-  th{
-    background:#f8fbff; color:#334155; font-size:12px; position:sticky; top:0; z-index:1;
-  }
-  tr:hover td{ background:#fafcff; }
+  th{ background:#f8fbff; color:#334155; position:sticky; top:0; z-index:1; font-size:11px; }
+  tr:hover td{ background:#fbfdff; }
   tr.row-done td{ background:#f0fdf4; }
-  .dept-자문회{ color:#7c3aed; font-weight:bold; }
-  .dept-장년회{ color:#16a34a; font-weight:bold; }
-  .dept-부녀회{ color:#ea580c; font-weight:bold; }
-  .dept-청년회{ color:#2563eb; font-weight:bold; }
+  .dept-자문회{ color:#8b5cf6; font-weight:900; }
+  .dept-장년회{ color:#16a34a; font-weight:900; }
+  .dept-부녀회{ color:#ea580c; font-weight:900; }
+  .dept-청년회{ color:#2563eb; font-weight:900; }
 
-  .cell-tight{ width:86px; text-align:center; }
-  .check-wrap{
-    display:flex; flex-direction:column; align-items:center; gap:4px;
+  .col-dept{ width:58px; }
+  .col-name{ width:46px; }
+  .col-org{ width:92px; }
+  .col-reason{ width:74px; }
+  .col-streak{ width:54px; text-align:center; }
+  .col-shepherd{ width:82px; }
+  .col-date{ width:98px; }
+  .col-plan{ width:180px; }
+  .col-target{ width:70px; text-align:center; }
+  .col-done{ width:70px; text-align:center; }
+  .col-worship{ width:78px; }
+  .col-note{ width:170px; }
+  .col-attend{ width:78px; }
+
+  .text-input, .date-input, .select-input, .note-input, .plan-input{
+    width:100%; border:1px solid #d9e3ef; border-radius:10px; padding:7px 8px; font-size:12px; color:#0f172a; background:#fff;
   }
-  .check-wrap input[type=checkbox]{ width:20px; height:20px; cursor:pointer; }
+  .date-input{ min-width:92px; }
+  .plan-input, .note-input{
+    min-height:58px; resize:vertical; line-height:1.45;
+  }
+  .note-input{ background:#fffdf6; }
+  .select-input.confirmed{ background:var(--success-soft); border-color:#86efac; color:#166534; font-weight:800; }
+  .select-input.pending{ background:var(--warning-soft); border-color:#fdba74; color:#9a3412; font-weight:800; }
+  .select-input.absent{ background:var(--danger-soft); border-color:#fca5a5; color:#991b1b; font-weight:800; }
+  .select-input.attend{ background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; font-weight:800; }
+
+  .check-wrap{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+  .check-wrap input[type=checkbox]{ width:18px; height:18px; cursor:pointer; }
   .check-wrap.target input[type=checkbox]{ accent-color:var(--purple); }
   .check-wrap.done input[type=checkbox]{ accent-color:var(--success); }
-  .check-label{ font-size:11px; font-weight:bold; }
-  .check-label.target-on{ color:var(--purple); }
-  .check-label.target-off{ color:#64748b; }
-  .check-label.done-on{ color:var(--success); }
-  .check-label.done-off{ color:var(--danger); }
-
-  .text-input, .date-input, .select-input, .note-input{
-    width:100%; border:1px solid #d7e0ea; border-radius:12px; background:#fff; color:#0f172a;
-    padding:9px 10px; font-size:13px;
-  }
-  .date-input{ min-width:140px; }
-  .plan-input{
-    width:100%; min-height:62px; resize:vertical; border:1px solid #d7e0ea; border-radius:12px;
-    padding:9px 10px; font-size:13px; font-family:inherit; line-height:1.45; background:#fff;
-  }
-  .note-input{
-    min-height:62px; resize:vertical; background:#fffef5;
-  }
-  .select-input.confirmed{ background:var(--success-weak); border-color:#86efac; color:#166534; font-weight:bold; }
-  .select-input.pending{ background:var(--warning-weak); border-color:#fdba74; color:#9a3412; font-weight:bold; }
-  .select-input.absent{ background:var(--danger-weak); border-color:#fca5a5; color:#991b1b; font-weight:bold; }
-  .select-input.attend{ background:#eff6ff; border-color:#93c5fd; color:#1d4ed8; font-weight:bold; }
+  .check-label{ font-size:10px; font-weight:900; }
+  .target-on{ color:var(--purple); }
+  .target-off{ color:#64748b; }
+  .done-on{ color:var(--success); }
+  .done-off{ color:var(--danger); }
 
   .save-btn{
-    position:fixed; right:20px; bottom:20px; z-index:500;
-    border:none; border-radius:999px; padding:15px 24px; background:var(--primary); color:#fff;
-    font-size:15px; font-weight:bold; box-shadow:0 12px 28px rgba(37,99,235,.28); cursor:pointer;
+    position:fixed; right:16px; bottom:16px; z-index:500;
+    border:none; border-radius:999px; padding:14px 20px; background:var(--primary); color:#fff;
+    font-size:14px; font-weight:900; box-shadow:0 12px 26px rgba(37,99,235,.26); cursor:pointer;
   }
   .save-toast{
-    position:fixed; right:20px; bottom:84px; z-index:500; display:none;
-    border-radius:14px; padding:10px 16px; background:#0f172a; color:#fff; font-size:14px;
+    position:fixed; right:16px; bottom:74px; z-index:500; display:none;
+    background:#0f172a; color:#fff; border-radius:12px; padding:10px 15px; font-size:13px;
   }
 
-  @media (max-width: 1024px){
-    .summary-cards{ grid-template-columns:repeat(2,minmax(150px,1fr)); }
+  @media (max-width:1100px){
+    .summary-grid{ grid-template-columns:repeat(3,minmax(130px,1fr)); }
   }
-  @media (max-width: 768px){
-    body{ padding:10px; }
-    .container{ padding:14px; border-radius:16px; }
-    h1{ font-size:24px; }
-    .sticky{ padding:12px; }
-    .summary-cards{ grid-template-columns:repeat(2,minmax(120px,1fr)); }
-    .selectors, .selector-row, .btn-group{ width:100%; }
-    .chip-btn, .subtle-btn, .action-btn{ flex:1; text-align:center; }
-    .save-btn{ right:14px; bottom:14px; padding:13px 18px; }
+  @media (max-width:768px){
+    body{ padding:8px; }
+    .container{ padding:12px; border-radius:16px; }
+    h1{ font-size:23px; margin-bottom:12px; }
+    .sticky-panel{ padding:10px; }
+    .topbar{ gap:8px; }
+    .controls{ width:100%; }
+    .control-group{ width:100%; }
+    .top-actions{ width:100%; }
+    .top-select, .btn{ flex:1; min-width:0; }
+    .summary-grid{ grid-template-columns:repeat(2,minmax(120px,1fr)); gap:8px; }
+    .card{ padding:12px; }
+    .card p{ font-size:22px; }
+    .filter-panel{ padding:10px; gap:6px; }
+    .filter-label{ width:100%; margin-left:0; }
+    .filter-panel button{ padding:6px 10px; font-size:11px; }
+    table{ min-width:1220px; }
+    th, td{ font-size:11px; padding:7px 6px; }
+    .col-dept{ width:50px; }
+    .col-name{ width:38px; }
+    .col-org{ width:76px; }
+    .col-reason{ width:64px; }
+    .col-streak{ width:46px; }
+    .col-shepherd{ width:72px; }
+    .col-date{ width:92px; }
+    .col-plan{ width:200px; }
+    .col-note{ width:190px; }
+    .save-btn{ right:12px; bottom:12px; padding:12px 16px; }
   }
 </style>
 </head>
 <body>
+
 <div id="pw-overlay">
   <div class="pw-box">
-    <div style="font-size:52px;margin-bottom:10px;">🔐</div>
+    <div style="font-size:50px;margin-bottom:10px;">🔐</div>
     <h2>결석자 타겟 심방 현황</h2>
     <p>비밀번호를 입력하세요</p>
-    <input id="pw-input" class="pw-input" type="password" maxlength="20" inputmode="numeric" autocomplete="off" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPw()">
+    <input autocomplete="off" class="pw-input" id="pw-input" inputmode="numeric" maxlength="20" onkeydown="if(event.key==='Enter') checkPw()" placeholder="••••••••" type="password"/>
     <button class="pw-btn" onclick="checkPw()">확인</button>
     <div class="pw-keypad">
-      <button class="pw-key" type="button" onclick="appendPwDigit('1')">1</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('2')">2</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('3')">3</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('4')">4</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('5')">5</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('6')">6</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('7')">7</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('8')">8</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('9')">9</button>
-      <button class="pw-key action" type="button" onclick="clearPw()">전체삭제</button>
-      <button class="pw-key" type="button" onclick="appendPwDigit('0')">0</button>
-      <button class="pw-key action" type="button" onclick="backspacePw()">← 지움</button>
+      <button class="pw-key" onclick="appendPwDigit('1')" type="button">1</button>
+      <button class="pw-key" onclick="appendPwDigit('2')" type="button">2</button>
+      <button class="pw-key" onclick="appendPwDigit('3')" type="button">3</button>
+      <button class="pw-key" onclick="appendPwDigit('4')" type="button">4</button>
+      <button class="pw-key" onclick="appendPwDigit('5')" type="button">5</button>
+      <button class="pw-key" onclick="appendPwDigit('6')" type="button">6</button>
+      <button class="pw-key" onclick="appendPwDigit('7')" type="button">7</button>
+      <button class="pw-key" onclick="appendPwDigit('8')" type="button">8</button>
+      <button class="pw-key" onclick="appendPwDigit('9')" type="button">9</button>
+      <button class="pw-key action" onclick="clearPw()" type="button">전체삭제</button>
+      <button class="pw-key" onclick="appendPwDigit('0')" type="button">0</button>
+      <button class="pw-key action" onclick="backspacePw()" type="button">← 지움</button>
     </div>
     <div class="pw-error" id="pw-error">❌ 비밀번호가 틀렸습니다</div>
   </div>
@@ -310,27 +324,28 @@
 <div class="container">
   <h1>📅 결석자 타겟 심방 현황</h1>
 
-  <div class="sticky">
+  <div class="sticky-panel">
     <div class="topbar">
-      <div class="selectors">
-        <div class="selector-row">
-          <span class="selector-label">월 선택</span>
-          <div class="btn-group" id="monthButtons"></div>
+      <div class="controls">
+        <div class="control-group">
+          <span class="control-label">월 선택</span>
+          <select class="top-select" id="monthSelect" onchange="onMonthChange()"></select>
         </div>
-        <div class="selector-row">
-          <span class="selector-label">타겟 주차</span>
-          <div class="btn-group" id="weekButtons"></div>
+        <div class="control-group">
+          <span class="control-label">타겟 주차</span>
+          <select class="top-select" id="weekSelect" onchange="onWeekChange()"></select>
         </div>
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-start;">
-        <button class="subtle-btn" type="button" onclick="toggleImportPanel()">명단 업로드</button>
-        <div class="current-label" id="currentWeekLabel">현재 주차: 2026년 4월 3주차</div>
+      <div class="top-actions">
+        <button class="btn btn-light" type="button" onclick="toggleUploadPanel()">명단 업로드</button>
+        <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
+        <div class="current-week" id="currentWeekLabel">현재 주차: 2026년 4월 3주차</div>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" type="button" data-tab="all" onclick="switchViewTab('all')">전체 결석자</button>
-      <button class="tab-btn" type="button" data-tab="target" onclick="switchViewTab('target')">타겟 관리</button>
+      <button class="tab-btn active" data-tab="all" onclick="switchViewTab('all')">전체 결석자</button>
+      <button class="tab-btn" data-tab="target" onclick="switchViewTab('target')">타겟 관리</button>
     </div>
 
     <div class="progress-wrap">
@@ -338,81 +353,71 @@
       <div class="progress-label" id="progressLabel">진행: 0 / 0건 (0%)</div>
     </div>
 
-    <div class="summary-cards">
+    <div class="summary-grid">
       <div class="card clickable total active-card" data-card-type="total" onclick="applyCardFilter('total')">
         <h3>총결석자</h3>
         <p id="totalCnt">0건</p>
-        <div class="sub" id="cardAllSub">타겟 0건 / 완료 0건 / 참석 0건</div>
+        <div class="sub" id="totalSub">타겟 0건 / 완료 0건 / 참석 0건</div>
       </div>
       <div class="card clickable target" data-card-type="target" onclick="applyCardFilter('target')">
         <h3>타겟수</h3>
         <p id="targetCnt">0건</p>
-        <div class="sub" id="cardTargetSub">완료 0건 / 참석 0건</div>
-      </div>
-      <div class="card done">
-        <h3>진행완료</h3>
-        <p id="doneCnt">0건</p>
-        <div class="sub">전체 진행 기준</div>
-      </div>
-      <div class="card attendance">
-        <h3>예배참석</h3>
-        <p id="attendCnt">0건</p>
-        <div class="sub">실제 참석 입력 기준</div>
+        <div class="sub" id="targetSub">완료 0건 / 참석 0건</div>
       </div>
       <div class="card clickable dept-jamun" data-card-type="dept" data-card-value="자문회" onclick="applyCardFilter('dept','자문회')">
         <h3>자문회</h3>
-        <p id="deptCntJamun">0건</p>
-        <div class="sub" id="deptSubJamun">타겟 0건 / 완료 0건</div>
+        <p id="jamunCnt">0건</p>
+        <div class="sub" id="jamunSub">타겟 0건 / 완료 0건 / 참석 0건</div>
       </div>
       <div class="card clickable dept-jang" data-card-type="dept" data-card-value="장년회" onclick="applyCardFilter('dept','장년회')">
         <h3>장년회</h3>
-        <p id="deptCntJang">0건</p>
-        <div class="sub" id="deptSubJang">타겟 0건 / 완료 0건</div>
+        <p id="jangCnt">0건</p>
+        <div class="sub" id="jangSub">타겟 0건 / 완료 0건 / 참석 0건</div>
       </div>
       <div class="card clickable dept-bunyeo" data-card-type="dept" data-card-value="부녀회" onclick="applyCardFilter('dept','부녀회')">
         <h3>부녀회</h3>
-        <p id="deptCntBunyeo">0건</p>
-        <div class="sub" id="deptSubBunyeo">타겟 0건 / 완료 0건</div>
+        <p id="bunyeoCnt">0건</p>
+        <div class="sub" id="bunyeoSub">타겟 0건 / 완료 0건 / 참석 0건</div>
       </div>
       <div class="card clickable dept-young" data-card-type="dept" data-card-value="청년회" onclick="applyCardFilter('dept','청년회')">
         <h3>청년회</h3>
-        <p id="deptCntYoung">0건</p>
-        <div class="sub" id="deptSubYoung">타겟 0건 / 완료 0건</div>
+        <p id="youngCnt">0건</p>
+        <div class="sub" id="youngSub">타겟 0건 / 완료 0건 / 참석 0건</div>
       </div>
     </div>
 
     <div class="filter-panel">
       <span class="filter-label">보기</span>
-      <button class="active" onclick="setStatusFilter('all')">전체</button>
-      <button onclick="setStatusFilter('done')">완료만</button>
-      <button onclick="setStatusFilter('pending')">미완료만</button>
+      <button class="active" data-filter-group="status" onclick="setStatusFilter('all')">전체</button>
+      <button data-filter-group="status" onclick="setStatusFilter('done')">완료만</button>
+      <button data-filter-group="status" onclick="setStatusFilter('pending')">미완료만</button>
 
-      <span class="filter-label" style="margin-left:6px;">타겟</span>
-      <button class="active" onclick="setTargetFilter('all')">전체</button>
-      <button onclick="setTargetFilter('target')">타겟만</button>
-      <button onclick="setTargetFilter('non-target')">미타겟만</button>
+      <span class="filter-label">타겟</span>
+      <button class="active" data-filter-group="target" onclick="setTargetFilter('all')">전체</button>
+      <button data-filter-group="target" onclick="setTargetFilter('target')">타겟만</button>
+      <button data-filter-group="target" onclick="setTargetFilter('non-target')">미타겟만</button>
 
-      <span class="filter-label" style="margin-left:6px;">부서</span>
-      <button class="active" onclick="setDeptFilter('all')">전체</button>
-      <button onclick="setDeptFilter('자문회')">자문회</button>
-      <button onclick="setDeptFilter('장년회')">장년회</button>
-      <button onclick="setDeptFilter('부녀회')">부녀회</button>
-      <button onclick="setDeptFilter('청년회')">청년회</button>
+      <span class="filter-label">부서</span>
+      <button class="active" data-filter-group="dept" onclick="setDeptFilter('all')">전체</button>
+      <button data-filter-group="dept" onclick="setDeptFilter('자문회')">자문회</button>
+      <button data-filter-group="dept" onclick="setDeptFilter('장년회')">장년회</button>
+      <button data-filter-group="dept" onclick="setDeptFilter('부녀회')">부녀회</button>
+      <button data-filter-group="dept" onclick="setDeptFilter('청년회')">청년회</button>
 
-      <span class="filter-label" style="margin-left:6px;">예배참석</span>
-      <button class="active" onclick="setAttendanceFilter('all')">전체</button>
-      <button onclick="setAttendanceFilter('참석')">참석만</button>
-      <button onclick="setAttendanceFilter('불참')">불참만</button>
+      <span class="filter-label">예배참석</span>
+      <button class="active" data-filter-group="attendance" onclick="setAttendanceFilter('all')">전체</button>
+      <button data-filter-group="attendance" onclick="setAttendanceFilter('참석')">참석만</button>
+      <button data-filter-group="attendance" onclick="setAttendanceFilter('불참')">불참만</button>
     </div>
   </div>
 
-  <div class="import-panel" id="importPanel">
+  <div class="upload-panel" id="uploadPanel">
     <h3>주차별 결석자 명단 업로드</h3>
-    <p class="import-help">
-      결석자 원본만 업로드하면 됩니다. <strong>심방자 / 심방날짜 / 심방계획</strong>은 업로드 후 대시보드에서 직접 입력합니다.<br>
+    <p class="upload-help">
+      결석자 원본만 업로드하면 됩니다. <strong>심방자 / 심방날짜 / 심방계획</strong>은 업로드 후 각 행에서 직접 입력합니다.<br>
       텍스트 붙여넣기와 CSV 업로드를 모두 지원합니다.
     </p>
-    <div class="import-grid">
+    <div class="upload-grid">
       <label>주차 키 <input id="importWeekKey" type="text" value="2026-04-w3"></label>
       <label>주차 이름 <input id="importWeekLabel" type="text" value="2026년 4월 3주차"></label>
       <label>CSV / TXT 파일 업로드 <input id="importFile" type="file" accept=".csv,.txt"></label>
@@ -420,9 +425,9 @@
     <textarea id="importTextarea" placeholder="예시
 이름	전화번호	지파	교회	부서	지역	구역	출석	사유	연속결석횟수
 홍길동	1234	서울야고보지파	서울교회	청년회	노원	1-1	사유 결석	믿음부족	3"></textarea>
-    <div class="import-actions">
-      <button class="subtle-btn" type="button" onclick="downloadTemplate()">업로드 양식 다운로드</button>
-      <button class="action-btn" type="button" onclick="uploadAbsentees()">이 주차로 저장</button>
+    <div class="upload-actions">
+      <button class="btn btn-light" type="button" onclick="downloadTemplate()">업로드 양식 다운로드</button>
+      <button class="btn btn-dark" type="button" onclick="uploadAbsentees()">이 주차로 저장</button>
     </div>
   </div>
 
@@ -439,148 +444,128 @@ const SUPABASE_URL = 'https://faxaqxyafsitdfykxgem.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheGFxeHlhZnNpdGRmeWt4Z2VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTI2MjYsImV4cCI6MjA5MjE2ODYyNn0.sE7eWx7HrCZpZ4jVlBScoFvREkER6wUsg7IzdVMzHLk';
 const CORRECT_PW = '12341234';
 const DEFAULT_YEAR = 2026;
-const TABLE_TARGETS = 'weekly_visit_targets';
-const TABLE_PROGRESS = 'weekly_visit_progress';
+const MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
+const WEEKS = [1,2,3,4,5];
 
 let currentMonth = 4;
 let currentWeekNumber = 3;
 let currentWeekKey = formatWeekKey(currentMonth, currentWeekNumber);
 let weekLabelMap = { [currentWeekKey]: formatWeekLabel(currentMonth, currentWeekNumber) };
-let currentViewTab = 'all';
+let currentRows = [];
+let progressMap = new Map();
 
+let currentViewTab = 'all';
 let currentStatusFilter = 'all';
 let currentTargetFilter = 'all';
 let currentDeptFilter = 'all';
 let currentAttendanceFilter = 'all';
 
-let currentRows = [];
-let progressMap = new Map();
 const saveTimers = {};
 
-const monthNames = [1,2,3,4,5,6,7,8,9,10,11,12];
-const weekNumbers = [1,2,3,4,5];
+function formatWeekKey(month, week){ return `${DEFAULT_YEAR}-${String(month).padStart(2,'0')}-w${week}`; }
+function formatWeekLabel(month, week){ return `${DEFAULT_YEAR}년 ${month}월 ${week}주차`; }
 
-function formatWeekKey(month, week) {
-  return `${DEFAULT_YEAR}-${String(month).padStart(2,'0')}-w${week}`;
-}
-function formatWeekLabel(month, week) {
-  return `${DEFAULT_YEAR}년 ${month}월 ${week}주차`;
-}
-function escapeHtml(str='') {
+function escapeHtml(str=''){
   return String(str)
     .replaceAll('&','&amp;')
     .replaceAll('<','&lt;')
     .replaceAll('>','&gt;')
     .replaceAll('"','&quot;')
-    .replaceAll("'","&#39;");
+    .replaceAll("'",'&#39;');
 }
-function showLoading(show) {
-  const el = document.getElementById('loading-overlay');
-  if (el) el.style.display = show ? 'flex' : 'none';
+function showLoading(show){ document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
+function showToast(msg, isError=false){
+  const el = document.getElementById('saveToast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isError ? '#dc2626' : '#0f172a';
+  setTimeout(()=> el.style.display='none', 2200);
 }
-function showToast(msg, isError=false) {
-  const toast = document.getElementById('saveToast');
-  if (!toast) return;
-  toast.textContent = msg;
-  toast.style.display = 'block';
-  toast.style.background = isError ? '#dc2626' : '#0f172a';
-  setTimeout(() => toast.style.display = 'none', 2300);
-}
-async function sbFetch(path, method='GET', body=null, extraHeaders={}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+async function sbFetch(path, method='GET', body=null, extraHeaders={}){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{
     method,
-    headers: {
+    headers:{
       'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
+      'Content-Type':'application/json',
+      'Prefer':'return=representation',
       ...extraHeaders
     },
     body: body === null ? undefined : JSON.stringify(body)
   });
-  if (!res.ok) {
+  if(!res.ok){
     const txt = await res.text();
     throw new Error(txt || '요청 실패');
   }
   const ct = res.headers.get('content-type') || '';
-  if (ct.includes('application/json')) return await res.json();
-  return null;
+  return ct.includes('application/json') ? await res.json() : null;
 }
-async function callRpc(name, payload) {
-  return await sbFetch(`rpc/${name}`, 'POST', payload);
-}
+async function callRpc(name, payload){ return await sbFetch(`rpc/${name}`, 'POST', payload); }
 
-function appendPwDigit(d) {
-  const inp = document.getElementById('pw-input');
-  if (inp && inp.value.length < inp.maxLength) inp.value += d;
+function appendPwDigit(d){ const i=document.getElementById('pw-input'); if(i && i.value.length < i.maxLength) i.value += d; }
+function backspacePw(){ const i=document.getElementById('pw-input'); if(i) i.value = i.value.slice(0,-1); }
+function clearPw(){ const i=document.getElementById('pw-input'); if(i) i.value = ''; }
+function focusPwInput(){
+  const i=document.getElementById('pw-input');
+  if(!i) return;
+  setTimeout(()=>i.focus(), 0);
+  setTimeout(()=>i.focus(), 250);
 }
-function backspacePw() {
-  const inp = document.getElementById('pw-input');
-  if (inp) inp.value = inp.value.slice(0, -1);
-}
-function clearPw() {
-  const inp = document.getElementById('pw-input');
-  if (inp) inp.value = '';
-}
-function focusPwInput() {
-  const inp = document.getElementById('pw-input');
-  if (!inp) return;
-  setTimeout(() => inp.focus(), 0);
-  setTimeout(() => inp.focus(), 300);
-}
-function checkPw() {
+function checkPw(){
   const val = document.getElementById('pw-input').value;
-  if (val === CORRECT_PW) {
+  if(val === CORRECT_PW){
     document.getElementById('pw-overlay').style.display = 'none';
     loadWeek(currentWeekKey);
-  } else {
-    const err = document.getElementById('pw-error');
-    const inp = document.getElementById('pw-input');
-    err.style.display = 'block';
-    inp.value = '';
-    inp.style.borderColor = '#dc2626';
+  }else{
+    const err=document.getElementById('pw-error');
+    const inp=document.getElementById('pw-input');
+    err.style.display='block';
+    inp.value='';
+    inp.style.borderColor='#dc2626';
     focusPwInput();
-    setTimeout(() => {
-      err.style.display = 'none';
-      inp.style.borderColor = '#d7e0ea';
-    }, 1800);
+    setTimeout(()=>{ err.style.display='none'; inp.style.borderColor='#dbe5f0'; }, 1800);
   }
 }
 
-function renderMonthButtons() {
-  const mount = document.getElementById('monthButtons');
-  mount.innerHTML = monthNames.map(m =>
-    `<button class="chip-btn ${m === currentMonth ? 'active' : ''}" type="button" onclick="setCurrentMonth(${m})">${m}월</button>`
-  ).join('');
+function populateDropdowns(){
+  const monthSel = document.getElementById('monthSelect');
+  const weekSel = document.getElementById('weekSelect');
+  monthSel.innerHTML = MONTHS.map(m => `<option value="${m}" ${m===currentMonth?'selected':''}>${m}월</option>`).join('');
+  weekSel.innerHTML = WEEKS.map(w => `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${w}주차</option>`).join('');
 }
-function renderWeekButtons() {
-  const mount = document.getElementById('weekButtons');
-  mount.innerHTML = weekNumbers.map(w =>
-    `<button class="chip-btn ${w === currentWeekNumber ? 'active' : ''}" type="button" onclick="loadWeek('${formatWeekKey(currentMonth, w)}')">${w}주차</button>`
-  ).join('');
+function onMonthChange(){
+  currentMonth = Number(document.getElementById('monthSelect').value);
+  currentWeekKey = formatWeekKey(currentMonth, currentWeekNumber);
+  syncWeekInputs();
+  loadWeek(currentWeekKey);
 }
-function setCurrentMonth(month) {
-  currentMonth = month;
-  renderMonthButtons();
-  renderWeekButtons();
-  loadWeek(formatWeekKey(month, currentWeekNumber));
+function onWeekChange(){
+  currentWeekNumber = Number(document.getElementById('weekSelect').value);
+  currentWeekKey = formatWeekKey(currentMonth, currentWeekNumber);
+  syncWeekInputs();
+  loadWeek(currentWeekKey);
 }
-function updateWeekLabel() {
-  const label = weekLabelMap[currentWeekKey] || formatWeekLabel(currentMonth, currentWeekNumber);
-  document.getElementById('currentWeekLabel').textContent = `현재 주차: ${label}`;
-  document.getElementById('importWeekKey').value = currentWeekKey;
-  document.getElementById('importWeekLabel').value = label;
+function syncWeekInputs(){
+  const key = formatWeekKey(currentMonth, currentWeekNumber);
+  currentWeekKey = key;
+  if(!weekLabelMap[key]) weekLabelMap[key] = formatWeekLabel(currentMonth, currentWeekNumber);
+  document.getElementById('monthSelect').value = String(currentMonth);
+  document.getElementById('weekSelect').value = String(currentWeekNumber);
+  document.getElementById('currentWeekLabel').textContent = `현재 주차: ${weekLabelMap[key]}`;
+  document.getElementById('importWeekKey').value = key;
+  document.getElementById('importWeekLabel').value = weekLabelMap[key];
+}
+function reloadCurrentWeek(){ loadWeek(currentWeekKey); }
+function toggleUploadPanel(){
+  const p = document.getElementById('uploadPanel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  syncWeekInputs();
 }
 
-function normalizeDateSort(value) {
-  if (!value) return '9999-12-31';
-  return value;
-}
-function normalizeSectionDate(value) {
-  return value || '날짜 미지정';
-}
-function getProgress(rowId) {
+function getProgress(rowId){
   return progressMap.get(rowId) || {
+    week_key: currentWeekKey,
+    row_id: rowId,
     is_target:false,
     is_done:false,
     worship:'',
@@ -592,145 +577,151 @@ function getProgress(rowId) {
     plan_text:''
   };
 }
-function combinedRow(row) {
+function ensureProgress(rowId){
+  const p = getProgress(rowId);
+  progressMap.set(rowId, p);
+  return p;
+}
+function combinedRow(row){
   const p = getProgress(row.row_id);
   return {
     ...row,
-    shepherd: p.shepherd || '',
-    visit_date_sort: p.visit_date_sort || '',
-    visit_date_display: p.visit_date_display || '',
-    plan_text: p.plan_text || '',
     is_target: !!p.is_target,
     is_done: !!p.is_done,
     worship: p.worship || '',
     attendance: p.attendance || '',
-    note: p.note || ''
+    note: p.note || '',
+    shepherd: p.shepherd || '',
+    visit_date_sort: p.visit_date_sort || '',
+    visit_date_display: p.visit_date_display || '',
+    plan_text: p.plan_text || ''
   };
 }
-function sortRows(rows) {
-  return [...rows].sort((a,b) => {
-    const deptCompare = String(a.dept || '').localeCompare(String(b.dept || ''), 'ko');
-    if (deptCompare !== 0) return deptCompare;
+function normalizeDateSort(v){ return v || '9999-12-31'; }
+function normalizeSectionDate(v){ return v || '날짜 미지정'; }
+
+function sortRows(rows){
+  return [...rows].sort((a,b)=>{
+    const deptCmp = String(a.dept||'').localeCompare(String(b.dept||''), 'ko');
+    if(deptCmp !== 0) return deptCmp;
     const da = normalizeDateSort(a.visit_date_sort);
     const db = normalizeDateSort(b.visit_date_sort);
-    if (da !== db) return da.localeCompare(db);
-    return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
+    if(da !== db) return da.localeCompare(db);
+    return String(a.name||'').localeCompare(String(b.name||''), 'ko');
   });
 }
-function passesFilters(r) {
-  if (currentViewTab === 'target' && !r.is_target) return false;
-  if (currentStatusFilter === 'done' && !r.is_done) return false;
-  if (currentStatusFilter === 'pending' && r.is_done) return false;
-  if (currentTargetFilter === 'target' && !r.is_target) return false;
-  if (currentTargetFilter === 'non-target' && r.is_target) return false;
-  if (currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
-  if (currentAttendanceFilter !== 'all' && r.attendance !== currentAttendanceFilter) return false;
+function passesFilters(r){
+  if(currentViewTab === 'target' && !r.is_target) return false;
+  if(currentStatusFilter === 'done' && !r.is_done) return false;
+  if(currentStatusFilter === 'pending' && r.is_done) return false;
+  if(currentTargetFilter === 'target' && !r.is_target) return false;
+  if(currentTargetFilter === 'non-target' && r.is_target) return false;
+  if(currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
+  if(currentAttendanceFilter !== 'all' && r.attendance !== currentAttendanceFilter) return false;
   return true;
 }
-function groupBy(arr, keyFn) {
-  const map = new Map();
-  arr.forEach(item => {
-    const key = keyFn(item);
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(item);
+function groupBy(rows, keyFn){
+  const m = new Map();
+  rows.forEach(r => {
+    const k = keyFn(r);
+    if(!m.has(k)) m.set(k, []);
+    m.get(k).push(r);
   });
-  return map;
+  return m;
 }
-function applySelectClasses(value, type) {
-  if (type === 'worship') {
-    if (value === '확정') return 'confirmed';
-    if (value === '미정') return 'pending';
-    if (value === '불참') return 'absent';
+function selectClass(value, type){
+  if(type === 'worship'){
+    if(value === '확정') return 'confirmed';
+    if(value === '미정') return 'pending';
+    if(value === '불참') return 'absent';
   }
-  if (type === 'attendance') {
-    if (value === '참석') return 'attend';
-    if (value === '불참') return 'absent';
+  if(type === 'attendance'){
+    if(value === '참석') return 'attend';
+    if(value === '불참') return 'absent';
   }
   return '';
 }
-function createRowHtml(r) {
+function createRowHtml(r){
   return `
     <tr class="${r.is_done ? 'row-done' : ''}">
-      <td class="dept-${escapeHtml(r.dept || '')}">${escapeHtml(r.dept || '')}</td>
-      <td><strong>${escapeHtml(r.name || '')}</strong></td>
-      <td>${escapeHtml(r.org_name || '')}</td>
-      <td>${escapeHtml(r.absence_reason || '')}</td>
-      <td>${escapeHtml(String(r.consecutive_absent_count ?? ''))}</td>
-      <td><input class="text-input" id="shepherd_${r.row_id}" value="${escapeHtml(r.shepherd || '')}" oninput="onFieldInput('${r.row_id}','shepherd',this.value)"></td>
-      <td><input class="date-input" type="date" id="visitdate_${r.row_id}" value="${escapeHtml(r.visit_date_sort || '')}" onchange="onDateChange('${r.row_id}', this.value)"></td>
-      <td><textarea class="plan-input" id="plan_${r.row_id}" oninput="onFieldInput('${r.row_id}','plan_text',this.value)">${escapeHtml(r.plan_text || '')}</textarea></td>
-      <td class="cell-tight">
+      <td class="col-dept dept-${escapeHtml(r.dept||'')}">${escapeHtml(r.dept||'')}</td>
+      <td class="col-name"><strong>${escapeHtml(r.name||'')}</strong></td>
+      <td class="col-org">${escapeHtml(r.org_name||'')}</td>
+      <td class="col-reason">${escapeHtml(r.absence_reason||'')}</td>
+      <td class="col-streak">${escapeHtml(String(r.consecutive_absent_count ?? ''))}</td>
+      <td class="col-shepherd"><input class="text-input" id="shepherd_${r.row_id}" value="${escapeHtml(r.shepherd||'')}" oninput="onFieldInput('${r.row_id}','shepherd',this.value)"></td>
+      <td class="col-date"><input class="date-input" type="date" id="visitdate_${r.row_id}" value="${escapeHtml(r.visit_date_sort||'')}" onchange="onDateChange('${r.row_id}',this.value)"></td>
+      <td class="col-plan"><textarea class="plan-input" id="plan_${r.row_id}" oninput="onFieldInput('${r.row_id}','plan_text',this.value)">${escapeHtml(r.plan_text||'')}</textarea></td>
+      <td class="col-target">
         <div class="check-wrap target">
-          <input type="checkbox" id="target_${r.row_id}" ${r.is_target ? 'checked' : ''} onchange="onTargetToggle('${r.row_id}', this.checked)">
-          <span class="check-label ${r.is_target ? 'target-on' : 'target-off'}" id="targetlbl_${r.row_id}">${r.is_target ? '타겟' : '미타겟'}</span>
+          <input type="checkbox" id="target_${r.row_id}" ${r.is_target ? 'checked':''} onchange="onTargetToggle('${r.row_id}',this.checked)">
+          <span class="check-label ${r.is_target ? 'target-on':'target-off'}" id="targetlbl_${r.row_id}">${r.is_target ? '타겟' : '미타겟'}</span>
         </div>
       </td>
-      <td class="cell-tight">
+      <td class="col-done">
         <div class="check-wrap done">
-          <input type="checkbox" id="done_${r.row_id}" ${r.is_done ? 'checked' : ''} onchange="onDoneToggle('${r.row_id}', this.checked)">
-          <span class="check-label ${r.is_done ? 'done-on' : 'done-off'}" id="donelbl_${r.row_id}">${r.is_done ? '완료' : '미완료'}</span>
+          <input type="checkbox" id="done_${r.row_id}" ${r.is_done ? 'checked':''} onchange="onDoneToggle('${r.row_id}',this.checked)">
+          <span class="check-label ${r.is_done ? 'done-on':'done-off'}" id="donelbl_${r.row_id}">${r.is_done ? '완료' : '미완료'}</span>
         </div>
       </td>
-      <td>
-        <select class="select-input ${applySelectClasses(r.worship,'worship')}" id="worship_${r.row_id}" onchange="onFieldInput('${r.row_id}','worship',this.value,true)">
-          <option value="" ${r.worship === '' ? 'selected' : ''}>선택</option>
-          <option value="확정" ${r.worship === '확정' ? 'selected' : ''}>확정</option>
-          <option value="미정" ${r.worship === '미정' ? 'selected' : ''}>미정</option>
-          <option value="불참" ${r.worship === '불참' ? 'selected' : ''}>불참</option>
+      <td class="col-worship">
+        <select class="select-input ${selectClass(r.worship,'worship')}" id="worship_${r.row_id}" onchange="onFieldInput('${r.row_id}','worship',this.value,true)">
+          <option value="" ${r.worship===''?'selected':''}>선택</option>
+          <option value="확정" ${r.worship==='확정'?'selected':''}>확정</option>
+          <option value="미정" ${r.worship==='미정'?'selected':''}>미정</option>
+          <option value="불참" ${r.worship==='불참'?'selected':''}>불참</option>
         </select>
       </td>
-      <td><textarea class="note-input" id="note_${r.row_id}" oninput="onFieldInput('${r.row_id}','note',this.value)">${escapeHtml(r.note || '')}</textarea></td>
-      <td>
-        <select class="select-input ${applySelectClasses(r.attendance,'attendance')}" id="attendance_${r.row_id}" onchange="onFieldInput('${r.row_id}','attendance',this.value,true)">
-          <option value="" ${r.attendance === '' ? 'selected' : ''}>선택</option>
-          <option value="참석" ${r.attendance === '참석' ? 'selected' : ''}>참석</option>
-          <option value="불참" ${r.attendance === '불참' ? 'selected' : ''}>불참</option>
+      <td class="col-note"><textarea class="note-input" id="note_${r.row_id}" oninput="onFieldInput('${r.row_id}','note',this.value)">${escapeHtml(r.note||'')}</textarea></td>
+      <td class="col-attend">
+        <select class="select-input ${selectClass(r.attendance,'attendance')}" id="attendance_${r.row_id}" onchange="onFieldInput('${r.row_id}','attendance',this.value,true)">
+          <option value="" ${r.attendance===''?'selected':''}>선택</option>
+          <option value="참석" ${r.attendance==='참석'?'selected':''}>참석</option>
+          <option value="불참" ${r.attendance==='불참'?'selected':''}>불참</option>
         </select>
       </td>
     </tr>
   `;
 }
-function createSectionHtml(title, rows, groupType='date') {
-  const targetCount = rows.filter(r => r.is_target).length;
-  const doneCount = rows.filter(r => r.is_done).length;
+function createSectionHtml(title, rows){
+  const target = rows.filter(r=>r.is_target).length;
+  const done = rows.filter(r=>r.is_done).length;
   return `
-    <div class="section">
+    <div class="board-section">
       <div class="section-header">
         <div class="section-title">${escapeHtml(title)}</div>
         <div class="badge-row">
-          <span class="badge total">총 ${rows.length}건</span>
-          <span class="badge target">타겟 ${targetCount}건</span>
-          <span class="badge done">완료 ${doneCount}건</span>
+          <span class="badge red">총 ${rows.length}건</span>
+          <span class="badge purple">타겟 ${target}건</span>
+          <span class="badge green">완료 ${done}건</span>
         </div>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>부서</th>
-              <th>이름</th>
-              <th>소속</th>
-              <th>사유</th>
-              <th>연속결석</th>
-              <th>심방자</th>
-              <th>심방날짜</th>
-              <th>심방계획</th>
-              <th>타겟여부</th>
-              <th>진행여부</th>
-              <th>예배확답</th>
-              <th>비고</th>
-              <th>예배참석</th>
+              <th class="col-dept">부서</th>
+              <th class="col-name">이름</th>
+              <th class="col-org">소속</th>
+              <th class="col-reason">사유</th>
+              <th class="col-streak">연속결석</th>
+              <th class="col-shepherd">심방자</th>
+              <th class="col-date">심방날짜</th>
+              <th class="col-plan">심방계획</th>
+              <th class="col-target">타겟여부</th>
+              <th class="col-done">진행여부</th>
+              <th class="col-worship">예배확답</th>
+              <th class="col-note">비고</th>
+              <th class="col-attend">예배참석</th>
             </tr>
           </thead>
-          <tbody>
-            ${rows.map(createRowHtml).join('')}
-          </tbody>
+          <tbody>${rows.map(createRowHtml).join('')}</tbody>
         </table>
       </div>
     </div>
   `;
 }
-function renderBoards() {
+function renderBoards(){
   const empty = document.getElementById('emptyState');
   const allMount = document.getElementById('allMount');
   const targetMount = document.getElementById('targetMount');
@@ -738,12 +729,12 @@ function renderBoards() {
   const merged = sortRows(currentRows.map(combinedRow));
   const filtered = merged.filter(passesFilters);
 
-  if (filtered.length === 0) {
+  if(filtered.length === 0){
     allMount.innerHTML = '';
     targetMount.innerHTML = '';
     empty.style.display = 'block';
     empty.innerHTML = currentRows.length === 0
-      ? `해당 주차에 등록된 결석자 명단이 없습니다.<br>상단 <strong>명단 업로드</strong> 버튼으로 원본 결석자를 먼저 넣어주세요.`
+      ? `해당 주차에 등록된 결석자 명단이 없습니다.<br><strong>명단 업로드</strong>에서 원본 결석자를 먼저 넣어주세요.`
       : `현재 필터 조건에 맞는 데이터가 없습니다.`;
     updateSummary(merged);
     return;
@@ -754,46 +745,51 @@ function renderBoards() {
   const dateGroups = groupBy(filtered, r => normalizeSectionDate(r.visit_date_display));
   allMount.innerHTML = [...dateGroups.entries()].map(([title, rows]) => createSectionHtml(title, rows)).join('');
 
-  const targetRows = merged.filter(r => r.is_target).filter(r => {
-    if (currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
-    if (currentAttendanceFilter !== 'all' && r.attendance !== currentAttendanceFilter) return false;
-    if (currentStatusFilter === 'done' && !r.is_done) return false;
-    if (currentStatusFilter === 'pending' && r.is_done) return false;
-    return true;
-  });
+  const targetRows = merged
+    .filter(r => r.is_target)
+    .filter(r => {
+      if(currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
+      if(currentAttendanceFilter !== 'all' && r.attendance !== currentAttendanceFilter) return false;
+      if(currentStatusFilter === 'done' && !r.is_done) return false;
+      if(currentStatusFilter === 'pending' && r.is_done) return false;
+      return true;
+    });
 
-  if (targetRows.length === 0) {
+  if(targetRows.length === 0){
     targetMount.innerHTML = `<div class="empty-state" style="display:block;">타겟으로 체크된 대상자가 없습니다.</div>`;
-  } else {
+  }else{
     const deptGroups = groupBy(targetRows, r => r.dept || '미분류');
-    targetMount.innerHTML = [...deptGroups.entries()].map(([title, rows]) => createSectionHtml(`${title} 타겟`, rows, 'dept')).join('');
+    targetMount.innerHTML = [...deptGroups.entries()].map(([title, rows]) => createSectionHtml(`${title} 타겟`, rows)).join('');
   }
 
   updateSummary(merged);
 }
-function updateSummary(rows) {
+function updateSummary(rows){
   const total = rows.length;
   const target = rows.filter(r => r.is_target).length;
   const done = rows.filter(r => r.is_done).length;
-  const attendance = rows.filter(r => r.attendance === '참석').length;
+  const attend = rows.filter(r => r.attendance === '참석').length;
   const targetDone = rows.filter(r => r.is_target && r.is_done).length;
   const targetAttend = rows.filter(r => r.is_target && r.attendance === '참석').length;
 
   document.getElementById('totalCnt').textContent = `${total}건`;
   document.getElementById('targetCnt').textContent = `${target}건`;
-  document.getElementById('doneCnt').textContent = `${done}건`;
-  document.getElementById('attendCnt').textContent = `${attendance}건`;
+  document.getElementById('totalSub').textContent = `타겟 ${target}건 / 완료 ${done}건 / 참석 ${attend}건`;
+  document.getElementById('targetSub').textContent = `완료 ${targetDone}건 / 참석 ${targetAttend}건`;
 
-  document.getElementById('cardAllSub').textContent = `타겟 ${target}건 / 완료 ${done}건 / 참석 ${attendance}건`;
-  document.getElementById('cardTargetSub').textContent = `완료 ${targetDone}건 / 참석 ${targetAttend}건`;
-
-  const byDept = { '자문회':'Jamun', '장년회':'Jang', '부녀회':'Bunyeo', '청년회':'Young' };
-  Object.entries(byDept).forEach(([dept, suffix]) => {
-    const deptRows = rows.filter(r => r.dept === dept);
-    const deptTarget = deptRows.filter(r => r.is_target).length;
-    const deptDone = deptRows.filter(r => r.is_done).length;
-    document.getElementById(`deptCnt${suffix}`).textContent = `${deptRows.length}건`;
-    document.getElementById(`deptSub${suffix}`).textContent = `타겟 ${deptTarget}건 / 완료 ${deptDone}건`;
+  const deptMap = [
+    ['자문회','jamun'],
+    ['장년회','jang'],
+    ['부녀회','bunyeo'],
+    ['청년회','young']
+  ];
+  deptMap.forEach(([dept, key]) => {
+    const rowsByDept = rows.filter(r => r.dept === dept);
+    const deptTarget = rowsByDept.filter(r => r.is_target).length;
+    const deptDone = rowsByDept.filter(r => r.is_done).length;
+    const deptAttend = rowsByDept.filter(r => r.attendance === '참석').length;
+    document.getElementById(`${key}Cnt`).textContent = `${rowsByDept.length}건`;
+    document.getElementById(`${key}Sub`).textContent = `타겟 ${deptTarget}건 / 완료 ${deptDone}건 / 참석 ${deptAttend}건`;
   });
 
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
@@ -802,141 +798,134 @@ function updateSummary(rows) {
 
   syncActiveCards();
 }
-function syncActiveCards() {
+function syncActiveCards(){
   document.querySelectorAll('.card.clickable').forEach(el => el.classList.remove('active-card'));
-  if (currentTargetFilter === 'target' || currentViewTab === 'target') {
+  if(currentViewTab === 'target' || currentTargetFilter === 'target'){
     document.querySelector('.card[data-card-type="target"]')?.classList.add('active-card');
-  } else if (currentDeptFilter !== 'all') {
+  } else if(currentDeptFilter !== 'all'){
     document.querySelector(`.card[data-card-type="dept"][data-card-value="${currentDeptFilter}"]`)?.classList.add('active-card');
   } else {
     document.querySelector('.card[data-card-type="total"]')?.classList.add('active-card');
   }
 }
-function switchViewTab(tab) {
+function setFilterButton(group, value){
+  document.querySelectorAll(`button[data-filter-group="${group}"]`).forEach(btn => btn.classList.remove('active'));
+  const target = [...document.querySelectorAll(`button[data-filter-group="${group}"]`)].find(btn => btn.getAttribute('onclick').includes(`('${value}')`));
+  if(target) target.classList.add('active');
+}
+function setStatusFilter(v){ currentStatusFilter = v; setFilterButton('status', v); renderBoards(); }
+function setTargetFilter(v){ currentTargetFilter = v; setFilterButton('target', v); renderBoards(); }
+function setDeptFilter(v){ currentDeptFilter = v; setFilterButton('dept', v); renderBoards(); }
+function setAttendanceFilter(v){ currentAttendanceFilter = v; setFilterButton('attendance', v); renderBoards(); }
+
+function switchViewTab(tab){
   currentViewTab = tab;
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
   document.getElementById('allMount').style.display = tab === 'all' ? '' : 'none';
   document.getElementById('targetMount').style.display = tab === 'target' ? '' : 'none';
   renderBoards();
 }
-
-function setActiveByOnclick(fragment) {
-  document.querySelectorAll('.filter-panel button').forEach(btn => {
-    if (btn.getAttribute('onclick')?.includes(fragment)) {
-      const groupLabel = btn.previousElementSibling?.textContent;
-    }
-  });
-}
-function updateFilterButtons() {
-  document.querySelectorAll('.filter-panel button').forEach(btn => btn.classList.remove('active'));
-  const mark = fragments => {
-    fragments.forEach(f => document.querySelectorAll(`.filter-panel button[onclick*="${f}"]`).forEach(btn => btn.classList.add('active')));
-  };
-  mark([`setStatusFilter('${currentStatusFilter}')`, `setTargetFilter('${currentTargetFilter}')`, `setDeptFilter('${currentDeptFilter}')`, `setAttendanceFilter('${currentAttendanceFilter}')`]);
-}
-function setStatusFilter(v) { currentStatusFilter = v; updateFilterButtons(); renderBoards(); }
-function setTargetFilter(v) { currentTargetFilter = v; updateFilterButtons(); renderBoards(); }
-function setDeptFilter(v) { currentDeptFilter = v; updateFilterButtons(); renderBoards(); }
-function setAttendanceFilter(v) { currentAttendanceFilter = v; updateFilterButtons(); renderBoards(); }
-function applyCardFilter(type, value='') {
+function applyCardFilter(type, value=''){
   currentStatusFilter = 'all';
   currentAttendanceFilter = 'all';
-  if (type === 'total') {
+  if(type === 'total'){
     currentTargetFilter = 'all';
     currentDeptFilter = 'all';
     currentViewTab = 'all';
-  } else if (type === 'target') {
+  } else if(type === 'target'){
     currentTargetFilter = 'target';
     currentDeptFilter = 'all';
     currentViewTab = 'target';
-  } else if (type === 'dept') {
+  } else if(type === 'dept'){
     currentTargetFilter = 'all';
     currentDeptFilter = value;
     currentViewTab = 'all';
   }
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === currentViewTab));
-  document.getElementById('allMount').style.display = currentViewTab === 'all' ? '' : 'none';
-  document.getElementById('targetMount').style.display = currentViewTab === 'target' ? '' : 'none';
-  updateFilterButtons();
-  renderBoards();
+  setFilterButton('status', currentStatusFilter);
+  setFilterButton('attendance', currentAttendanceFilter);
+  setFilterButton('target', currentTargetFilter);
+  setFilterButton('dept', currentDeptFilter);
+  switchViewTab(currentViewTab);
 }
 
-async function loadWeek(weekKey) {
+async function loadWeek(weekKey){
   currentWeekKey = weekKey;
   const m = weekKey.match(/^(\d{4})-(\d{2})-w([1-5])$/);
-  if (m) {
+  if(m){
     currentMonth = Number(m[2]);
     currentWeekNumber = Number(m[3]);
-    if (!weekLabelMap[weekKey]) weekLabelMap[weekKey] = formatWeekLabel(currentMonth, currentWeekNumber);
+    if(!weekLabelMap[weekKey]) weekLabelMap[weekKey] = formatWeekLabel(currentMonth, currentWeekNumber);
   }
-  updateWeekLabel();
-  renderMonthButtons();
-  renderWeekButtons();
+  populateDropdowns();
+  syncWeekInputs();
   showLoading(true);
-  try {
-    currentRows = await sbFetch(`${TABLE_TARGETS}?select=*&week_key=eq.${encodeURIComponent(weekKey)}&order=dept.asc,row_order.asc`);
-    const progressRows = await sbFetch(`${TABLE_PROGRESS}?select=*&week_key=eq.${encodeURIComponent(weekKey)}`);
+  try{
+    currentRows = await sbFetch(`weekly_visit_targets?select=*&week_key=eq.${encodeURIComponent(weekKey)}&order=dept.asc,row_order.asc`);
+    const progressRows = await sbFetch(`weekly_visit_progress?select=*&week_key=eq.${encodeURIComponent(weekKey)}`);
     progressMap = new Map((progressRows || []).map(r => [r.row_id, r]));
     renderBoards();
-  } catch (e) {
+  }catch(e){
     showToast('불러오기 실패: ' + e.message, true);
-  } finally {
+  }finally{
     showLoading(false);
   }
 }
 
-function ensureProgress(rowId) {
-  const existing = getProgress(rowId);
-  progressMap.set(rowId, { ...existing, week_key: currentWeekKey, row_id: rowId });
-  return progressMap.get(rowId);
+function syncWeekInputs(){
+  document.getElementById('monthSelect').value = String(currentMonth);
+  document.getElementById('weekSelect').value = String(currentWeekNumber);
+  document.getElementById('currentWeekLabel').textContent = `현재 주차: ${weekLabelMap[currentWeekKey] || formatWeekLabel(currentMonth, currentWeekNumber)}`;
+  document.getElementById('importWeekKey').value = currentWeekKey;
+  document.getElementById('importWeekLabel').value = weekLabelMap[currentWeekKey] || formatWeekLabel(currentMonth, currentWeekNumber);
 }
-function syncRowAppearance(rowId) {
-  const p = getProgress(rowId);
-  const tLbl = document.getElementById(`targetlbl_${rowId}`);
-  if (tLbl) {
-    tLbl.textContent = p.is_target ? '타겟' : '미타겟';
-    tLbl.className = `check-label ${p.is_target ? 'target-on' : 'target-off'}`;
-  }
-  const dLbl = document.getElementById(`donelbl_${rowId}`);
-  const doneCb = document.getElementById(`done_${rowId}`);
-  if (dLbl) {
-    dLbl.textContent = p.is_done ? '완료' : '미완료';
-    dLbl.className = `check-label ${p.is_done ? 'done-on' : 'done-off'}`;
-  }
-  if (doneCb) {
-    const tr = doneCb.closest('tr');
-    if (tr) tr.classList.toggle('row-done', !!p.is_done);
-  }
-  const wSel = document.getElementById(`worship_${rowId}`);
-  if (wSel) wSel.className = `select-input ${applySelectClasses(p.worship,'worship')}`;
-  const aSel = document.getElementById(`attendance_${rowId}`);
-  if (aSel) aSel.className = `select-input ${applySelectClasses(p.attendance,'attendance')}`;
-}
-function onTargetToggle(rowId, checked) {
+
+function onTargetToggle(rowId, checked){
   const p = ensureProgress(rowId);
   p.is_target = checked;
   syncRowAppearance(rowId);
   scheduleUpsert(rowId, true);
 }
-function onDoneToggle(rowId, checked) {
+function onDoneToggle(rowId, checked){
   const p = ensureProgress(rowId);
   p.is_done = checked;
   syncRowAppearance(rowId);
   scheduleUpsert(rowId, true);
 }
-function onDateChange(rowId, value) {
+function onDateChange(rowId, value){
   const p = ensureProgress(rowId);
   p.visit_date_sort = value || '';
   p.visit_date_display = value || '';
   scheduleUpsert(rowId, true);
 }
-function onFieldInput(rowId, field, value, immediate=false) {
+function onFieldInput(rowId, field, value, immediate=false){
   const p = ensureProgress(rowId);
   p[field] = value || '';
-  if (field === 'worship' || field === 'attendance') syncRowAppearance(rowId);
+  if(field === 'worship' || field === 'attendance') syncRowAppearance(rowId);
   scheduleUpsert(rowId, immediate);
 }
-async function upsertRow(rowId) {
+function syncRowAppearance(rowId){
+  const p = getProgress(rowId);
+  const t = document.getElementById(`targetlbl_${rowId}`);
+  const d = document.getElementById(`donelbl_${rowId}`);
+  if(t){
+    t.textContent = p.is_target ? '타겟' : '미타겟';
+    t.className = `check-label ${p.is_target ? 'target-on' : 'target-off'}`;
+  }
+  if(d){
+    d.textContent = p.is_done ? '완료' : '미완료';
+    d.className = `check-label ${p.is_done ? 'done-on' : 'done-off'}`;
+  }
+  const doneCb = document.getElementById(`done_${rowId}`);
+  if(doneCb){
+    const tr = doneCb.closest('tr');
+    if(tr) tr.classList.toggle('row-done', !!p.is_done);
+  }
+  const wSel = document.getElementById(`worship_${rowId}`);
+  if(wSel) wSel.className = `select-input ${selectClass(p.worship,'worship')}`;
+  const aSel = document.getElementById(`attendance_${rowId}`);
+  if(aSel) aSel.className = `select-input ${selectClass(p.attendance,'attendance')}`;
+}
+async function upsertRow(rowId){
   const p = ensureProgress(rowId);
   await callRpc('upsert_weekly_visit_progress', {
     p_week_key: currentWeekKey,
@@ -952,66 +941,60 @@ async function upsertRow(rowId) {
     p_plan_text: p.plan_text || ''
   });
 }
-function scheduleUpsert(rowId, rerender=false) {
+function scheduleUpsert(rowId, rerender=false){
   clearTimeout(saveTimers[rowId]);
-  saveTimers[rowId] = setTimeout(async () => {
-    try {
+  saveTimers[rowId] = setTimeout(async ()=>{
+    try{
       await upsertRow(rowId);
-      if (rerender) renderBoards();
+      if(rerender) renderBoards();
       else updateSummary(sortRows(currentRows.map(combinedRow)));
       showToast('💾 저장됨');
-    } catch (e) {
+    }catch(e){
       showToast('저장 실패: ' + e.message, true);
     }
-  }, rerender ? 200 : 500);
+  }, rerender ? 160 : 450);
 }
-
-async function saveAll() {
+async function saveAll(){
   showLoading(true);
-  try {
-    for (const row of currentRows) {
+  try{
+    for(const row of currentRows){
       await upsertRow(row.row_id);
     }
     renderBoards();
     showToast('✅ 전체 저장 완료');
-  } catch (e) {
+  }catch(e){
     showToast('저장 실패: ' + e.message, true);
-  } finally {
+  }finally{
     showLoading(false);
   }
 }
 
-function toggleImportPanel() {
-  const p = document.getElementById('importPanel');
-  p.style.display = p.style.display === 'block' ? 'none' : 'block';
-  updateWeekLabel();
-}
-async function readImportText() {
-  const fileInput = document.getElementById('importFile');
-  if (fileInput?.files?.[0]) return await fileInput.files[0].text();
-  return document.getElementById('importTextarea').value || '';
-}
-function downloadTemplate() {
+function downloadTemplate(){
   const sample = `이름\t전화번호\t지파\t교회\t부서\t지역\t구역\t출석\t사유\t연속결석횟수\n홍길동\t1234\t서울야고보지파\t서울교회\t청년회\t노원\t1-1\t사유 결석\t믿음부족\t3`;
   const blob = new Blob(["\uFEFF" + sample], {type:'text/plain;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = '결석자_업로드양식.txt';
+  a.download = 'absentee_upload_template.txt';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 }
-async function uploadAbsentees() {
+async function readImportText(){
+  const f = document.getElementById('importFile').files[0];
+  if(f) return await f.text();
+  return document.getElementById('importTextarea').value || '';
+}
+async function uploadAbsentees(){
   const weekKey = document.getElementById('importWeekKey').value.trim();
   const weekLabel = document.getElementById('importWeekLabel').value.trim();
   const rawText = await readImportText();
-  if (!weekKey) return alert('주차 키가 필요합니다.');
-  if (!rawText) return alert('파일을 선택하거나 텍스트를 붙여넣어주세요.');
+  if(!weekKey) return alert('주차 키가 필요합니다.');
+  if(!rawText) return alert('파일을 선택하거나 텍스트를 붙여넣어주세요.');
 
-  try {
+  try{
     showLoading(true);
-    const fileName = document.getElementById('importFile')?.files?.[0]?.name || `${weekLabel || weekKey}_붙여넣기텍스트`;
+    const fileName = document.getElementById('importFile')?.files?.[0]?.name || `${weekLabel || weekKey}_paste.txt`;
     const result = await callRpc('import_absentee_text_to_targets', {
       p_week_key: weekKey,
       p_week_label: weekLabel || weekKey,
@@ -1021,22 +1004,24 @@ async function uploadAbsentees() {
     const inserted = Array.isArray(result) && result[0] ? result[0].inserted_count : 0;
     weekLabelMap[weekKey] = weekLabel || weekKey;
     document.getElementById('importTextarea').value = '';
-    if (document.getElementById('importFile')) document.getElementById('importFile').value = '';
+    if(document.getElementById('importFile')) document.getElementById('importFile').value = '';
     await loadWeek(weekKey);
-    toggleImportPanel();
+    toggleUploadPanel();
     showToast(`✅ ${inserted}건 저장 완료`);
-  } catch (e) {
+  }catch(e){
     alert('업로드 실패: ' + e.message);
-  } finally {
+  }finally{
     showLoading(false);
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  renderMonthButtons();
-  renderWeekButtons();
-  updateWeekLabel();
-  updateFilterButtons();
+window.addEventListener('DOMContentLoaded', ()=>{
+  populateDropdowns();
+  syncWeekInputs();
+  setFilterButton('status','all');
+  setFilterButton('target','all');
+  setFilterButton('dept','all');
+  setFilterButton('attendance','all');
   focusPwInput();
 });
 </script>
