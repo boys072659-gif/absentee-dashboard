@@ -23,9 +23,7 @@
     --purple-soft:#f5f3ff;
     --shadow:0 10px 30px rgba(15,23,42,.08);
   }
-
   *{box-sizing:border-box}
-
   body{
     margin:0;
     padding:12px;
@@ -33,7 +31,6 @@
     color:var(--text);
     background:linear-gradient(180deg,#eef4ff 0%,#f8fbff 200px,#f4f7fb 100%);
   }
-
   .container{
     max-width:1700px;
     margin:0 auto;
@@ -42,7 +39,6 @@
     padding:16px;
     box-shadow:var(--shadow);
   }
-
   h1{
     margin:0 0 14px;
     font-size:28px;
@@ -52,7 +48,6 @@
     border-bottom:2px solid #e7eef8;
   }
 
-  /* 로그인 */
   #pw-overlay{
     position:fixed;
     inset:0;
@@ -62,44 +57,45 @@
     align-items:center;
     justify-content:center;
   }
-
   .pw-box{
-    width:min(420px, calc(100vw - 28px));
+    width:min(440px, calc(100vw - 28px));
     background:#fff;
     border-radius:22px;
-    padding:30px 22px;
+    padding:28px 22px;
     text-align:center;
     box-shadow:0 32px 80px rgba(0,0,0,.35);
   }
-
   .pw-box h2{
     margin:0 0 8px;
     font-size:24px;
     color:#0f172a;
   }
-
   .pw-box p{
-    margin:0 0 22px;
+    margin:0 0 18px;
     color:var(--muted);
     font-size:14px;
   }
-
+  .pw-select,
   .pw-input{
     width:100%;
     border:2px solid #dbe5f0;
     border-radius:14px;
     padding:14px 16px;
+    font-size:16px;
+    outline:none;
+    background:#fff;
+  }
+  .pw-input{
+    margin-top:10px;
     font-size:24px;
     letter-spacing:6px;
     text-align:center;
-    outline:none;
   }
-
+  .pw-select:focus,
   .pw-input:focus{
     border-color:var(--primary);
     box-shadow:0 0 0 4px rgba(37,99,235,.08);
   }
-
   .pw-btn{
     width:100%;
     margin-top:12px;
@@ -112,14 +108,12 @@
     font-weight:800;
     cursor:pointer;
   }
-
   .pw-keypad{
     margin-top:12px;
     display:grid;
     grid-template-columns:repeat(3,1fr);
     gap:10px;
   }
-
   .pw-key{
     border:1px solid #d7e2ef;
     border-radius:12px;
@@ -130,9 +124,7 @@
     font-weight:800;
     cursor:pointer;
   }
-
   .pw-key.action{ font-size:13px; }
-
   .pw-error{
     display:none;
     margin-top:10px;
@@ -140,7 +132,6 @@
     font-size:13px;
   }
 
-  /* 로딩 */
   #loading-overlay{
     position:fixed;
     inset:0;
@@ -152,7 +143,6 @@
     flex-direction:column;
     gap:14px;
   }
-
   .spinner{
     width:52px;
     height:52px;
@@ -161,12 +151,8 @@
     border-top-color:var(--primary);
     animation:spin .8s linear infinite;
   }
+  @keyframes spin{ to{transform:rotate(360deg)} }
 
-  @keyframes spin{
-    to{transform:rotate(360deg)}
-  }
-
-  /* 상단 공통 */
   .top-controls{
     display:flex;
     justify-content:space-between;
@@ -179,27 +165,23 @@
     border:1px solid #e7eef8;
     border-radius:18px;
   }
-
   .controls{
     display:flex;
     gap:10px;
     flex-wrap:wrap;
     align-items:center;
   }
-
   .control-group{
     display:flex;
     gap:8px;
     align-items:center;
     flex-wrap:wrap;
   }
-
   .control-label{
     font-size:13px;
     color:#475569;
     font-weight:800;
   }
-
   select, input[type="text"], input[type="date"], textarea{
     border:1px solid #d9e3ef;
     border-radius:12px;
@@ -209,16 +191,13 @@
     background:#fff;
     color:#0f172a;
   }
-
   .top-select{ min-width:120px; }
-
   .top-actions{
     display:flex;
     gap:8px;
     flex-wrap:wrap;
     align-items:center;
   }
-
   .btn{
     border:none;
     border-radius:12px;
@@ -227,23 +206,9 @@
     font-weight:800;
     cursor:pointer;
   }
-
-  .btn-light{
-    background:#fff;
-    color:#0f172a;
-    border:1px solid #dbe4ef;
-  }
-
-  .btn-dark{
-    background:#0f172a;
-    color:#fff;
-  }
-
-  .btn-primary{
-    background:var(--primary);
-    color:#fff;
-  }
-
+  .btn-light{ background:#fff; color:#0f172a; border:1px solid #dbe4ef; }
+  .btn-dark{ background:#0f172a; color:#fff; }
+  .btn-primary{ background:var(--primary); color:#fff; }
   .current-week{
     font-size:13px;
     color:var(--muted);
@@ -253,7 +218,6 @@
   .page{ display:none; }
   .page.active{ display:block; }
 
-  /* 업로드 */
   .upload-panel{
     display:none;
     margin:14px 0 18px;
@@ -262,26 +226,14 @@
     padding:16px;
     background:linear-gradient(180deg,#fbfdff,#f6faff);
   }
-
-  .upload-panel h3{
-    margin:0 0 8px;
-    font-size:18px;
-  }
-
-  .upload-help{
-    margin:0 0 12px;
-    color:var(--muted);
-    font-size:13px;
-    line-height:1.6;
-  }
-
+  .upload-panel h3{ margin:0 0 8px; font-size:18px; }
+  .upload-help{ margin:0 0 12px; color:var(--muted); font-size:13px; line-height:1.6; }
   .upload-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
     gap:12px;
     margin-bottom:12px;
   }
-
   .upload-grid label{
     display:flex;
     flex-direction:column;
@@ -290,7 +242,6 @@
     font-weight:800;
     color:#334155;
   }
-
   #importTextarea{
     width:100%;
     min-height:170px;
@@ -298,7 +249,6 @@
     font-family:Consolas,"Malgun Gothic",monospace;
     line-height:1.55;
   }
-
   .upload-actions{
     display:flex;
     gap:10px;
@@ -306,14 +256,12 @@
     margin-top:12px;
   }
 
-  /* 현황판 */
   .summary-grid{
     display:grid;
     grid-template-columns:repeat(6,minmax(140px,1fr));
     gap:10px;
     margin-bottom:14px;
   }
-
   .card{
     background:#fff;
     border:1px solid #e5edf6;
@@ -321,23 +269,19 @@
     padding:14px;
     box-shadow:0 4px 12px rgba(15,23,42,.04);
   }
-
   .card.clickable{ cursor:pointer; }
-
   .card h3{
     margin:0 0 8px;
     color:var(--muted);
     font-size:13px;
     font-weight:800;
   }
-
   .card p{
     margin:0;
     font-size:26px;
     font-weight:900;
     color:#0f172a;
   }
-
   .card .sub{
     margin-top:6px;
     white-space:pre-line;
@@ -346,13 +290,13 @@
     font-weight:800;
     line-height:1.45;
   }
-
   .card.total{ border-top:4px solid #ef4444; }
   .card.target{ border-top:4px solid var(--purple); }
   .card.dept-jamun{ border-top:4px solid #8b5cf6; }
   .card.dept-jang{ border-top:4px solid #16a34a; }
   .card.dept-bunyeo{ border-top:4px solid #ea580c; }
   .card.dept-young{ border-top:4px solid #2563eb; }
+  .card.region{ border-top:4px solid #0ea5e9; }
 
   .progress-wrap{
     position:relative;
@@ -362,7 +306,6 @@
     overflow:hidden;
     margin-bottom:14px;
   }
-
   .progress-fill{
     position:absolute;
     inset:0 auto 0 0;
@@ -370,7 +313,6 @@
     background:linear-gradient(90deg,#16a34a,#22c55e);
     transition:width .25s;
   }
-
   .progress-label{
     position:absolute;
     inset:0;
@@ -382,7 +324,6 @@
     color:#0f172a;
   }
 
-  /* 리스트 페이지 */
   .list-toolbar{
     display:flex;
     justify-content:space-between;
@@ -395,7 +336,6 @@
     border-radius:16px;
     background:#fbfdff;
   }
-
   .list-title{
     font-size:18px;
     font-weight:900;
@@ -413,14 +353,12 @@
     background:#fbfdff;
     margin-bottom:12px;
   }
-
   .filter-label{
     font-size:12px;
     color:var(--muted);
     font-weight:800;
     margin-left:2px;
   }
-
   .filter-panel button{
     border:2px solid #d9e3ef;
     border-radius:999px;
@@ -429,7 +367,6 @@
     font-size:12px;
     cursor:pointer;
   }
-
   .filter-panel button.active{
     background:#0f172a;
     color:#fff;
@@ -456,7 +393,6 @@
     background:#fff;
     box-shadow:0 6px 18px rgba(15,23,42,.03);
   }
-
   .section-header{
     padding:12px 14px;
     background:linear-gradient(90deg,#13233f,#284567);
@@ -467,18 +403,15 @@
     align-items:center;
     flex-wrap:wrap;
   }
-
   .section-title{
     font-size:18px;
     font-weight:900;
   }
-
   .badge-row{
     display:flex;
     gap:8px;
     flex-wrap:wrap;
   }
-
   .badge{
     border-radius:999px;
     padding:5px 10px;
@@ -486,7 +419,6 @@
     font-weight:900;
     color:#fff;
   }
-
   .badge.red{ background:#ef4444; }
   .badge.purple{ background:#7c3aed; }
   .badge.green{ background:#16a34a; }
@@ -495,14 +427,12 @@
     overflow:auto;
     -webkit-overflow-scrolling:touch;
   }
-
   table{
     width:100%;
     border-collapse:collapse;
     min-width:1360px;
     table-layout:fixed;
   }
-
   th, td{
     border-bottom:1px solid #edf2f7;
     padding:8px 8px;
@@ -511,7 +441,6 @@
     vertical-align:top;
     word-break:break-word;
   }
-
   th{
     background:#f8fbff;
     color:#334155;
@@ -520,7 +449,6 @@
     z-index:1;
     font-size:11px;
   }
-
   tr:hover td{ background:#fbfdff; }
   tr.row-done td{ background:#f0fdf4; }
 
@@ -556,10 +484,7 @@
     color:#0f172a;
     background:#fff;
   }
-
-  .date-input{
-    min-width:88px;
-  }
+  .date-input{ min-width:88px; }
 
   .plan-input,
   .note-input{
@@ -572,16 +497,12 @@
     white-space:pre-wrap;
     word-break:break-word;
   }
-
-  .note-input{
-    background:#fffdf6;
-  }
+  .note-input{ background:#fffdf6; }
 
   .plan-input::-webkit-scrollbar,
   .note-input::-webkit-scrollbar{
     width:8px;
   }
-
   .plan-input::-webkit-scrollbar-thumb,
   .note-input::-webkit-scrollbar-thumb{
     background:#cbd5e1;
@@ -619,13 +540,11 @@
     align-items:center;
     gap:3px;
   }
-
   .check-wrap input[type=checkbox]{
     width:18px;
     height:18px;
     cursor:pointer;
   }
-
   .check-wrap.target input[type=checkbox]{ accent-color:var(--purple); }
   .check-wrap.done input[type=checkbox]{ accent-color:var(--success); }
 
@@ -633,7 +552,6 @@
     font-size:10px;
     font-weight:900;
   }
-
   .target-on{ color:var(--purple); }
   .target-off{ color:#64748b; }
   .done-on{ color:var(--success); }
@@ -653,23 +571,13 @@
   }
 
   @media (max-width:1100px){
-    .summary-grid{
-      grid-template-columns:repeat(3,minmax(130px,1fr));
-    }
+    .summary-grid{ grid-template-columns:repeat(3,minmax(130px,1fr)); }
   }
 
   @media (max-width:768px){
     body{ padding:8px; }
-
-    .container{
-      padding:12px;
-      border-radius:16px;
-    }
-
-    h1{
-      font-size:23px;
-      margin-bottom:12px;
-    }
+    .container{ padding:12px; border-radius:16px; }
+    h1{ font-size:23px; margin-bottom:12px; }
 
     .controls{ width:100%; }
     .control-group{ width:100%; }
@@ -688,27 +596,21 @@
       padding:10px;
       gap:6px;
     }
-
     .filter-label{
       width:100%;
       margin-left:0;
     }
-
     .filter-panel button{
       padding:6px 10px;
       font-size:11px;
     }
 
-    table{
-      min-width:1120px;
-    }
-
+    table{ min-width:1120px; }
     th, td{
       font-size:11px;
       padding:7px 5px;
     }
 
-    /* 모바일에서 사유 숨김 */
     th.col-reason,
     td.col-reason{
       display:none;
@@ -752,7 +654,14 @@
   <div class="pw-box">
     <div style="font-size:50px;margin-bottom:10px;">🔐</div>
     <h2>결석자 타겟 심방 현황</h2>
-    <p>비밀번호를 입력하세요</p>
+    <p>부서와 비밀번호를 입력하세요</p>
+    <select id="loginDept" class="pw-select">
+      <option value="내무부">내무부</option>
+      <option value="자문회">자문회</option>
+      <option value="장년회">장년회</option>
+      <option value="부녀회">부녀회</option>
+      <option value="청년회">청년회</option>
+    </select>
     <input autocomplete="off" class="pw-input" id="pw-input" inputmode="numeric" maxlength="20" onkeydown="if(event.key==='Enter') checkPw()" placeholder="••••••••" type="password"/>
     <button class="pw-btn" onclick="checkPw()">확인</button>
     <div class="pw-keypad">
@@ -791,9 +700,15 @@
         <span class="control-label">타겟 주차</span>
         <select class="top-select" id="weekSelect" onchange="onWeekChange()"></select>
       </div>
+      <div class="control-group">
+        <span class="control-label">지역</span>
+        <select class="top-select" id="regionSelect" onchange="onRegionChange()">
+          <option value="all">전체 지역</option>
+        </select>
+      </div>
     </div>
     <div class="top-actions">
-      <button class="btn btn-light" type="button" onclick="toggleUploadPanel()">명단 업로드</button>
+      <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
       <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
       <div class="current-week" id="currentWeekLabel">현재 주차: 2026년 4월 3주차</div>
     </div>
@@ -802,8 +717,7 @@
   <div class="upload-panel" id="uploadPanel">
     <h3>주차별 결석자 명단 업로드</h3>
     <p class="upload-help">
-      결석자 원본만 업로드하면 됩니다. <strong>심방자 / 심방날짜 / 심방계획</strong>은 업로드 후 각 행에서 직접 입력합니다.<br>
-      아래 업로드 텍스트 형식은 그대로 사용하면 됩니다.
+      결석자 원본만 업로드하면 됩니다. <strong>심방자 / 심방날짜 / 심방계획</strong>은 업로드 후 각 행에서 직접 입력합니다.
     </p>
     <div class="upload-grid">
       <label>주차 키 <input id="importWeekKey" type="text" value="2026-04-w3"></label>
@@ -826,48 +740,14 @@
     </div>
   </div>
 
-  <!-- 현황판 페이지 -->
   <div class="page active" id="dashboardPage">
     <div class="progress-wrap">
       <div class="progress-fill" id="progressFill"></div>
       <div class="progress-label" id="progressLabel">진행: 0 / 0건 (0%)</div>
     </div>
-
-    <div class="summary-grid">
-      <div class="card clickable total" onclick="openListPage({mode:'all'})">
-        <h3>총결석자</h3>
-        <p id="totalCnt">0건</p>
-        <div class="sub" id="totalSub">타겟 0건 / 완료 0건 / 참석 0건</div>
-      </div>
-      <div class="card clickable target" onclick="openListPage({mode:'target'})">
-        <h3>타겟수</h3>
-        <p id="targetCnt">0건</p>
-        <div class="sub" id="targetSub">완료 0건 / 참석 0건</div>
-      </div>
-      <div class="card clickable dept-jamun" onclick="openListPage({mode:'dept', dept:'자문회'})">
-        <h3>자문회</h3>
-        <p id="jamunCnt">0건</p>
-        <div class="sub" id="jamunSub">타겟 0건 / 완료 0건 / 참석 0건</div>
-      </div>
-      <div class="card clickable dept-jang" onclick="openListPage({mode:'dept', dept:'장년회'})">
-        <h3>장년회</h3>
-        <p id="jangCnt">0건</p>
-        <div class="sub" id="jangSub">타겟 0건 / 완료 0건 / 참석 0건</div>
-      </div>
-      <div class="card clickable dept-bunyeo" onclick="openListPage({mode:'dept', dept:'부녀회'})">
-        <h3>부녀회</h3>
-        <p id="bunyeoCnt">0건</p>
-        <div class="sub" id="bunyeoSub">타겟 0건 / 완료 0건 / 참석 0건</div>
-      </div>
-      <div class="card clickable dept-young" onclick="openListPage({mode:'dept', dept:'청년회'})">
-        <h3>청년회</h3>
-        <p id="youngCnt">0건</p>
-        <div class="sub" id="youngSub">타겟 0건 / 완료 0건 / 참석 0건</div>
-      </div>
-    </div>
+    <div class="summary-grid" id="summaryGrid"></div>
   </div>
 
-  <!-- 리스트 페이지 -->
   <div class="page" id="listPage">
     <div class="list-toolbar">
       <div class="list-title" id="listPageTitle">결석자 리스트</div>
@@ -915,6 +795,7 @@ const CORRECT_PW = '12341234';
 const DEFAULT_YEAR = 2026;
 const MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
 const WEEKS = [1,2,3,4,5];
+const DEPTS = ['자문회','장년회','부녀회','청년회'];
 
 let currentMonth = 4;
 let currentWeekNumber = 3;
@@ -928,8 +809,10 @@ let currentStatusFilter = 'all';
 let currentTargetFilter = 'all';
 let currentDeptFilter = 'all';
 let currentAttendanceFilter = 'all';
+let currentRegionFilter = 'all';
 
 let currentPage = 'dashboard';
+let userDept = '내무부';
 const saveTimers = {};
 
 function formatWeekKey(month, week){ return `${DEFAULT_YEAR}-${String(month).padStart(2,'0')}-w${week}`; }
@@ -947,7 +830,6 @@ function escapeHtml(str=''){
 function showLoading(show){
   document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
 }
-
 function showToast(msg, isError=false){
   const el = document.getElementById('saveToast');
   el.textContent = msg;
@@ -975,7 +857,6 @@ async function sbFetch(path, method='GET', body=null, extraHeaders={}){
   const ct = res.headers.get('content-type') || '';
   return ct.includes('application/json') ? await res.json() : null;
 }
-
 async function callRpc(name, payload){
   return await sbFetch(`rpc/${name}`, 'POST', payload);
 }
@@ -999,10 +880,20 @@ function focusPwInput(){
   setTimeout(()=>i.focus(), 0);
   setTimeout(()=>i.focus(), 250);
 }
+function applyDeptPermissionUI(){
+  document.getElementById('uploadBtn').style.display = userDept === '내무부' ? '' : 'none';
+  if(userDept !== '내무부'){
+    currentDeptFilter = userDept;
+  } else {
+    currentDeptFilter = 'all';
+  }
+}
 function checkPw(){
   const val = document.getElementById('pw-input').value;
+  userDept = document.getElementById('loginDept').value;
   if(val === CORRECT_PW){
     document.getElementById('pw-overlay').style.display = 'none';
+    applyDeptPermissionUI();
     loadWeek(currentWeekKey);
   }else{
     const err=document.getElementById('pw-error');
@@ -1018,12 +909,19 @@ function checkPw(){
   }
 }
 
-/* 상단 주차 */
+/* 상단 주차/지역 */
 function populateDropdowns(){
   const monthSel = document.getElementById('monthSelect');
   const weekSel = document.getElementById('weekSelect');
   monthSel.innerHTML = MONTHS.map(m => `<option value="${m}" ${m===currentMonth?'selected':''}>${m}월</option>`).join('');
   weekSel.innerHTML = WEEKS.map(w => `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${w}주차</option>`).join('');
+}
+function populateRegionDropdown(rows){
+  const sel = document.getElementById('regionSelect');
+  const regions = [...new Set(rows.map(r => r.region_first).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+  sel.innerHTML = `<option value="all">전체 지역</option>` + regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  if(!regions.includes(currentRegionFilter)) currentRegionFilter = 'all';
+  sel.value = currentRegionFilter;
 }
 function onMonthChange(){
   currentMonth = Number(document.getElementById('monthSelect').value);
@@ -1037,20 +935,27 @@ function onWeekChange(){
   syncWeekInputs();
   loadWeek(currentWeekKey);
 }
+function onRegionChange(){
+  currentRegionFilter = document.getElementById('regionSelect').value;
+  renderDashboard();
+  if(currentPage === 'list') renderListPage();
+}
 function syncWeekInputs(){
   const key = formatWeekKey(currentMonth, currentWeekNumber);
   currentWeekKey = key;
   if(!weekLabelMap[key]) weekLabelMap[key] = formatWeekLabel(currentMonth, currentWeekNumber);
   document.getElementById('monthSelect').value = String(currentMonth);
   document.getElementById('weekSelect').value = String(currentWeekNumber);
-  document.getElementById('currentWeekLabel').textContent = `현재 주차: ${weekLabelMap[key]}`;
+  document.getElementById('currentWeekLabel').textContent = `현재 주차: ${weekLabelMap[key]} / 로그인: ${userDept}`;
   document.getElementById('importWeekKey').value = key;
   document.getElementById('importWeekLabel').value = weekLabelMap[key];
 }
-function reloadCurrentWeek(){
-  loadWeek(currentWeekKey);
-}
+function reloadCurrentWeek(){ loadWeek(currentWeekKey); }
 function toggleUploadPanel(){
+  if(userDept !== '내무부'){
+    showToast('내무부만 업로드할 수 있습니다.', true);
+    return;
+  }
   const p = document.getElementById('uploadPanel');
   p.style.display = p.style.display === 'block' ? 'none' : 'block';
   syncWeekInputs();
@@ -1062,7 +967,7 @@ function goDashboard(){
   document.getElementById('dashboardPage').classList.add('active');
   document.getElementById('listPage').classList.remove('active');
 }
-function openListPage({mode='all', dept='all'} = {}){
+function openListPage({mode='all', dept='all', region='all'} = {}){
   currentPage = 'list';
   document.getElementById('dashboardPage').classList.remove('active');
   document.getElementById('listPage').classList.add('active');
@@ -1070,18 +975,38 @@ function openListPage({mode='all', dept='all'} = {}){
   currentStatusFilter = 'all';
   currentAttendanceFilter = 'all';
 
+  if(userDept !== '내무부'){
+    dept = userDept;
+  }
+
   if(mode === 'target'){
     currentTargetFilter = 'target';
-    currentDeptFilter = 'all';
-    document.getElementById('listPageTitle').textContent = '타겟 관리 리스트';
+    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentRegionFilter = 'all';
+    document.getElementById('regionSelect').value = currentRegionFilter;
+    document.getElementById('listPageTitle').textContent = userDept === '내무부' ? '타겟 관리 리스트' : `${userDept} 타겟 관리 리스트`;
   } else if(mode === 'dept'){
     currentTargetFilter = 'all';
     currentDeptFilter = dept;
+    currentRegionFilter = 'all';
+    document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent = `${dept} 결석자 리스트`;
+  } else if(mode === 'region'){
+    currentTargetFilter = 'all';
+    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentRegionFilter = region;
+    document.getElementById('regionSelect').value = region;
+    document.getElementById('listPageTitle').textContent =
+      userDept === '내무부'
+        ? `${region} 지역 결석자 리스트`
+        : `${userDept} ${region} 지역 결석자 리스트`;
   } else {
     currentTargetFilter = 'all';
-    currentDeptFilter = 'all';
-    document.getElementById('listPageTitle').textContent = '전체 결석자 리스트';
+    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentRegionFilter = 'all';
+    document.getElementById('regionSelect').value = currentRegionFilter;
+    document.getElementById('listPageTitle').textContent =
+      userDept === '내무부' ? '전체 결석자 리스트' : `${userDept} 결석자 리스트`;
   }
 
   setFilterButton('status', currentStatusFilter);
@@ -1125,21 +1050,32 @@ function combinedRow(row){
     shepherd: p.shepherd || '',
     visit_date_sort: p.visit_date_sort || '',
     visit_date_display: p.visit_date_display || '',
-    plan_text: p.plan_text || ''
+    plan_text: p.plan_text || '',
+    region_first: ((row.org_name || '').trim().split(/\s+/)[0] || '')
   };
 }
 function normalizeDateSort(v){ return v || '9999-12-31'; }
 function normalizeSectionDate(v){ return v || '날짜 미지정'; }
 
+function getVisibleRowsBase(){
+  let rows = currentRows.map(combinedRow);
+  if(userDept !== '내무부'){
+    rows = rows.filter(r => r.dept === userDept);
+  }
+  if(currentRegionFilter !== 'all'){
+    rows = rows.filter(r => r.region_first === currentRegionFilter);
+  }
+  return rows;
+}
 function sortRows(rows){
   return [...rows].sort((a,b)=>{
     const deptCmp = String(a.dept||'').localeCompare(String(b.dept||''), 'ko');
     if(deptCmp !== 0) return deptCmp;
-
+    const regionCmp = String(a.region_first||'').localeCompare(String(b.region_first||''), 'ko');
+    if(regionCmp !== 0) return regionCmp;
     const da = normalizeDateSort(a.visit_date_sort);
     const db = normalizeDateSort(b.visit_date_sort);
     if(da !== db) return da.localeCompare(db);
-
     return String(a.name||'').localeCompare(String(b.name||''), 'ko');
   });
 }
@@ -1174,9 +1110,20 @@ function selectClass(value, type){
   return '';
 }
 
-/* 카드 현황판 */
+/* 현황판 */
+function buildSummaryCard({ title, count, sub, className = '', onClick = '' }) {
+  return `
+    <div class="card clickable ${className}" ${onClick ? `onclick="${onClick}"` : ''}>
+      <h3>${escapeHtml(title)}</h3>
+      <p>${count}건</p>
+      <div class="sub">${escapeHtml(sub)}</div>
+    </div>
+  `;
+}
 function renderDashboard(){
-  const rows = sortRows(currentRows.map(combinedRow));
+  const rows = sortRows(getVisibleRowsBase());
+  const summaryGrid = document.getElementById('summaryGrid');
+
   const total = rows.length;
   const target = rows.filter(r => r.is_target).length;
   const done = rows.filter(r => r.is_done).length;
@@ -1184,33 +1131,77 @@ function renderDashboard(){
   const targetDone = rows.filter(r => r.is_target && r.is_done).length;
   const targetAttend = rows.filter(r => r.is_target && r.attendance === '참석').length;
 
-  document.getElementById('totalCnt').textContent = `${total}건`;
-  document.getElementById('targetCnt').textContent = `${target}건`;
-  document.getElementById('totalSub').textContent = `타겟 ${target}건 / 완료 ${done}건 / 참석 ${attend}건`;
-  document.getElementById('targetSub').textContent = `완료 ${targetDone}건 / 참석 ${targetAttend}건`;
-
-  const deptMap = [
-    ['자문회','jamun'],
-    ['장년회','jang'],
-    ['부녀회','bunyeo'],
-    ['청년회','young']
-  ];
-  deptMap.forEach(([dept, key]) => {
-    const rowsByDept = rows.filter(r => r.dept === dept);
-    const deptTarget = rowsByDept.filter(r => r.is_target).length;
-    const deptDone = rowsByDept.filter(r => r.is_done).length;
-    const deptAttend = rowsByDept.filter(r => r.attendance === '참석').length;
-    document.getElementById(`${key}Cnt`).textContent = `${rowsByDept.length}건`;
-    document.getElementById(`${key}Sub`).textContent = `타겟 ${deptTarget}건 / 완료 ${deptDone}건 / 참석 ${deptAttend}건`;
-  });
-
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   document.getElementById('progressFill').style.width = `${pct}%`;
   document.getElementById('progressLabel').textContent = `진행: ${done} / ${total}건 (${pct}%)`;
+
+  const cards = [];
+
+  cards.push(buildSummaryCard({
+    title:'총결석자',
+    count: total,
+    sub:`타겟 ${target}건 / 완료 ${done}건 / 참석 ${attend}건`,
+    className:'total',
+    onClick:`openListPage({mode:'all'})`
+  }));
+
+  cards.push(buildSummaryCard({
+    title:'타겟수',
+    count: target,
+    sub:`완료 ${targetDone}건 / 참석 ${targetAttend}건`,
+    className:'target',
+    onClick:`openListPage({mode:'target'})`
+  }));
+
+  if(userDept === '내무부'){
+    const deptMap = [
+      ['자문회','dept-jamun'],
+      ['장년회','dept-jang'],
+      ['부녀회','dept-bunyeo'],
+      ['청년회','dept-young']
+    ];
+
+    deptMap.forEach(([dept, className]) => {
+      const deptRows = rows.filter(r => r.dept === dept);
+      const deptTarget = deptRows.filter(r => r.is_target).length;
+      const deptDone = deptRows.filter(r => r.is_done).length;
+      const deptAttend = deptRows.filter(r => r.attendance === '참석').length;
+
+      cards.push(buildSummaryCard({
+        title: dept,
+        count: deptRows.length,
+        sub: `타겟 ${deptTarget}건 / 완료 ${deptDone}건 / 참석 ${deptAttend}건`,
+        className,
+        onClick: `openListPage({mode:'dept', dept:'${dept}'})`
+      }));
+    });
+  } else {
+    const regions = [...new Set(rows.map(r => r.region_first).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b,'ko'));
+
+    regions.forEach(region => {
+      const regionRows = rows.filter(r => r.region_first === region);
+      const regionTarget = regionRows.filter(r => r.is_target).length;
+      const regionDone = regionRows.filter(r => r.is_done).length;
+      const regionAttend = regionRows.filter(r => r.attendance === '참석').length;
+
+      cards.push(buildSummaryCard({
+        title: region,
+        count: regionRows.length,
+        sub: `타겟 ${regionTarget}건 / 완료 ${regionDone}건 / 참석 ${regionAttend}건`,
+        className:'region',
+        onClick:`openListPage({mode:'region', region:'${region}'})`
+      }));
+    });
+  }
+
+  summaryGrid.innerHTML = cards.join('');
 }
 
 /* 리스트 */
 function createRowHtml(r){
+  const canEdit = (userDept === '내무부' || r.dept === userDept);
+  const disabled = canEdit ? '' : 'disabled';
   return `
     <tr class="${r.is_done ? 'row-done' : ''}">
       <td class="col-dept dept-${escapeHtml(r.dept||'')}">${escapeHtml(r.dept||'')}</td>
@@ -1218,32 +1209,32 @@ function createRowHtml(r){
       <td class="col-org">${escapeHtml(r.org_name||'')}</td>
       <td class="col-reason">${escapeHtml(r.absence_reason||'')}</td>
       <td class="col-streak">${escapeHtml(String(r.consecutive_absent_count ?? ''))}</td>
-      <td class="col-shepherd"><input class="text-input" id="shepherd_${r.row_id}" value="${escapeHtml(r.shepherd||'')}" oninput="onFieldInput('${r.row_id}','shepherd',this.value)"></td>
-      <td class="col-date"><input class="date-input" type="date" id="visitdate_${r.row_id}" value="${escapeHtml(r.visit_date_sort||'')}" onchange="onDateChange('${r.row_id}',this.value)"></td>
-      <td class="col-plan"><textarea class="plan-input" id="plan_${r.row_id}" oninput="onFieldInput('${r.row_id}','plan_text',this.value)">${escapeHtml(r.plan_text||'')}</textarea></td>
+      <td class="col-shepherd"><input ${disabled} class="text-input" id="shepherd_${r.row_id}" value="${escapeHtml(r.shepherd||'')}" oninput="onFieldInput('${r.row_id}','shepherd',this.value)"></td>
+      <td class="col-date"><input ${disabled} class="date-input" type="date" id="visitdate_${r.row_id}" value="${escapeHtml(r.visit_date_sort||'')}" oninput="onDatePending('${r.row_id}',this.value)" onblur="commitDateChange('${r.row_id}',this.value)"></td>
+      <td class="col-plan"><textarea ${disabled} class="plan-input" id="plan_${r.row_id}" oninput="onFieldInput('${r.row_id}','plan_text',this.value)">${escapeHtml(r.plan_text||'')}</textarea></td>
       <td class="col-target">
         <div class="check-wrap target">
-          <input type="checkbox" id="target_${r.row_id}" ${r.is_target ? 'checked':''} onchange="onTargetToggle('${r.row_id}',this.checked)">
+          <input ${disabled} type="checkbox" id="target_${r.row_id}" ${r.is_target ? 'checked':''} onchange="onTargetToggle('${r.row_id}',this.checked)">
           <span class="check-label ${r.is_target ? 'target-on':'target-off'}" id="targetlbl_${r.row_id}">${r.is_target ? '타겟' : '미타겟'}</span>
         </div>
       </td>
       <td class="col-done">
         <div class="check-wrap done">
-          <input type="checkbox" id="done_${r.row_id}" ${r.is_done ? 'checked':''} onchange="onDoneToggle('${r.row_id}',this.checked)">
+          <input ${disabled} type="checkbox" id="done_${r.row_id}" ${r.is_done ? 'checked':''} onchange="onDoneToggle('${r.row_id}',this.checked)">
           <span class="check-label ${r.is_done ? 'done-on':'done-off'}" id="donelbl_${r.row_id}">${r.is_done ? '완료' : '미완료'}</span>
         </div>
       </td>
       <td class="col-worship">
-        <select class="select-input ${selectClass(r.worship,'worship')}" id="worship_${r.row_id}" onchange="onFieldInput('${r.row_id}','worship',this.value,true)">
+        <select ${disabled} class="select-input ${selectClass(r.worship,'worship')}" id="worship_${r.row_id}" onchange="onFieldInput('${r.row_id}','worship',this.value,true)">
           <option value="" ${r.worship===''?'selected':''}>선택</option>
           <option value="확정" ${r.worship==='확정'?'selected':''}>확정</option>
           <option value="미정" ${r.worship==='미정'?'selected':''}>미정</option>
           <option value="불참" ${r.worship==='불참'?'selected':''}>불참</option>
         </select>
       </td>
-      <td class="col-note"><textarea class="note-input" id="note_${r.row_id}" oninput="onFieldInput('${r.row_id}','note',this.value)">${escapeHtml(r.note||'')}</textarea></td>
+      <td class="col-note"><textarea ${disabled} class="note-input" id="note_${r.row_id}" oninput="onFieldInput('${r.row_id}','note',this.value)">${escapeHtml(r.note||'')}</textarea></td>
       <td class="col-attend">
-        <select class="select-input ${selectClass(r.attendance,'attendance')}" id="attendance_${r.row_id}" onchange="onFieldInput('${r.row_id}','attendance',this.value,true)">
+        <select ${disabled} class="select-input ${selectClass(r.attendance,'attendance')}" id="attendance_${r.row_id}" onchange="onFieldInput('${r.row_id}','attendance',this.value,true)">
           <option value="" ${r.attendance===''?'selected':''}>선택</option>
           <option value="참석" ${r.attendance==='참석'?'selected':''}>참석</option>
           <option value="불참" ${r.attendance==='불참'?'selected':''}>불참</option>
@@ -1294,7 +1285,7 @@ function renderListPage(){
   const empty = document.getElementById('emptyState');
   const mount = document.getElementById('listMount');
 
-  const merged = sortRows(currentRows.map(combinedRow));
+  const merged = sortRows(getVisibleRowsBase());
   const filtered = merged.filter(passesFilters);
 
   if(filtered.length === 0){
@@ -1308,14 +1299,15 @@ function renderListPage(){
 
   empty.style.display = 'none';
 
-  const groups = groupBy(filtered, r => normalizeSectionDate(r.visit_date_display));
+  const groups = groupBy(filtered, r => `${normalizeSectionDate(r.visit_date_display)} / ${r.region_first || '지역미지정'}`);
   mount.innerHTML = [...groups.entries()].map(([title, rows]) => createSectionHtml(title, rows)).join('');
 }
 
 /* 필터 */
 function setFilterButton(group, value){
   document.querySelectorAll(`button[data-filter-group="${group}"]`).forEach(btn => btn.classList.remove('active'));
-  const target = [...document.querySelectorAll(`button[data-filter-group="${group}"]`)].find(btn => btn.getAttribute('onclick').includes(`('${value}')`));
+  const target = [...document.querySelectorAll(`button[data-filter-group="${group}"]`)]
+    .find(btn => btn.getAttribute('onclick')?.includes(`('${value}')`));
   if(target) target.classList.add('active');
 }
 function setStatusFilter(v){
@@ -1329,8 +1321,9 @@ function setTargetFilter(v){
   renderListPage();
 }
 function setDeptFilter(v){
-  currentDeptFilter = v;
-  setFilterButton('dept', v);
+  if(userDept !== '내무부' && v !== 'all' && v !== userDept) return;
+  currentDeptFilter = userDept === '내무부' ? v : userDept;
+  setFilterButton('dept', currentDeptFilter);
   renderListPage();
 }
 function setAttendanceFilter(v){
@@ -1339,7 +1332,7 @@ function setAttendanceFilter(v){
   renderListPage();
 }
 
-/* 데이터 로드 */
+/* 로드 */
 async function loadWeek(weekKey){
   currentWeekKey = weekKey;
   const m = weekKey.match(/^(\d{4})-(\d{2})-w([1-5])$/);
@@ -1355,6 +1348,7 @@ async function loadWeek(weekKey){
     currentRows = await sbFetch(`weekly_visit_targets?select=*&week_key=eq.${encodeURIComponent(weekKey)}&order=dept.asc,row_order.asc`);
     const progressRows = await sbFetch(`weekly_visit_progress?select=*&week_key=eq.${encodeURIComponent(weekKey)}`);
     progressMap = new Map((progressRows || []).map(r => [r.row_id, r]));
+    populateRegionDropdown(sortRows(getVisibleRowsBase()));
     renderDashboard();
     if(currentPage === 'list') renderListPage();
   }catch(e){
@@ -1364,26 +1358,41 @@ async function loadWeek(weekKey){
   }
 }
 
-/* 입력 저장 */
+/* 저장 */
 function onTargetToggle(rowId, checked){
+  const row = currentRows.find(r => r.row_id === rowId);
+  if(userDept !== '내무부' && row?.dept !== userDept) return;
   const p = ensureProgress(rowId);
   p.is_target = checked;
   syncRowAppearance(rowId);
   scheduleUpsert(rowId, true);
 }
 function onDoneToggle(rowId, checked){
+  const row = currentRows.find(r => r.row_id === rowId);
+  if(userDept !== '내무부' && row?.dept !== userDept) return;
   const p = ensureProgress(rowId);
   p.is_done = checked;
   syncRowAppearance(rowId);
   scheduleUpsert(rowId, true);
 }
-function onDateChange(rowId, value){
+function onDatePending(rowId, value){
+  const row = currentRows.find(r => r.row_id === rowId);
+  if(userDept !== '내무부' && row?.dept !== userDept) return;
+  const p = ensureProgress(rowId);
+  p.visit_date_sort = value || '';
+  p.visit_date_display = value || '';
+}
+function commitDateChange(rowId, value){
+  const row = currentRows.find(r => r.row_id === rowId);
+  if(userDept !== '내무부' && row?.dept !== userDept) return;
   const p = ensureProgress(rowId);
   p.visit_date_sort = value || '';
   p.visit_date_display = value || '';
   scheduleUpsert(rowId, true);
 }
 function onFieldInput(rowId, field, value, immediate=false){
+  const row = currentRows.find(r => r.row_id === rowId);
+  if(userDept !== '내무부' && row?.dept !== userDept) return;
   const p = ensureProgress(rowId);
   p[field] = value || '';
   if(field === 'worship' || field === 'attendance') syncRowAppearance(rowId);
@@ -1412,6 +1421,8 @@ function syncRowAppearance(rowId){
   if(aSel) aSel.className = `select-input ${selectClass(p.attendance,'attendance')}`;
 }
 async function upsertRow(rowId){
+  const row = currentRows.find(r => r.row_id === rowId);
+  if(userDept !== '내무부' && row?.dept !== userDept) return;
   const p = ensureProgress(rowId);
   await callRpc('upsert_weekly_visit_progress', {
     p_week_key: currentWeekKey,
@@ -1433,18 +1444,20 @@ function scheduleUpsert(rowId, rerender=false){
     try{
       await upsertRow(rowId);
       renderDashboard();
-      if(rerender) renderListPage();
+      if(currentPage === 'list' || rerender) renderListPage();
       showToast('💾 저장됨');
     }catch(e){
       showToast('저장 실패: ' + e.message, true);
     }
-  }, rerender ? 160 : 450);
+  }, rerender ? 180 : 500);
 }
 async function saveAll(){
   showLoading(true);
   try{
     for(const row of currentRows){
-      await upsertRow(row.row_id);
+      if(userDept === '내무부' || row.dept === userDept){
+        await upsertRow(row.row_id);
+      }
     }
     renderDashboard();
     if(currentPage === 'list') renderListPage();
@@ -1483,6 +1496,10 @@ async function readImportText(){
   return document.getElementById('importTextarea').value || '';
 }
 async function uploadAbsentees(){
+  if(userDept !== '내무부'){
+    alert('내무부만 업로드할 수 있습니다.');
+    return;
+  }
   const weekKey = document.getElementById('importWeekKey').value.trim();
   const weekLabel = document.getElementById('importWeekLabel').value.trim();
   const rawText = await readImportText();
@@ -1511,7 +1528,6 @@ async function uploadAbsentees(){
   }
 }
 
-/* 시작 */
 window.addEventListener('DOMContentLoaded', ()=>{
   populateDropdowns();
   syncWeekInputs();
