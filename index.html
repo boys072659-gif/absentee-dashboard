@@ -1,1161 +1,1021 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>서울야고보지파 신앙관리 대시보드</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Oswald:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>결석자 타겟 심방 현황</title>
 <style>
-:root{
-  --bg:#f0f4f8;--surface:#fff;--s2:#f8fafc;--s3:#eef2f7;
-  --border:#e2e8f0;--border2:#cbd5e1;
-  --accent:#2563eb;--a2:#0ea5e9;--a3:#7c3aed;
-  --ok:#16a34a;--warn:#d97706;--danger:#dc2626;
-  --txt:#1e293b;--txt2:#475569;--txt3:#94a3b8;
-  --sh:0 1px 3px rgba(0,0,0,.08);--sh-md:0 4px 16px rgba(0,0,0,.1);
-  --r:12px;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden;}
+  #pw-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1a2a4a 0%, #2c3e50 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+  .pw-box { background: white; border-radius: 16px; padding: 48px 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4); min-width: 320px; }
+  .pw-box h2 { margin: 0 0 8px; color: #2c3e50; font-size: 22px; }
+  .pw-box p  { margin: 0 0 28px; color: #7f8c8d; font-size: 14px; }
+  .pw-input { width: 100%; box-sizing: border-box; border: 2px solid #ddd; border-radius: 10px; padding: 14px 16px; font-size: 22px; letter-spacing: 6px; text-align: center; font-family: monospace; outline: none; transition: border-color 0.2s; }
+  .pw-input:focus { border-color: #3498db; }
+  .pw-btn { margin-top: 16px; width: 100%; padding: 14px; background: #3498db; color: white; border: none; border-radius: 10px; font-size: 16px; font-family: 'Malgun Gothic', sans-serif; cursor: pointer; transition: background 0.2s; }
+  .pw-btn:hover { background: #2980b9; }
+  .pw-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+  .pw-keypad { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pw-key { border: 1px solid #d0d7de; background: #f8fafc; color: #2c3e50; border-radius: 10px; padding: 12px 8px; font-size: 16px; font-weight: bold; font-family: 'Malgun Gothic', sans-serif; cursor: pointer; transition: all 0.15s; }
+  .pw-key:hover { background: #eef4ff; border-color: #3498db; }
+  .pw-key:active { transform: scale(0.98); }
+  .pw-key.action { font-size: 13px; }
 
-/* LOGIN */
-#login-page{position:fixed;inset:0;background:linear-gradient(145deg,#dbeafe,#ede9fe,#e0f2fe);display:flex;align-items:center;justify-content:center;z-index:9999;}
-.lcard{background:#fff;border-radius:24px;padding:40px 34px;width:90%;max-width:370px;text-align:center;box-shadow:0 20px 60px rgba(37,99,235,.15);}
-.l-emb{width:58px;height:58px;background:linear-gradient(135deg,var(--accent),var(--a2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;}
-.l-ttl{font-size:20px;font-weight:900;color:var(--txt);}
-.l-org{font-size:12px;color:var(--txt3);margin-bottom:26px;}
-.l-field{margin-bottom:12px;text-align:left;}
-.l-field label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:4px;}
-.l-field input, .l-field select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--txt);font-family:inherit;outline:none;background:var(--s2);transition:.2s;}
-.l-field input:focus, .l-field select:focus{border-color:var(--accent);background:#fff;}
-.l-field input::placeholder{color:var(--txt3);}
-.role-btn{margin-top:10px;width:100%;padding:13px;background:linear-gradient(135deg,var(--ok),#15803d);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
-.l-err{min-height:17px;font-size:12px;color:var(--danger);margin-top:8px;font-weight:600;}
+  #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: none; align-items: center; justify-content: center; z-index: 8000; flex-direction: column; gap: 16px; }
+  .spinner { width: 48px; height: 48px; border: 5px solid #ecf0f1; border-top-color: #3498db; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-/* APP & COMPONENTS */
-#app{display:none;flex-direction:column;height:100vh;overflow:hidden;}
-.hd{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh);flex-shrink:0;}
-.hd-brand{display:flex;align-items:center;gap:9px;}
-.hd-ico{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--a2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;}
-.hd-ttl{font-size:14px;font-weight:800;color:var(--txt);}
-.hd-sub{font-size:10px;color:var(--txt3);}
-.hd-r{display:flex;align-items:center;gap:9px;}
-.role-badge{background:#dbeafe;color:var(--accent);border-radius:18px;padding:4px 11px;font-size:11px;font-weight:700;}
-.logout-btn{background:none;border:1.5px solid var(--border);border-radius:7px;padding:4px 11px;font-size:11px;color:var(--txt3);cursor:pointer;}
-.logout-btn:hover{border-color:var(--danger);color:var(--danger);}
+  body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 20px; }
+  .container { max-width: 1450px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+  h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 15px; margin-bottom: 20px; }
 
-.tabs{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 14px;flex-shrink:0;}
-.tab{padding:11px 16px;font-size:13px;font-weight:600;color:var(--txt3);cursor:pointer;border-bottom:2.5px solid transparent;transition:.2s;white-space:nowrap;}
-.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+  .progress-bar-wrap { margin-bottom: 30px; background: #ecf0f1; border-radius: 8px; overflow: hidden; height: 28px; position: relative; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); transition: width 0.4s; border-radius: 8px; }
+  .progress-bar-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-weight: bold; font-size: 14px; color: #2c3e50; white-space: nowrap; }
 
-.pages{flex:1;overflow:hidden;}
-.pg{display:none;height:100%;overflow-y:auto;padding:18px;padding-bottom:64px;}
-.pg.on{display:block;}
+  .summary-cards { display: flex; gap: 15px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .card { background: #ecf0f1; padding: 20px; border-radius: 8px; text-align: center; flex: 1; min-width: 150px; border-top: 4px solid #3498db; }
+  .card h3 { margin: 0 0 10px 0; color: #7f8c8d; font-size: 16px; }
+  .card p { margin: 0; font-size: 24px; font-weight: bold; color: #2c3e50; }
+  .card .done-count { font-size: 13px; color: #27ae60; margin-top: 4px; font-weight: bold; }
+  .card.clickable { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; user-select: none; }
+  .card.clickable:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+  .card.active-card { background: #ddeffd; box-shadow: 0 0 0 2px #3498db inset; }
+  .card-subtext { margin-top: 6px; font-size: 12px; color: #7f8c8d; font-weight: bold; line-height: 1.5; white-space: pre-line; min-height: 18px; }
 
-.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh);}
-.ctitle{font-size:11px;font-weight:700;color:var(--txt2);letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;text-transform:uppercase;}
-.ctitle::before{content:'';width:3px;height:12px;background:linear-gradient(var(--accent),var(--a2));border-radius:2px;flex-shrink:0;}
+  .worship-subfilter-wrap { display:none; margin: 0 0 24px; padding: 16px; border: 1px solid #dbe7f3; border-radius: 10px; background:#f8fbff; }
+  .worship-subfilter-title { font-size: 13px; color:#34495e; font-weight:bold; margin-bottom: 10px; }
+  .worship-subfilters { display:flex; gap:10px; flex-wrap:wrap; }
+  .worship-subfilters button { padding: 7px 14px; border: 2px solid #bdc3c7; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; font-family: 'Malgun Gothic', sans-serif; transition: all 0.2s; }
+  .worship-subfilters button:hover { background: #ecf0f1; }
+  .worship-subfilters button.active { background:#34495e; color:white; border-color:#34495e; }
 
-.upbox{border:2px dashed var(--border2);border-radius:var(--r);padding:26px;text-align:center;cursor:pointer;transition:.25s;position:relative;background:var(--s2);}
-.upbox:hover,.upbox.drag{border-color:var(--accent);background:#eff6ff;}
-.upbox input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+  .filter-bar button { padding: 6px 14px; border: 2px solid #bdc3c7; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; font-family: 'Malgun Gothic', sans-serif; transition: all 0.2s; }
+  .filter-bar button.active { background: #34495e; color: white; border-color: #34495e; }
+  .filter-bar button:hover { background: #ecf0f1; }
+  .filter-label { font-size: 13px; color: #7f8c8d; font-weight: bold; }
 
-.wk-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
-.wkb{padding:5px 13px;border-radius:18px;border:1.5px solid var(--border);background:#fff;font-size:11px;cursor:pointer;color:var(--txt2);transition:.2s;font-family:inherit;font-weight:500;}
-.wkb.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .date-section { margin-bottom: 40px; }
+  .date-header { background-color: #34495e; color: white; padding: 12px 20px; border-radius: 6px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap:8px;}
+  .date-header-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .badge { background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px; font-size: 14px; }
+  .date-done-badge { background: #27ae60; color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; }
+  .date-target-badge { background: #8e44ad; color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; }
 
-.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px;margin-bottom:16px;}
-.chcard{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:15px;cursor:pointer;transition:.25s;box-shadow:var(--sh);}
-.chcard:hover,.chcard.sel{border-color:var(--accent);background:#eff6ff;box-shadow:0 4px 14px rgba(37,99,235,.12);}
-.ch-nm{font-size:13px;font-weight:700;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;}
-.ch-rate{font-family:'Oswald',sans-serif;font-size:33px;font-weight:600;}
-.ch-rate.h{color:var(--ok);} .ch-rate.m{color:var(--warn);} .ch-rate.l{color:var(--danger);}
-.ch-meta{font-size:11px;color:var(--txt3);margin-top:2px;}
-.ch-row{display:flex;gap:7px;margin-top:9px;}
-.ch-it{flex:1;background:var(--s3);border-radius:7px;padding:6px;text-align:center;}
-.ch-it-l{font-size:9px;color:var(--txt3);}
-.ch-it-v{font-size:12px;font-weight:700;color:var(--txt);}
-.tg-up{background:#dcfce7;color:var(--ok);font-size:10px;padding:2px 6px;border-radius:9px;font-weight:700;}
-.tg-dn{background:#fee2e2;color:var(--danger);font-size:10px;padding:2px 6px;border-radius:9px;font-weight:700;}
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
+  th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  th { background-color: #f2f2f2; color: #333; font-weight: bold; font-size: 13px; }
+  tr:nth-child(even) { background-color: #fafafa; }
+  tr:hover { background-color: #f0f7ff; }
+  tr.row-done { background-color: #eafaf1 !important; }
+  tr.row-done td { color: #555; }
 
-.dpanel{background:#fff;border:1.5px solid var(--accent);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(37,99,235,.08);}
-.dpanel-ttl{font-size:13px;font-weight:800;color:var(--accent);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
-table.dtbl{width:100%;border-collapse:collapse;font-size:12px;}
-table.dtbl th{background:var(--s3);padding:8px 10px;text-align:center;color:var(--txt2);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);}
-table.dtbl td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);color:var(--txt);}
-table.dtbl tr:last-child td{border-bottom:none;}
-table.dtbl tr:hover td{background:var(--s3);}
-.rbar{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-top:2px;}
-.rfill{height:100%;border-radius:2px;}
-.rfh{background:linear-gradient(90deg,var(--ok),#4ade80);}
-.rfm{background:linear-gradient(90deg,var(--warn),#fbbf24);}
-.rfl{background:linear-gradient(90deg,var(--danger),#f87171);}
+  th:nth-child(1), td:nth-child(1) { width: 64px; }
+  th:nth-child(2), td:nth-child(2) { width: 68px; }
+  th:nth-child(3), td:nth-child(3) { width: 92px; }
+  th:nth-child(4), td:nth-child(4) { width: 80px; }
+  th:nth-child(5), td:nth-child(5) { width: 220px; }
+  td:nth-child(6), th:nth-child(6) { white-space: nowrap; width: 88px; }
+  td:nth-child(7), th:nth-child(7) { white-space: nowrap; width: 88px; }
+  td:nth-child(8), th:nth-child(8) { white-space: nowrap; width: 88px; }
+  th:nth-child(9), td:nth-child(9) { width: 280px; }
+  th:nth-child(10), td:nth-child(10) { white-space: nowrap; width: 88px; }
 
-.kpi-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px;}
-.kpi{flex:1;min-width:95px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;text-align:center;box-shadow:var(--sh);}
-.kpi.kred{border-top:3px solid var(--danger);} .kpi.kor{border-top:3px solid var(--warn);}
-.kpi.kbl{border-top:3px solid var(--accent);} .kpi.kgr{border-top:3px solid var(--ok);}
-.kpi.kpu{border-top:3px solid var(--a3);} .kpi.kte{border-top:3px solid #0891b2;} .kpi.kgy{border-top:3px solid #64748b;}
-.kpi-l{font-size:10px;color:var(--txt3);font-weight:600;margin-bottom:2px;}
-.kpi-v{font-family:'Oswald',sans-serif;font-size:24px;font-weight:600;color:var(--txt);}
-.kpi-s{font-size:10px;color:var(--txt3);margin-top:1px;}
+  .check-cell { text-align: center; width: 70px; }
+  .check-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .check-wrap input[type=checkbox] { width: 20px; height: 20px; cursor: pointer; accent-color: #27ae60; }
+  .check-wrap.target input[type=checkbox] { accent-color: #8e44ad; }
+  .check-label { font-size: 11px; font-weight: bold; }
+  .check-label.done { color: #27ae60; }
+  .check-label.pending { color: #e74c3c; }
+  .check-label.target-on { color: #8e44ad; }
+  .check-label.target-off { color: #7f8c8d; }
 
-.tb{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:11px;}
-.ftab{padding:5px 12px;border-radius:18px;border:1.5px solid var(--border);background:#fff;font-size:12px;cursor:pointer;color:var(--txt2);font-family:inherit;transition:.2s;font-weight:500;}
-.ftab.on{background:var(--accent);border-color:var(--accent);color:#fff;}
-.tsep{width:1px;height:20px;background:var(--border);margin:0 2px;}
-.abtn{padding:6px 12px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;}
-.b-add{background:var(--ok);} .b-exp{background:var(--a3);} .b-clr{background:var(--danger);}
-.adm{display:none!important;} .adm.vis{display:flex!important;}
+  .note-cell { width: 320px; }
+  .note-input { width: 100%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; font-size: 12px; font-family: 'Malgun Gothic', sans-serif; resize: vertical; min-height: 56px; background: #fffef0; transition: border-color 0.2s; }
+  .note-input:focus { outline: none; border-color: #3498db; background: #fff; }
+  .note-input.has-note { background: #fff9e6; border-color: #f39c12; }
 
-.dh{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:9px 15px;border-radius:9px 9px 0 0;display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
-.dh-d{font-size:13px;font-weight:700;}
-.dh-c{background:var(--danger);color:#fff;font-size:11px;padding:2px 8px;border-radius:9px;font-weight:700;}
-.tw{overflow-x:auto;border-radius:0 0 9px 9px;border:1px solid var(--border);border-top:none;margin-bottom:4px;}
-table.mt{width:100%;border-collapse:collapse;font-size:12px;min-width:1100px;}
-table.mt th{background:var(--s2);padding:8px 7px;text-align:center;color:var(--txt2);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;}
-table.mt td{padding:7px 6px;text-align:center;vertical-align:middle;border-bottom:1px solid var(--border);color:var(--txt);}
-table.mt tr:last-child td{border-bottom:none;} table.mt tr:hover td{background:#f8faff;} table.mt tr.done-r td{background:#f0fdf4;}
-.ss,.ns,.tas{border:1.5px solid var(--border);background:#fff;border-radius:6px;color:var(--txt);font-family:inherit;outline:none;}
-.ss{padding:4px 5px;font-size:11px;width:100%;}
-.ns{padding:4px;font-size:12px;width:42px;text-align:center;font-family:'Oswald',sans-serif;}
-.ns-d{border-color:var(--danger);color:var(--danger);background:#fef2f2;}
-.tas{width:100%;padding:4px 5px;font-size:11px;resize:vertical;min-height:33px;}
-.ckg{display:flex;flex-direction:column;align-items:center;gap:2px;} .ckg input{width:16px;height:16px;accent-color:var(--ok);cursor:pointer;}
-.ckl{font-size:9px;font-weight:700;color:var(--txt3);} .ckl.done{color:var(--ok);}
-.delbtn{background:none;border:none;color:var(--danger);font-size:14px;cursor:pointer;padding:2px 5px;border-radius:4px;}
-.t-yes{display:inline-block;padding:2px 7px;border-radius:9px;background:#fef3c7;color:#b45309;font-size:10px;font-weight:700;}
-.t-no{display:inline-block;padding:2px 7px;border-radius:9px;background:var(--s3);color:var(--txt3);font-size:10px;}
+  .worship-cell, .attendance-cell { text-align: center; }
+  .worship-select, .attendance-select { width: 100%; box-sizing: border-box; border: 1px solid #d0d7de; border-radius: 6px; padding: 6px 8px; font-size: 12px; font-family: 'Malgun Gothic', sans-serif; background: white; cursor: pointer; }
+  .worship-select.confirmed { border-color: #27ae60; background: #ecfdf3; color: #1e8449; font-weight: bold; }
+  .worship-select.pending   { border-color: #f39c12; background: #fff8e6; color: #b9770e; font-weight: bold; }
+  .worship-select.absent    { border-color: #e74c3c; background: #fdecec; color: #c0392b; font-weight: bold; }
+  .attendance-select.attend { border-color: #16a34a; background: #ecfdf3; color: #15803d; font-weight: bold; }
+  .attendance-select.absent { border-color: #dc2626; background: #fef2f2; color: #b91c1c; font-weight: bold; }
 
-.chwrap{position:relative;height:250px;}
-.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;}
-.mcard{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:13px;text-align:center;box-shadow:var(--sh);}
-.mc-n{font-size:11px;color:var(--txt3);font-weight:600;margin-bottom:5px;}
-.mc-v{font-family:'Oswald',sans-serif;font-size:28px;font-weight:600;}
+  .dept-자문회 { color: #8e44ad; font-weight: bold; }
+  .dept-장년회 { color: #27ae60; font-weight: bold; }
+  .dept-부녀회 { color: #d35400; font-weight: bold; }
+  .dept-청년회 { color: #2980b9; font-weight: bold; }
 
-table.ttbl{width:100%;border-collapse:collapse;font-size:12px;}
-table.ttbl th{background:var(--s3);padding:8px 11px;text-align:center;color:var(--txt2);font-size:11px;font-weight:700;border-bottom:1px solid var(--border);}
-table.ttbl td{padding:8px 11px;text-align:center;border-bottom:1px solid var(--border);color:var(--txt);}
-.nn{font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;color:var(--warn);} .nok{color:var(--ok);font-weight:700;}
+  .save-btn { position: fixed; bottom: 24px; right: 24px; background: #3498db; color: white; border: none; border-radius: 50px; padding: 14px 24px; font-size: 15px; font-family: 'Malgun Gothic', sans-serif; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 999; transition: background 0.2s; }
+  .save-btn:hover { background: #2980b9; }
+  .save-toast { position: fixed; bottom: 80px; right: 24px; background: #2c3e50; color: white; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-family: 'Malgun Gothic', sans-serif; z-index: 999; display: none; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ADMIN & MODAL */
-.asec{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh);}
-.asec h3{font-size:13px;font-weight:800;color:var(--txt);margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
-.arow{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px;}
-.afield{flex:1;min-width:140px;}
-.afield label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:4px;}
-.afield input,.afield select{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--txt);font-family:inherit;outline:none;background:#fff;}
-.afield input:focus{border-color:var(--accent);}
-.asave{padding:9px 20px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+  .dashboard-sticky-panel { position: sticky; top: 0; z-index: 700; background: white; padding: 12px 0 10px; margin-bottom: 18px; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08); }
+  .week-switch-bar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin: 0 0 14px; }
+  .month-week-selectors { display:flex; flex-direction:column; gap:10px; flex:1; min-width:280px; }
+  .selector-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .selector-label { min-width:62px; font-size:13px; color:#475569; font-weight:bold; }
+  .month-buttons, .week-switch-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+  .month-btn, .week-btn, .week-manage-btn { padding: 9px 14px; border:2px solid #cbd5e1; border-radius:999px; background:white; cursor:pointer; font-size:14px; font-family:'Malgun Gothic', sans-serif; font-weight:bold; }
+  .month-btn.active, .week-btn.active { background:#1d4ed8; color:white; border-color:#1d4ed8; }
+  .week-manage-btn { background:#f8fafc; }
+  .week-current-label { font-size:13px; color:#475569; font-weight:bold; }
 
-.ulist{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
-.ulist th{background:var(--s3);padding:8px;text-align:left;color:var(--txt2);font-weight:700;border-bottom:1px solid var(--border);}
-.ulist td{padding:8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  .week-import-panel { margin: 0 0 20px; padding:18px; border:1px solid #dbe7f3; border-radius:12px; background:#f8fbff; }
+  .week-import-panel h3 { margin:0 0 8px; color:#1e293b; font-size:18px; }
+  .week-import-help { margin:0 0 14px; color:#475569; font-size:13px; line-height:1.6; }
+  .week-import-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:12px; }
+  .week-import-grid label { display:flex; flex-direction:column; gap:6px; font-size:13px; color:#334155; font-weight:bold; }
+  .week-import-grid input { border:1px solid #cbd5e1; border-radius:8px; padding:10px 12px; font-size:14px; font-family:'Malgun Gothic', sans-serif; }
+  #importTextarea { width:100%; min-height:180px; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:10px; padding:12px; resize:vertical; font-size:13px; font-family:Consolas, 'Malgun Gothic', sans-serif; line-height:1.55; background:white; }
+  .week-import-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .week-import-actions button { padding:10px 14px; border:none; border-radius:8px; background:#334155; color:white; cursor:pointer; font-size:13px; font-family:'Malgun Gothic', sans-serif; }
+  .week-import-actions button:hover { background:#1e293b; }
+  .empty-week-state { display:none; margin:18px 0 28px; padding:28px 20px; border:2px dashed #cbd5e1; border-radius:14px; background:#f8fafc; text-align:center; color:#475569; line-height:1.7; }
 
-.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:8000;align-items:center;justify-content:center;padding:14px;}
-.mbg.on{display:flex;}
-.modal{background:#fff;border-radius:18px;padding:22px;width:100%;max-width:490px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.18);}
-.modal h3{font-size:15px;font-weight:800;margin-bottom:16px;color:var(--txt);}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
-.fr{margin-bottom:10px;}
-.fr label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:3px;}
-.fr input,.fr select,.fr textarea{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--txt);font-family:inherit;outline:none;background:#fff;}
-.fr textarea{min-height:56px;resize:vertical;}
-.mbns{display:flex;gap:9px;margin-top:14px;}
-.mbns button{flex:1;padding:10px;border:none;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
-.b-can{background:var(--s3);color:var(--txt2);} .b-sv{background:linear-gradient(135deg,var(--ok),#15803d);color:#fff;} .b-dg{background:var(--danger);color:#fff;}
-
-#toast{display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:9px 20px;border-radius:22px;font-size:13px;z-index:9800;white-space:nowrap;box-shadow:var(--sh-md);}
-.fab{position:fixed;bottom:16px;right:16px;background:linear-gradient(135deg,var(--accent),var(--a2));color:#fff;border:none;border-radius:48px;padding:11px 19px;font-size:13px;font-weight:700;cursor:pointer;z-index:999;box-shadow:0 4px 14px rgba(37,99,235,.35);font-family:inherit;}
-
-#loading{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.82);z-index:9900;align-items:center;justify-content:center;flex-direction:column;gap:11px;}
-.spin{width:38px;height:38px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;}
-@keyframes sp{to{transform:rotate(360deg);}}
-::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-@media(max-width:640px){.hd{padding:0 12px;}.pg{padding:12px;padding-bottom:64px;}.hd-sub{display:none;}.fg{grid-template-columns:1fr;}}
+  @media (max-width: 768px) {
+    body { padding: 10px; }
+    .container { padding: 16px; }
+    .pw-box { width: calc(100vw - 32px); min-width: auto; padding: 28px 20px; }
+    .pw-input { font-size: 20px; }
+    .pw-key { padding: 14px 8px; font-size: 18px; }
+    .pw-key.action { font-size: 12px; }
+    .save-btn { right: 14px; bottom: 16px; padding: 12px 18px; }
+    .dashboard-sticky-panel { top: 0; padding-top: 10px; }
+    .week-switch-bar { align-items:stretch; }
+    .month-week-selectors, .selector-row, .month-buttons, .week-switch-buttons { width:100%; }
+    .month-btn, .week-btn, .week-manage-btn { flex:1; text-align:center; padding:10px 12px; font-size:13px; }
+    .week-current-label { width:100%; font-size:12px; }
+    th, td { font-size:11px !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; word-break: keep-all; overflow-wrap: anywhere; line-height: 1.45; vertical-align: top; }
+    td strong { font-size:11px !important; }
+    .note-input, .worship-select, .attendance-select { font-size:11px !important; }
+    .filter-bar button, .worship-subfilters button { font-size:12px !important; padding:6px 10px; }
+    .card h3 { font-size:13px; }
+    .card p { font-size:20px; }
+    .done-count, .card-subtext { font-size:11px; }
+    table { table-layout: auto !important; }
+    th:nth-child(1), td:nth-child(1) { width: 52px !important; }
+    th:nth-child(2), td:nth-child(2) { width: 58px !important; }
+    th:nth-child(3), td:nth-child(3) { width: 64px !important; }
+    th:nth-child(4), td:nth-child(4) { width: 64px !important; }
+    th:nth-child(5), td:nth-child(5) { min-width: 170px; }
+    th:nth-child(6), td:nth-child(6),
+    th:nth-child(7), td:nth-child(7),
+    th:nth-child(8), td:nth-child(8),
+    th:nth-child(10), td:nth-child(10) { min-width: 74px; }
+  }
 </style>
 </head>
 <body>
 
-<div id="login-page">
-  <div class="lcard">
-    <div class="l-emb">⛪</div>
-    <div class="l-ttl">서울야고보지파</div>
-    <div class="l-org">신앙관리 대시보드</div>
-    
-    <div class="l-field">
-      <label>직책</label>
-      <select id="l-role">
-        <option value="">-- 직책 선택 --</option>
-        <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
-        <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
-        <option>자문회심방과장</option><option>장년회심방과장</option><option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
-      </select>
+<div id="pw-overlay">
+  <div class="pw-box">
+    <div style="font-size:48px;margin-bottom:12px;">🔐</div>
+    <h2>결석자 타겟 심방 현황</h2>
+    <p>비밀번호를 입력하세요</p>
+    <input autocomplete="off" class="pw-input" id="pw-input" inputmode="numeric" maxlength="20" onkeydown="if(event.key==='Enter') checkPw()" pattern="[0-9]*" placeholder="••••••••" type="password"/>
+    <button class="pw-btn" onclick="checkPw()">확인</button>
+    <div class="pw-keypad">
+      <button class="pw-key" onclick="appendPwDigit('1')" type="button">1</button>
+      <button class="pw-key" onclick="appendPwDigit('2')" type="button">2</button>
+      <button class="pw-key" onclick="appendPwDigit('3')" type="button">3</button>
+      <button class="pw-key" onclick="appendPwDigit('4')" type="button">4</button>
+      <button class="pw-key" onclick="appendPwDigit('5')" type="button">5</button>
+      <button class="pw-key" onclick="appendPwDigit('6')" type="button">6</button>
+      <button class="pw-key" onclick="appendPwDigit('7')" type="button">7</button>
+      <button class="pw-key" onclick="appendPwDigit('8')" type="button">8</button>
+      <button class="pw-key" onclick="appendPwDigit('9')" type="button">9</button>
+      <button class="pw-key action" onclick="clearPw()" type="button">전체삭제</button>
+      <button class="pw-key" onclick="appendPwDigit('0')" type="button">0</button>
+      <button class="pw-key action" onclick="backspacePw()" type="button">← 지움</button>
     </div>
-    <div class="l-field">
-      <label>고유번호 (예: 00000000-00000)</label>
-      <input type="text" id="l-uid" placeholder="00000000-00000">
-    </div>
-    <div class="l-field">
-      <label>이름</label>
-      <input type="text" id="l-name" placeholder="이름 입력">
-    </div>
-    <div class="l-field">
-      <label>비밀번호</label>
-      <input type="password" id="l-pw" placeholder="비밀번호 입력">
-    </div>
-    
-    <button class="role-btn" onclick="doLogin()">접속하기</button>
-    <div class="l-err" id="l-err"></div>
+    <div class="pw-error" id="pw-error">❌ 비밀번호가 틀렸습니다</div>
   </div>
 </div>
 
-<div id="loading"><div class="spin"></div><div style="font-size:13px;color:var(--txt2);">처리 중...</div></div>
-
-<div id="app">
-  <header class="hd">
-    <div class="hd-brand">
-      <div class="hd-ico">⛪</div>
-      <div><div class="hd-ttl">서울야고보지파</div><div class="hd-sub">신앙관리 대시보드</div></div>
-    </div>
-    <div class="hd-r">
-      <div class="role-badge" id="rbadge"></div>
-      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
-    </div>
-  </header>
-  <nav class="tabs" id="tabs">
-    <div class="tab on" onclick="showPg(0,this)">📊 출석률</div>
-    <div class="tab" onclick="showPg(1,this)">🏠 결석자 심방</div>
-    <div class="tab" onclick="showPg(2,this)">📈 예배분석</div>
-    <div class="tab adm" id="tab-adm" onclick="showPg(3,this)">⚙️ 관리자</div>
-  </nav>
-  
-  <div class="pages">
-    <div class="pg on" id="p0">
-      <div class="card">
-        <div class="ctitle">출석률 데이터 업로드</div>
-        <div class="upbox" id="upbox">
-          <input type="file" accept=".xlsx,.xls" id="xinp" onchange="handleXlsx(this)">
-          <div style="font-size:30px;margin-bottom:7px;">📂</div>
-          <div style="font-size:13px;font-weight:600;">엑셀 파일 클릭 또는 드래그</div>
-          <div style="font-size:11px;color:var(--txt3);margin-top:3px;">다양한 형태의 테이블 자동 인식 및 통합</div>
-        </div>
-        <div id="upst" style="margin-top:7px;font-size:12px;color:var(--ok);text-align:center;min-height:16px;"></div>
-      </div>
-      <div class="card" id="wk-card" style="display:none;">
-        <div class="ctitle">주차 선택</div>
-        <div class="wk-row" id="wk-row"></div>
-      </div>
-      <div id="ch-wrap" class="ch-grid"></div>
-      <div id="dp-wrap"></div>
-    </div>
-
-    <div class="pg" id="p1">
-      <div class="kpi-row" id="worship-kpis"></div>
-      <div class="kpi-row">
-        <div class="kpi kred"><div class="kpi-l">총 결석자</div><div class="kpi-v" id="kp0">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kor"><div class="kpi-l">가족 타겟</div><div class="kpi-v" id="kp1">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kbl"><div class="kpi-l">가족외 타겟</div><div class="kpi-v" id="kp2">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kgr"><div class="kpi-l">일반 타겟</div><div class="kpi-v" id="kp3">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kpu"><div class="kpi-l">총 타겟</div><div class="kpi-v" id="kp4">0</div><div class="kpi-s">명</div></div>
-        <div class="kpi kte"><div class="kpi-l">타겟 심방완료</div><div class="kpi-v" id="kp5">0/0</div><div class="kpi-s">명</div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">부서별 타겟 현황 (완료/전체)</div>
-        <div id="dp-kpi" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-      </div>
-      <div class="tb">
-        <div style="display:flex;gap:5px;flex-wrap:wrap;">
-          <button class="ftab on" onclick="filt('st','all',this)">전체</button>
-          <button class="ftab" onclick="filt('st','pend',this)">미완료</button>
-        </div>
-        <div class="tsep"></div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;">
-          <button class="ftab on" onclick="filt('dp','all',this)">전체부서</button>
-          <button class="ftab" onclick="filt('dp','자문회',this)">자문회</button>
-          <button class="ftab" onclick="filt('dp','장년회',this)">장년회</button>
-          <button class="ftab" onclick="filt('dp','부녀회',this)">부녀회</button>
-          <button class="ftab" onclick="filt('dp','청년회',this)">청년회</button>
-        </div>
-        <div class="tsep"></div>
-        <div id="admbtns" class="adm" style="gap:5px;flex-wrap:wrap;">
-          <button class="abtn b-add" onclick="openAdd()">➕ 추가</button>
-          <button class="abtn b-exp" onclick="dlCSV()">📥 내보내기</button>
-          <button class="abtn b-clr" onclick="confClear()">🗑 초기화</button>
-        </div>
-      </div>
-      <div id="tbl-area"></div>
-    </div>
-
-    <div class="pg" id="p2">
-      <div class="card">
-        <div class="ctitle">주일예배 교회별 주차별 출석률 추이</div>
-        <div class="chwrap"><canvas id="cw1"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">주차별 인증출석률 추이</div>
-        <div class="chwrap"><canvas id="cw2"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">최근 4주 평균 출석률 (교회별)</div>
-        <div class="mgrid" id="mgrid"></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">목표 달성을 위한 교회·부서별 타겟 필요인원</div>
-        <div class="tw" style="border-radius:var(--r);border:1px solid var(--border);">
-          <table class="ttbl"><thead><tr>
-            <th>교회</th><th>부서</th><th>재적</th><th>현재 출석률</th><th>목표</th><th>필요 추가인원</th><th>결석자 중 타겟</th>
-          </tr></thead><tbody id="tgt-body"></tbody></table>
-        </div>
-      </div>
-    </div>
-
-    <div class="pg" id="p3">
-      <div class="asec">
-        <h3>🔐 접속자 관리 (DB 연동)</h3>
-        <div style="overflow-x:auto;">
-          <table class="ulist">
-            <thead><tr><th>직책</th><th>고유번호</th><th>이름</th><th>비밀번호</th><th>관리</th></tr></thead>
-            <tbody id="user-list"></tbody>
-          </table>
-        </div>
-        <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
-          <div style="font-size:12px; font-weight:700; margin-bottom:8px;">➕ 새로운 접속자 추가/수정</div>
-          <div class="arow">
-            <div class="afield"><label>직책</label>
-              <select id="np-role">
-                <option>지파장</option><option>지파총무</option><option>지파내무부장</option><option>지파내무부서무</option>
-                <option>자문회장</option><option>장년회장</option><option>부녀회장</option><option>청년회장</option>
-                <option>자문회심방과장</option><option>장년회심방과장</option><option>부녀회심방과장</option><option>청년회심방과장</option><option>일반</option>
-              </select>
-            </div>
-            <div class="afield"><label>고유번호 (00000000-00000)</label><input type="text" id="np-uid" placeholder="00000000-00000"></div>
-            <div class="afield"><label>이름</label><input type="text" id="np-name" placeholder="홍길동"></div>
-            <div class="afield"><label>비밀번호</label><input type="text" id="np-pw" placeholder="비밀번호"></div>
-            <button class="asave" onclick="addUserAdmin()">등록/수정</button>
-          </div>
-          <div style="font-size:11px;color:var(--txt3);margin-top:5px;">※ 이 목록에 정확히 일치하는 정보가 있어야만 로그인이 가능합니다.</div>
-        </div>
-      </div>
-
-      <div class="asec">
-        <h3>🔗 Supabase 연결 설정</h3>
-        <div class="arow">
-          <div class="afield" style="flex:2;"><label>SUPABASE URL</label><input type="text" id="sb-url" placeholder="https://xxxx.supabase.co"></div>
-          <div class="afield" style="flex:2;"><label>ANON KEY</label><input type="text" id="sb-key" placeholder="eyJhbGci..."></div>
-          <button class="asave" onclick="saveSB()">저장</button>
-        </div>
-      </div>
-
-      <div class="asec">
-        <h3>📈 차트 Y축 범위 설정 (예배분석)</h3>
-        <div class="arow" style="gap:15px;">
-          <div class="afield"><label>출석률 차트 최소(%)</label><input type="number" id="c1-min" max="100"></div>
-          <div class="afield"><label>출석률 차트 최대(%)</label><input type="number" id="c1-max" max="100"></div>
-        </div>
-        <div class="arow" style="gap:15px;">
-          <div class="afield"><label>인증률 차트 최소(%)</label><input type="number" id="c2-min" max="100"></div>
-          <div class="afield"><label>인증률 차트 최대(%)</label><input type="number" id="c2-max" max="100"></div>
-        </div>
-        <div style="text-align:right;"><button class="asave" onclick="saveChartRanges()">차트 범위 적용</button></div>
-      </div>
-
-      <div class="asec">
-        <h3>🎯 교회별 목표 출석률 설정 (%)</h3>
-        <div class="arow" id="ch-targets-row" style="gap:15px;"></div>
-        <div class="arow" style="margin-top:10px;">
-          <div class="afield"><label>적용 기준일</label><input type="date" id="adm-gdate"></div>
-          <button class="asave" onclick="saveTargets()">저장</button>
-        </div>
-        <div id="cur-goal" style="font-size:13px;color:var(--txt2);margin-top:7px;"></div>
-      </div>
-
-      <div class="asec">
-        <h3>📌 결석자 심방 타겟 조건 설정 (연속 결석 횟수)</h3>
-        <div class="arow" style="gap:15px;">
-          <div class="afield"><label>가족</label><input type="number" id="th-fam" min="1"></div>
-          <div class="afield"><label>가족외</label><input type="number" id="th-ext" min="1"></div>
-          <div class="afield"><label>일반</label><input type="number" id="th-gen" min="1"></div>
-          <button class="asave" onclick="saveThresholds()">저장</button>
-        </div>
-      </div>
-
-      <div class="asec">
-        <h3>🗄️ 데이터 초기화</h3>
-        <div style="display:flex;gap:9px;flex-wrap:wrap;">
-          <button onclick="confClear()" style="padding:9px 16px;background:var(--danger);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">🗑 결석자 초기화</button>
-          <button onclick="clearAtt()" style="padding:9px 16px;background:var(--warn);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">📊 출석 초기화</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="color:#2c3e50; font-size:15px; font-weight:bold;">데이터 통신 중...</div>
 </div>
 
-<button class="fab" onclick="saveAll()">💾 데이터 저장</button>
-<div id="toast"></div>
+<div class="container">
+  <h1>📅 결석자 타겟 심방 현황</h1>
 
-<div class="mbg" id="m-add">
-  <div class="modal">
-    <h3>➕ 결석자 추가</h3>
-    <div class="fg">
-      <div class="fr"><label>날짜</label><input type="text" id="a-dt" placeholder="2026-04-13"></div>
-      <div class="fr"><label>교회</label><select id="a-ch"><option>서울</option><option>포천</option><option>구리</option><option>동대문</option><option>의정부</option></select></div>
-      <div class="fr"><label>부서</label><select id="a-dp"><option>청년회</option><option>장년회</option><option>부녀회</option><option>자문회</option></select></div>
-      <div class="fr"><label>이름</label><input type="text" id="a-nm"></div>
-      <div class="fr"><label>소속</label><input type="text" id="a-gr"></div>
-      <div class="fr"><label>구분</label><select id="a-ct"><option>일반</option><option>가족</option><option>가족외</option></select></div>
-      <div class="fr"><label>연속결석(회)</label><input type="number" id="a-ab" value="1" min="0"></div>
-      <div class="fr"><label>심방자</label><input type="text" id="a-ps"></div>
+  <div class="dashboard-sticky-panel">
+    <div class="week-switch-bar">
+      <div class="month-week-selectors">
+        <div class="selector-row">
+          <span class="selector-label">월 선택</span>
+          <div class="month-buttons" id="monthButtons"></div>
+        </div>
+        <div class="selector-row">
+          <span class="selector-label">타겟 주차</span>
+          <div class="week-switch-buttons" id="weekButtons"></div>
+        </div>
+      </div>
+      <button class="week-manage-btn" type="button" onclick="toggleImportPanel()">명단 업로드</button>
+      <div class="week-current-label" id="currentWeekLabel">현재 주차: 2026년 4월 3주차</div>
     </div>
-    <div class="fr"><label>심방계획</label><textarea id="a-pl"></textarea></div>
-    <div class="fr"><label>비고</label><textarea id="a-nt"></textarea></div>
-    <div class="mbns"><button class="b-can" onclick="closeM('m-add')">취소</button><button class="b-sv" onclick="submitAdd()">추가</button></div>
-  </div>
-</div>
 
-<div class="mbg" id="m-conf">
-  <div class="modal" style="max-width:330px;text-align:center;">
-    <h3 id="cm-t">확인</h3>
-    <p id="cm-m" style="font-size:13px;color:var(--txt2);margin-bottom:18px;"></p>
-    <div class="mbns"><button class="b-can" onclick="closeM('m-conf')">취소</button><button class="b-dg" id="cm-ok">확인</button></div>
+    <div class="progress-bar-wrap" style="margin-bottom:16px;">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      <div class="progress-bar-label" id="progressLabel">진행: 0 / 0건 (0%)</div>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">🔍 보기:</span>
+      <button class="active" onclick="filterRows('all')">전체</button>
+      <button onclick="filterRows('done')">완료만</button>
+      <button onclick="filterRows('pending')">미완료만</button>
+      <span class="filter-label" style="margin-left:10px;">🎯 타겟:</span>
+      <button class="active" onclick="filterTarget('all')">전체</button>
+      <button onclick="filterTarget('target')">타겟만</button>
+      <button onclick="filterTarget('non-target')">미타겟만</button>
+      <span class="filter-label" style="margin-left:10px;">📌 부서:</span>
+      <button class="active" onclick="filterDept('all')">전체</button>
+      <button onclick="filterDept('자문회')">자문회</button>
+      <button onclick="filterDept('장년회')">장년회</button>
+      <button onclick="filterDept('부녀회')">부녀회</button>
+      <button onclick="filterDept('청년회')">청년회</button>
+      <span class="filter-label" style="margin-left:10px;">🙋 예배참석:</span>
+      <button class="active" onclick="filterAttendance('all')">전체</button>
+      <button onclick="filterAttendance('참석')">참석만</button>
+      <button onclick="filterAttendance('불참')">불참만</button>
+    </div>
+
+    <div class="summary-cards">
+      <div class="card clickable" data-card-type="total" onclick="applyCardFilter('total')" style="border-top-color:#e74c3c;">
+        <h3>총결석자</h3>
+        <p id="total-cnt">0건</p>
+        <div class="done-count" id="card-all">타겟 0건 / 완료 0건 / 0건 참석</div>
+      </div>
+      <div class="card clickable" data-card-type="target" onclick="applyCardFilter('target')" style="border-top-color:#8e44ad;">
+        <h3>타겟수</h3>
+        <p id="target-total-cnt">0건</p>
+        <div class="done-count" id="card-target-total">완료 0건 / 0건 참석</div>
+      </div>
+      <div class="card clickable" data-card-type="dept" data-card-value="자문회" onclick="applyCardFilter('dept', '자문회')"><h3>자문회</h3><p id="dept-cnt-자문회">0건</p><div class="done-count" id="card-자문회">타겟 0건 / 완료 0건 / 0건 참석</div></div>
+      <div class="card clickable" data-card-type="dept" data-card-value="장년회" onclick="applyCardFilter('dept', '장년회')"><h3>장년회</h3><p id="dept-cnt-장년회">0건</p><div class="done-count" id="card-장년회">타겟 0건 / 완료 0건 / 0건 참석</div></div>
+      <div class="card clickable" data-card-type="dept" data-card-value="부녀회" onclick="applyCardFilter('dept', '부녀회')"><h3>부녀회</h3><p id="dept-cnt-부녀회">0건</p><div class="done-count" id="card-부녀회">타겟 0건 / 완료 0건 / 0건 참석</div></div>
+      <div class="card clickable" data-card-type="dept" data-card-value="청년회" onclick="applyCardFilter('dept', '청년회')"><h3>청년회</h3><p id="dept-cnt-청년회">0건</p><div class="done-count" id="card-청년회">타겟 0건 / 완료 0건 / 0건 참석</div></div>
+      <div class="card clickable" data-card-type="worship" data-card-value="확정" onclick="applyCardFilter('worship', '확정')" style="border-top-color:#27ae60;"><h3>예배확답 확정</h3><p id="card-worship-confirmed">0건</p><div class="card-subtext" id="card-worship-confirmed-detail"></div></div>
+      <div class="card clickable" data-card-type="worship" data-card-value="미정" onclick="applyCardFilter('worship', '미정')" style="border-top-color:#f39c12;"><h3>예배확답 미정</h3><p id="card-worship-pending">0건</p><div class="card-subtext" id="card-worship-pending-detail"></div></div>
+      <div class="card clickable" data-card-type="worship" data-card-value="불참" onclick="applyCardFilter('worship', '불참')" style="border-top-color:#e74c3c;"><h3>예배확답 불참</h3><p id="card-worship-absent">0건</p><div class="card-subtext" id="card-worship-absent-detail"></div></div>
+    </div>
+
+    <div class="worship-subfilter-wrap" id="worshipSubfilterWrap">
+      <div class="worship-subfilter-title" id="worshipSubfilterTitle">부서별 보기</div>
+      <div class="worship-subfilters">
+        <button class="active" onclick="filterWorshipDept('all')">전체</button>
+        <button onclick="filterWorshipDept('자문회')">자문회</button>
+        <button onclick="filterWorshipDept('장년회')">장년회</button>
+        <button onclick="filterWorshipDept('부녀회')">부녀회</button>
+        <button onclick="filterWorshipDept('청년회')">청년회</button>
+      </div>
+    </div>
   </div>
+
+  <div class="week-import-panel" id="weekImportPanel" style="display:none;">
+    <h3>주차별 결석자 명단 업로드</h3>
+    <p class="week-import-help">
+      CSV 파일 업로드도 가능하고, 아래에 텍스트를 그대로 붙여넣어도 됩니다.<br/>
+      현재 선택한 <strong>월 / 타겟 주차</strong> 기준으로 DB에 저장되고 바로 대시보드에 반영됩니다.<br/>
+      붙여넣기 형식은 <strong>탭 구분 텍스트</strong> 또는 CSV 모두 가능합니다.
+    </p>
+    <div class="week-import-grid">
+      <label>주차 키 <input id="importWeekKey" type="text" value="2026-04-w3"/></label>
+      <label>주차 이름 <input id="importWeekLabel" type="text" value="2026년 4월 3주차"/></label>
+      <label>기본 심방날짜 <input id="importVisitDate" type="text" value="" placeholder="예: 2026년 04월 20일 (월)"/></label>
+      <label>기본 심방자 <input id="importShepherd" type="text" value="" placeholder="예: 미배정"/></label>
+    </div>
+    <div class="week-import-grid">
+      <label>CSV 파일 업로드 <input accept=".csv,.txt" id="importFile" type="file"/></label>
+    </div>
+    <textarea id="importTextarea" placeholder="예시(탭 구분 텍스트 또는 CSV 붙여넣기)
+이름	전화번호	지파	교회	부서	지역	구역	출석	사유	연속결석횟수
+홍길동	1234	서울야고보지파	서울교회	청년회	노원	1-1	사유 결석	믿음부족	3"></textarea>
+    <div class="week-import-actions">
+      <button onclick="downloadImportTemplate()">업로드 양식 다운로드</button>
+      <button onclick="uploadWeekTargets()">이 주차로 저장</button>
+    </div>
+  </div>
+
+  <div class="empty-week-state" id="emptyWeekState" style="display:none;"></div>
+  <div id="weekSectionsMount"></div>
+
+  <button class="save-btn" onclick="saveAll()">💾 저장</button>
+  <div class="save-toast" id="saveToast">✅ 저장되었습니다!</div>
 </div>
 
 <script>
-// ═══════════════ SUPABASE ═══════════════
-let SB = null;
-const DEFAULT_SB_URL = "https://gpbrkuxulyrcbllrchkn.supabase.co";
-const DEFAULT_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwYnJrdXh1bHlyY2JsbHJjaGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNjUwNjUsImV4cCI6MjA5MTk0MTA2NX0.KVCahNVpPcJk7NvpBVUnSNyYTUnHavLVt_WMBIMkNfU";
+const SUPABASE_URL = 'https://faxaqxyafsitdfykxgem.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheGFxeHlhZnNpdGRmeWt4Z2VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTI2MjYsImV4cCI6MjA5MjE2ODYyNn0.sE7eWx7HrCZpZ4jVlBScoFvREkER6wUsg7IzdVMzHLk';
+const CORRECT_PW = '12341234';
 
-async function initSB() {
-  const url = localStorage.getItem('sb_url') || DEFAULT_SB_URL;
-  const key = localStorage.getItem('sb_key') || DEFAULT_SB_KEY;
-  if (!url || !key) return false;
-  try {
-    const m = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-    SB = m.createClient(url, key);
-    return true;
-  } catch(e) { return false; }
-}
+const TABLE_WEEKS = 'weekly_target_weeks';
+const TABLE_TARGETS = 'weekly_visit_targets';
+const TABLE_PROGRESS = 'weekly_visit_progress';
 
-// ═══════════════ STATE ═══════════════
-const CHURCHES = ['서울','포천','구리','동대문','의정부'];
-const ADMIN_ROLES = ['지파장','지파총무','지파내무부장','지파내무부서무']; 
+const DEFAULT_YEAR = 2026;
+let currentMonth = 4;
+let currentWeekNumber = 3;
+let currentWeekKey = formatWeekKey(currentMonth, currentWeekNumber);
+let weekLabelMap = { [currentWeekKey]: formatWeekLabel(currentMonth, currentWeekNumber) };
+let weekTargetsCache = {};
 
-// App Users (권한 관리) - DB가 없을 때를 대비한 기본값
-let appUsers = [
-  { unique_id: '11111111-11111', role: '지파장', name: '마스터', pw: '144000' }
-];
+const monthNames = [1,2,3,4,5,6,7,8,9,10,11,12];
+const weekNumbers = [1,2,3,4,5];
 
-let role='';
-let recs=[], att={}, selWk='', selCh=null;
-let fSt='all', fDp='all', fCt='all';
+let currentStatusFilter = 'all';
+let currentDeptFilter = 'all';
+let currentWorshipFilter = 'all';
+let currentWorshipDeptFilter = 'all';
+let currentAttendanceFilter = 'all';
+let currentTargetFilter = 'all';
 
-let chartRanges = { c1Min: 80, c1Max: 100, c2Min: 50, c2Max: 80 };
-let chTargets = { '서울':90, '포천':90, '구리':90, '동대문':90, '의정부':90 };
-let thresholds = { '가족':8, '가족외':8, '일반':4 };
-let cw1=null, cw2=null;
-
-// ═══════════════ LOGIN & AUTH ═══════════════
-async function syncUsersFromDB() {
-  if(!SB) return;
-  try {
-    const {data} = await SB.from('app_users').select('*');
-    if(data && data.length > 0) {
-      appUsers = data.map(d => ({ unique_id: d.unique_id, role: d.role_name, name: d.user_name, pw: d.password }));
-      localStorage.setItem('sj_users', JSON.stringify(appUsers));
+async function sbFetch(tablePath, method = 'GET', body = null, extraHeaders = {}) {
+  const options = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...extraHeaders
     }
-  } catch(e){}
-}
-
-async function doLogin(){
-  const r = document.getElementById('l-role').value;
-  const u = document.getElementById('l-uid').value.trim();
-  const n = document.getElementById('l-name').value.trim();
-  const p = document.getElementById('l-pw').value.trim();
-  const errBox = document.getElementById('l-err');
-
-  if(!r || !u || !n || !p) { errBox.textContent = '모든 필드를 입력해주세요.'; return; }
-  if(!/^\d{8}-\d{5}$/.test(u)) { errBox.textContent = '고유번호 형식이 올바르지 않습니다 (예: 00000000-00000).'; return; }
-
-  errBox.textContent = 'DB 정보를 확인 중입니다...';
-  
-  // 로컬 저장소 캐시 먼저 불러오기
-  const saved = JSON.parse(localStorage.getItem('sj_users'));
-  if(saved && saved.length > 0) appUsers = saved;
-  
-  await initSB();
-  await syncUsersFromDB();
-
-  // 4가지 조건이 정확히 일치하는 객체 찾기
-  const match = appUsers.find(user => 
-    user.role === r && 
-    user.unique_id === u && 
-    user.name === n && 
-    user.pw === p
-  );
-
-  if(match) {
-    errBox.textContent = '';
-    completeLogin(r);
-  } else {
-    errBox.textContent = '입력하신 4가지 정보(직책, 고유번호, 이름, 비밀번호)가 DB 정보와 일치하지 않습니다.';
-  }
-}
-
-async function completeLogin(r){
-  role=r;
-  showLoad(true);
-  document.getElementById('login-page').style.display='none';
-  document.getElementById('app').style.display='flex';
-  document.getElementById('rbadge').textContent=role;
-  
-  if(ADMIN_ROLES.includes(role)){
-    document.getElementById('tab-adm').classList.add('vis');
-    document.getElementById('admbtns').classList.add('vis');
-  }
-  
-  // 로컬 설정 불러오기
-  const sTgt = localStorage.getItem('sj_ch_targets'); if(sTgt) chTargets = JSON.parse(sTgt);
-  const sThr = localStorage.getItem('sj_thresholds'); if(sThr) thresholds = JSON.parse(sThr);
-  const sRng = localStorage.getItem('sj_chart_ranges'); if(sRng) chartRanges = JSON.parse(sRng);
-  
-  const sbOk=await initSB();
-  if(sbOk) await loadDB(); else loadLS();
-  
-  document.getElementById('adm-gdate').value=new Date().toISOString().slice(0,10);
-  document.getElementById('sb-url').value=localStorage.getItem('sb_url')||'';
-  document.getElementById('sb-key').value=localStorage.getItem('sb_key')||'';
-  
-  renderAdminSetup();
-  renderUserList();
-  renderP1(); renderP2();
-  showLoad(false);
-}
-
-function doLogout(){
-  document.getElementById('l-role').value = '';
-  document.getElementById('l-uid').value = '';
-  document.getElementById('l-name').value = '';
-  document.getElementById('l-pw').value = '';
-  document.getElementById('l-err').textContent = '';
-  
-  document.getElementById('login-page').style.display='flex';
-  document.getElementById('app').style.display='none';
-  document.getElementById('tab-adm').classList.remove('vis');
-  document.getElementById('admbtns').classList.remove('vis');
-  role=''; 
-}
-
-document.addEventListener('keydown',e=>{
-  if(document.getElementById('login-page').style.display==='flex') {
-    if(e.key === 'Enter') doLogin();
-  }
-});
-
-// ═══════════════ STORAGE ═══════════════
-function saveAll(){
-  localStorage.setItem('sj_recs',JSON.stringify(recs));
-  localStorage.setItem('sj_att',JSON.stringify(att));
-  if(SB) syncDB();
-  toast('저장되었습니다.');
-}
-function loadLS(){
-  try{ const r=localStorage.getItem('sj_recs'); if(r) recs=JSON.parse(r); }catch(e){}
-  try{ const a=localStorage.getItem('sj_att'); if(a) att=JSON.parse(a); }catch(e){}
-}
-async function loadDB(){
-  try{
-    const {data:rows}=await SB.from('absent_visit').select('*');
-    if(rows) recs=rows.map(r=>({_id:r.id,date:r.absent_date,church:r.church,dept:r.dept,name:r.member_name,group:r.member_group,cat:r.category,absent:r.absent_count,pastor:r.pastor_name,plan:r.visit_plan,visited:r.visit_done,worship:r.worship_confirm,note:r.memo}));
-    
-    const {data:ac}=await SB.from('attendance_church').select('*');
-    if(ac) ac.forEach(r=>{
-      if(!att[r.week_key]) att[r.week_key]={churches:[],depts:[]};
-      att[r.week_key].churches.push({church:r.church,base:r.total_count,att:r.attend_count,rate:r.attend_rate,cert:r.cert_count,crate:r.cert_rate,sayu:r.reason_count,srate:r.reason_rate,trend:r.week_trend});
-    });
-    const {data:ad}=await SB.from('attendance_dept').select('*');
-    if(ad) ad.forEach(r=>{
-      if(!att[r.week_key]) att[r.week_key]={churches:[],depts:[]};
-      att[r.week_key].depts.push({church:r.church||'지파전체', dept:r.dept,base:r.total_count,att:r.attend_count,rate:r.attend_rate,trend:r.week_trend,cert:r.cert_count,crate:r.cert_rate,sayu:r.reason_count,srate:r.reason_rate});
-    });
-    
-    const {data:ds}=await SB.from('dashboard_settings').select('*').eq('id',1).single();
-    if(ds){ 
-      chartRanges = { c1Min:ds.c1_min, c1Max:ds.c1_max, c2Min:ds.c2_min, c2Max:ds.c2_max }; 
-      localStorage.setItem('sj_chart_ranges',JSON.stringify(chartRanges)); 
-    }
-  }catch(e){ loadLS(); }
-}
-async function syncDB(){
-  if(!SB) return;
-  try{
-    const rows=recs.map(r=>({id:r._id||undefined,absent_date:r.date,church:r.church||'',dept:r.dept,member_name:r.name,member_group:r.group,category:r.cat,absent_count:r.absent||0,pastor_name:r.pastor,visit_plan:r.plan,visit_done:r.visited||false,worship_confirm:r.worship||'',memo:r.note,created_by:role}));
-    await SB.from('absent_visit').upsert(rows);
-  }catch(e){}
-}
-
-function showPg(i,el){
-  document.querySelectorAll('.pg').forEach((p,j)=>p.classList.toggle('on',j===i));
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));
-  if(i===2) renderP3();
-  if(i===3) { renderUserList(); renderAdminSetup(); }
-}
-
-// ═══════════════ EXCEL PARSER (스마트 로직) ═══════════════
-function n(v){return typeof v==='number'?v:0;}
-function handleXlsx(inp){
-  const f=inp.files[0]; if(!f) return;
-  showLoad(true);
-  const rd=new FileReader();
-  rd.onload=function(e){
-    try{
-      const wb=XLSX.read(e.target.result,{type:'array'});
-      parseSmartWB(wb);
-      localStorage.setItem('sj_att',JSON.stringify(att));
-      if(SB) pushAttDB();
-      document.getElementById('upst').textContent=`✅ 데이터 파싱 완료`;
-      renderP1();
-    }catch(err){ document.getElementById('upst').textContent='❌ 오류: '+err.message; }
-    showLoad(false);
   };
-  rd.readAsArrayBuffer(f);
+  if (body !== null) options.body = JSON.stringify(body);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tablePath}`, options);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || '요청 실패');
+  }
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) return await res.json();
+  return null;
 }
 
-function parseSmartWB(wb){
-  wb.SheetNames.forEach(nm => {
-    const m = nm.match(/43-(\d{2}-\d{2})/);
-    if (!m) return;
-    const wk = '43-' + m[1];
-    if (!att[wk]) att[wk] = { churches: [], depts: [] };
-    
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[nm], { header: 1, defval: null });
-    let currentContext = '지파전체'; 
-    
-    for (let r = 0; r < rows.length; r++) {
-      const row = rows[r];
-      if (!row || row.length === 0) continue;
-      
-      const rowStr = row.join('').replace(/\s/g,'');
-      if (rowStr.includes('서울야고보지파') && rowStr.includes('부서')) currentContext = '지파전체';
-      else if (rowStr.includes('포천교회')) currentContext = '포천';
-      else if (rowStr.includes('구리교회')) currentContext = '구리';
-      else if (rowStr.includes('동대문교회')) currentContext = '동대문';
-      else if (rowStr.includes('의정부교회')) currentContext = '의정부';
-      else if (rowStr.includes('서울교회')) currentContext = '서울';
+function escapeHtml(str='') {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+function normalizeDateLabel(value='') { return String(value).trim() || '날짜 미지정'; }
+function formatWeekKey(month, week) { return `${DEFAULT_YEAR}-${String(month).padStart(2, '0')}-w${week}`; }
+function formatWeekLabel(month, week) { return `${DEFAULT_YEAR}년 ${month}월 ${week}주차`; }
 
-      const bI = row.indexOf('출결재적');
-      if (bI !== -1) {
-        const aI = row.indexOf('당일출석') >= 0 ? row.indexOf('당일출석') : row.indexOf('출석수');
-        const rI = row.indexOf('출석율'), cI = row.indexOf('인증출석'), crI = row.indexOf('인증출석율');
-        const sI = row.indexOf('사유출석'), srI = row.indexOf('사유출석율'), tI = row.indexOf('전주대비');
-        const chIdx = row.indexOf('교회'), dpIdx = row.indexOf('부서');
+function showLoading(show) {
+  const el = document.getElementById('loading-overlay');
+  if (el) el.style.display = show ? 'flex' : 'none';
+}
+function showToast(msg, isError=false) {
+  const toast = document.getElementById('saveToast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.style.background = isError ? '#e74c3c' : '#2c3e50';
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 2400);
+}
 
-        if (chIdx !== -1 && dpIdx === -1) {
-          while (++r < rows.length && rows[r] && rows[r][chIdx]) {
-            const dRow = rows[r];
-            if (!CHURCHES.includes(dRow[chIdx])) continue;
-            const base=n(dRow[bI]), at=n(dRow[aI]);
-            const exists = att[wk].churches.findIndex(x => x.church === dRow[chIdx]);
-            const newObj = {
-              church: dRow[chIdx], base, att:at, rate:n(dRow[rI])||(base?at/base:0),
-              cert:n(dRow[cI]), crate:n(dRow[crI])||(base?n(dRow[cI])/base:0),
-              sayu:n(dRow[sI]), srate:n(dRow[srI])||(base?n(dRow[sI])/base:0),
-              trend:typeof dRow[tI]==='number'?dRow[tI]:null
-            };
-            if(exists >= 0) att[wk].churches[exists] = newObj; else att[wk].churches.push(newObj);
-          }
-        } 
-        else if (dpIdx !== -1) {
-          while (++r < rows.length && rows[r] && rows[r][dpIdx]) {
-            const dRow = rows[r];
-            if (dRow[dpIdx].includes('계') || dRow[dpIdx].includes('총합')) continue;
-            const base=n(dRow[bI]), at=n(dRow[aI]);
-            let cName = currentContext;
-            if (chIdx !== -1 && dRow[chIdx]) cName = dRow[chIdx];
-            
-            const exists = att[wk].depts.findIndex(x => x.church === cName && x.dept === dRow[dpIdx]);
-            const newObj = {
-              church: cName, dept: dRow[dpIdx], base, att:at, rate:n(dRow[rI])||(base?at/base:0),
-              trend:typeof dRow[tI]==='number'?dRow[tI]:null,
-              cert:n(dRow[cI]), crate:n(dRow[crI])||(base?n(dRow[cI])/base:0),
-              sayu:n(dRow[sI]), srate:n(dRow[srI])||(base?n(dRow[sI])/base:0)
-            };
-            if(exists >= 0) att[wk].depts[exists] = newObj; else att[wk].depts.push(newObj);
-          }
+function appendPwDigit(digit) {
+  const inp = document.getElementById('pw-input');
+  if (!inp) return;
+  if (inp.value.length < inp.maxLength) inp.value += digit;
+}
+function backspacePw() {
+  const inp = document.getElementById('pw-input');
+  if (!inp) return;
+  inp.value = inp.value.slice(0, -1);
+}
+function clearPw() {
+  const inp = document.getElementById('pw-input');
+  if (!inp) return;
+  inp.value = '';
+}
+function focusPwInput() {
+  const inp = document.getElementById('pw-input');
+  if (!inp) return;
+  setTimeout(() => inp.focus(), 0);
+  setTimeout(() => inp.focus(), 250);
+}
+function checkPw() {
+  const val = document.getElementById('pw-input').value;
+  if (val === CORRECT_PW) {
+    document.getElementById('pw-overlay').style.display = 'none';
+    switchWeek(currentWeekKey);
+  } else {
+    const err = document.getElementById('pw-error');
+    err.style.display = 'block';
+    const inp = document.getElementById('pw-input');
+    inp.style.borderColor = '#e74c3c';
+    inp.value = '';
+    focusPwInput();
+    setTimeout(() => { err.style.display = 'none'; inp.style.borderColor = '#ddd'; }, 2000);
+  }
+}
+
+function renderMonthButtons() {
+  const mount = document.getElementById('monthButtons');
+  if (!mount) return;
+  mount.innerHTML = monthNames.map(month =>
+    `<button class="month-btn ${month === currentMonth ? 'active' : ''}" type="button" onclick="setCurrentMonth(${month})">${month}월</button>`
+  ).join('');
+}
+function renderWeekButtons() {
+  const mount = document.getElementById('weekButtons');
+  if (!mount) return;
+  mount.innerHTML = weekNumbers.map(week => {
+    const weekKey = formatWeekKey(currentMonth, week);
+    return `<button class="week-btn ${week === currentWeekNumber ? 'active' : ''}" type="button" onclick="switchWeek('${weekKey}')">${week}주차</button>`;
+  }).join('');
+}
+function updateCurrentWeekLabel() {
+  const el = document.getElementById('currentWeekLabel');
+  if (el) el.textContent = `현재 주차: ${weekLabelMap[currentWeekKey] || formatWeekLabel(currentMonth, currentWeekNumber)}`;
+}
+function setCurrentMonth(month) {
+  currentMonth = month;
+  renderMonthButtons();
+  renderWeekButtons();
+  switchWeek(formatWeekKey(currentMonth, currentWeekNumber));
+}
+function syncImportInputs() {
+  const keyInput = document.getElementById('importWeekKey');
+  const labelInput = document.getElementById('importWeekLabel');
+  if (keyInput) keyInput.value = currentWeekKey;
+  if (labelInput) labelInput.value = weekLabelMap[currentWeekKey] || formatWeekLabel(currentMonth, currentWeekNumber);
+}
+function toggleImportPanel() {
+  const p = document.getElementById('weekImportPanel');
+  if (!p) return;
+  if (p.style.display === 'none' || !p.style.display) {
+    p.style.display = 'block';
+    syncImportInputs();
+  } else {
+    p.style.display = 'none';
+  }
+}
+
+async function loadWeekTargetsFromSupabase(weekKey) {
+  return await sbFetch(`${TABLE_TARGETS}?select=*&week_key=eq.${encodeURIComponent(weekKey)}&order=row_order.asc`);
+}
+async function loadProgressFromSupabase(weekKey) {
+  try {
+    const rows = await sbFetch(`${TABLE_PROGRESS}?select=*&week_key=eq.${encodeURIComponent(weekKey)}`);
+    (rows || []).forEach(r => {
+      const targetCb = document.getElementById('target_' + r.row_id);
+      const cb = document.getElementById(r.row_id);
+      const ta = document.getElementById('note_' + r.row_id);
+      const worship = document.getElementById('worship_' + r.row_id);
+      const attendance = document.getElementById('attendance_' + r.row_id);
+
+      if (targetCb) {
+        targetCb.checked = !!r.is_target;
+        const tlbl = document.getElementById('target_lbl_' + r.row_id);
+        if (tlbl) {
+          tlbl.textContent = r.is_target ? '타겟' : '미타겟';
+          tlbl.className = 'check-label ' + (r.is_target ? 'target-on' : 'target-off');
         }
       }
+      if (cb) {
+        cb.checked = !!r.is_done;
+        const lbl = document.getElementById('lbl_' + r.row_id);
+        if (lbl) {
+          lbl.textContent = r.is_done ? '완료' : '미완료';
+          lbl.className = 'check-label ' + (r.is_done ? 'done' : 'pending');
+        }
+        if (r.is_done) cb.closest('tr')?.classList.add('row-done');
+      }
+      if (ta) {
+        ta.value = r.note || '';
+        if (ta.value.trim()) ta.classList.add('has-note');
+      }
+      if (worship) {
+        worship.value = r.worship || '';
+        applyWorshipStyle(worship);
+      }
+      if (attendance) {
+        attendance.value = r.attendance || '';
+        applyAttendanceStyle(attendance);
+      }
+    });
+
+    updateProgress();
+    updateDateBadges();
+    applyFilters();
+  } catch(e) {
+    console.error(e);
+    showToast('데이터 불러오기 실패: ' + e.message, true);
+  }
+}
+async function switchWeek(weekKey) {
+  currentWeekKey = weekKey;
+  const match = weekKey.match(/^(\d{4})-(\d{2})-w([1-5])$/);
+  if (match) {
+    currentMonth = Number(match[2]);
+    currentWeekNumber = Number(match[3]);
+    if (!weekLabelMap[weekKey]) weekLabelMap[weekKey] = formatWeekLabel(currentMonth, currentWeekNumber);
+  }
+  currentStatusFilter = 'all';
+  currentDeptFilter = 'all';
+  currentWorshipFilter = 'all';
+  currentWorshipDeptFilter = 'all';
+  currentAttendanceFilter = 'all';
+  currentTargetFilter = 'all';
+  updateCurrentWeekLabel();
+
+  showLoading(true);
+  try {
+    let targets = weekTargetsCache[weekKey];
+    if (!targets) {
+      targets = await loadWeekTargetsFromSupabase(weekKey);
+      weekTargetsCache[weekKey] = targets;
     }
+    renderWeekTargets(targets || []);
+    if ((targets || []).length > 0) await loadProgressFromSupabase(weekKey);
+    applyCardFilter('total');
+    renderMonthButtons();
+    renderWeekButtons();
+    syncImportInputs();
+  } finally {
+    showLoading(false);
+  }
+}
+
+function groupTargetsByDate(targets) {
+  const map = new Map();
+  targets.forEach(t => {
+    const key = normalizeDateLabel(t.visit_date || '날짜 미지정');
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(t);
   });
+  return map;
 }
 
-async function pushAttDB(){
-  if(!SB) return;
-  for(const [wk,d] of Object.entries(att)){
-    for(const c of d.churches){
-      await SB.from('attendance_church').upsert({week_key:wk,service_type:'주일예배',church:c.church,total_count:c.base,attend_count:c.att,attend_rate:c.rate,cert_count:c.cert,cert_rate:c.crate,reason_count:c.sayu,reason_rate:c.srate,week_trend:c.trend},{onConflict:'week_key,service_type,church'});
-    }
-    for(const dep of (d.depts||[])){
-      await SB.from('attendance_dept').upsert({week_key:wk,service_type:'주일예배',church:dep.church,dept:dep.dept,total_count:dep.base,attend_count:dep.att,attend_rate:dep.rate,cert_count:dep.cert,cert_rate:dep.crate,reason_count:dep.sayu,reason_rate:dep.srate,week_trend:dep.trend},{onConflict:'week_key,service_type,church,dept'});
-    }
-  }
-}
+function renderWeekTargets(targets) {
+  const mount = document.getElementById('weekSectionsMount');
+  const emptyState = document.getElementById('emptyWeekState');
+  if (!mount) return;
+  mount.innerHTML = '';
 
-// ═══════════════ PAGE1: 출석률 ═══════════════
-function getCertTrend(church, dept=null) {
-  const wks=Object.keys(att).sort();
-  const idx = wks.indexOf(selWk);
-  if(idx <= 0) return null;
-  const curD = att[selWk], prevD = att[wks[idx-1]];
-  if(!prevD) return null;
-  
-  if(dept === null) {
-    const curC = curD.churches.find(x => x.church === church);
-    const prevC = prevD.churches.find(x => x.church === church);
-    return (curC && prevC) ? (curC.crate - prevC.crate) : null;
-  } else {
-    const curDep = (curD.depts||[]).find(x => x.church === church && x.dept === dept);
-    const prevDep = (prevD.depts||[]).find(x => x.church === church && x.dept === dept);
-    return (curDep && prevDep) ? (curDep.crate - prevDep.crate) : null;
-  }
-}
-
-function renderP1(){
-  const wks=Object.keys(att).sort();
-  if(!wks.length){
-    document.getElementById('ch-wrap').innerHTML='<div style="text-align:center;padding:40px;color:var(--txt3);">엑셀 파일을 업로드하거나 시스템이 DB를 불러오면 출석률이 표시됩니다.</div>';
+  if (!targets || targets.length === 0) {
+    emptyState.innerHTML = "해당 주차에 등록된 결석자가 없습니다.<br>'명단 업로드' 버튼을 눌러 CSV 또는 텍스트를 업로드해주세요.";
+    emptyState.style.display = 'block';
+    updateProgress();
     return;
   }
-  if(!selWk||!att[selWk]) selWk=wks[wks.length-1];
-  document.getElementById('wk-card').style.display='';
-  document.getElementById('wk-row').innerHTML=wks.map(w=>`<button class="wkb ${w===selWk?'on':''}" onclick="selWeek('${w}',this)">${w}</button>`).join('');
-  renderCH();
-}
-function selWeek(w,el){
-  selWk=w; selCh=null;
-  document.querySelectorAll('.wkb').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  renderCH();
-}
-function renderCH(){
-  const d=att[selWk]; if(!d) return;
-  document.getElementById('ch-wrap').innerHTML=d.churches.map(c=>{
-    const pct=(c.rate*100).toFixed(1);
-    const cls=c.rate>=0.9?'h':c.rate>=0.8?'m':'l';
-    const tr=c.trend!==null?`<span class="${c.trend>=0?'tg-up':'tg-dn'}">${c.trend>=0?'▲':'▼'}${Math.abs((c.trend*100).toFixed(1))}%p</span>`:'';
-    const cTrendVal = getCertTrend(c.church);
-    const cTrendStr = cTrendVal !== null ? `<span style="font-size:10px;color:${cTrendVal>=0?'var(--ok)':'var(--danger)'};font-weight:700;">${cTrendVal>=0?'▲':'▼'}${Math.abs((cTrendVal*100).toFixed(1))}%p</span>` : '-';
 
-    const isSel=selCh===c.church;
-    return `<div class="chcard ${isSel?'sel':''}" onclick="selChurch('${c.church}')">
-      <div class="ch-nm">${c.church} ${tr}</div>
-      <div class="ch-rate ${cls}">${pct}%</div>
-      <div class="ch-meta">${c.att.toLocaleString()} / ${c.base.toLocaleString()}명 출석</div>
-      <div class="ch-row">
-        <div class="ch-it"><div class="ch-it-l">인증율</div><div class="ch-it-v">${(c.crate*100).toFixed(1)}%</div></div>
-        <div class="ch-it" style="background:${cTrendVal!==null?(cTrendVal>=0?'#dcfce7':'#fee2e2'):'var(--s3)'};"><div class="ch-it-l">인증(전주)</div><div class="ch-it-v">${cTrendStr}</div></div>
-        <div class="ch-it"><div class="ch-it-l">사유출석</div><div class="ch-it-v">${c.sayu.toLocaleString()}</div></div>
+  emptyState.style.display = 'none';
+  const grouped = groupTargetsByDate(targets);
+  grouped.forEach((rows, dateLabel) => {
+    rows.sort((a, b) => (a.row_order || 0) - (b.row_order || 0));
+    const section = document.createElement('div');
+    section.className = 'date-section';
+    section.innerHTML = `
+      <div class="date-header">
+        <span>${escapeHtml(dateLabel)}</span>
+        <div class="date-header-right">
+          <span class="badge">총 ${rows.length}건</span>
+        </div>
       </div>
-    </div>`;
-  }).join('');
-  renderDP();
-}
-function selChurch(ch){
-  selCh=selCh===ch?null:ch;
-  document.querySelectorAll('.chcard').forEach(card=>{
-    const nm=card.querySelector('.ch-nm').textContent.trim().split(' ')[0];
-    card.classList.toggle('sel',nm===selCh);
+      <table>
+        <thead>
+          <tr>
+            <th>부서</th>
+            <th>이름</th>
+            <th>소속</th>
+            <th>심방자</th>
+            <th>심방 계획</th>
+            <th style="text-align:center;">타겟여부</th>
+            <th style="text-align:center;">진행여부</th>
+            <th style="text-align:center;">예배확답</th>
+            <th>비고</th>
+            <th style="text-align:center;">예배참석</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td class="dept-${escapeHtml(r.dept)}">${escapeHtml(r.dept || '')}</td>
+              <td><strong>${escapeHtml(r.name || '')}</strong></td>
+              <td>${escapeHtml(r.org_name || '')}</td>
+              <td>${escapeHtml(r.shepherd || '')}</td>
+              <td>${escapeHtml(r.plan_text || '')}</td>
+              <td class="check-cell">
+                <div class="check-wrap target">
+                  <input type="checkbox" id="target_${r.row_id}" onchange="onTargetCheck(this, '${r.row_id}')">
+                  <span class="check-label target-off" id="target_lbl_${r.row_id}">미타겟</span>
+                </div>
+              </td>
+              <td class="check-cell">
+                <div class="check-wrap">
+                  <input type="checkbox" id="${r.row_id}" onchange="onCheck(this, '${r.row_id}')">
+                  <span class="check-label pending" id="lbl_${r.row_id}">미완료</span>
+                </div>
+              </td>
+              <td class="worship-cell">
+                <select class="worship-select" id="worship_${r.row_id}" onchange="onWorship(this, '${r.row_id}')">
+                  <option value="">선택</option>
+                  <option value="확정">확정</option>
+                  <option value="미정">미정</option>
+                  <option value="불참">불참</option>
+                </select>
+              </td>
+              <td class="note-cell">
+                <textarea class="note-input" id="note_${r.row_id}" oninput="onNote(this, '${r.row_id}')" placeholder="비고 입력..."></textarea>
+              </td>
+              <td class="attendance-cell">
+                <select class="attendance-select" id="attendance_${r.row_id}" onchange="onAttendance(this, '${r.row_id}')">
+                  <option value="">선택</option>
+                  <option value="참석">참석</option>
+                  <option value="불참">불참</option>
+                </select>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    mount.appendChild(section);
   });
-  renderDP();
-}
-function renderDP(){
-  const wrap=document.getElementById('dp-wrap');
-  const d=att[selWk];
-  if(!d){wrap.innerHTML='';return;}
-  
-  const targetCh = selCh || '지파전체';
-  const depts = (d.depts||[]).filter(dep => dep.church === targetCh);
-  
-  if(!depts.length){
-    wrap.innerHTML=`<div class="dpanel"><div class="dpanel-ttl">🏛 ${targetCh} 부서별 현황</div><div style="font-size:13px;color:var(--txt3);">해당 영역의 부서 데이터가 엑셀에 없습니다.</div></div>`;
-    return;
-  }
-  
-  const rows=depts.map(dep=>{
-    const pct=(dep.rate*100).toFixed(1);
-    const cls=dep.rate>=0.9?'rfh':dep.rate>=0.8?'rfm':'rfl';
-    const tr=dep.trend!==null?`<span style="color:${dep.trend>=0?'var(--ok)':'var(--danger)'};font-size:11px;font-weight:700;">${dep.trend>=0?'▲':'▼'}${Math.abs((dep.trend*100).toFixed(1))}%p</span>`:'—';
-    const cTrendVal = getCertTrend(targetCh, dep.dept);
-    const ctr=cTrendVal!==null?`<span style="color:${cTrendVal>=0?'var(--ok)':'var(--danger)'};font-size:11px;font-weight:700;">${cTrendVal>=0?'▲':'▼'}${Math.abs((cTrendVal*100).toFixed(1))}%p</span>`:'—';
-
-    return `<tr>
-      <td style="font-weight:700;text-align:left;padding-left:13px;">${dep.dept}</td>
-      <td>${dep.base.toLocaleString()}</td><td>${dep.att.toLocaleString()}</td>
-      <td><div style="font-weight:700;">${pct}%</div><div class="rbar"><div class="rfill ${cls}" style="width:${Math.min(parseFloat(pct),100)}%"></div></div></td>
-      <td>${(dep.crate*100).toFixed(1)}%</td><td>${ctr}</td>
-      <td>${dep.sayu.toLocaleString()}</td><td>${tr}</td>
-    </tr>`;
-  }).join('');
-  wrap.innerHTML=`<div class="dpanel">
-    <div class="dpanel-ttl">🏛 ${targetCh} 부서별 출석 현황</div>
-    <div style="overflow-x:auto;">
-    <table class="dtbl"><thead><tr>
-      <th>부서</th><th>재적</th><th>출석수</th><th>출석률</th>
-      <th>인증율</th><th>인증율(전주대비)</th><th>사유출석</th><th>출석률(전주대비)</th>
-    </tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
-// ═══════════════ PAGE2: 심방 ═══════════════
-function isTgt(r){ const th = thresholds[r.cat] || 4; return r.absent >= th; }
-function getWorshipSummary() {
-  const s = { confirmed:0, planned:0, rejected:0, unknown:0 };
-  recs.forEach(r => {
-    if(r.worship === '확정' || r.worship === '주일확답' || r.worship === '삼일확답') s.confirmed++;
-    else if(r.worship === '예정') s.planned++;
-    else if(r.worship === '거절') s.rejected++;
-    else s.unknown++;
+async function callRpc(name, payload) {
+  return await sbFetch(`rpc/${name}`, 'POST', payload);
+}
+async function upsertRow(rowId) {
+  const targetCb = document.getElementById('target_' + rowId);
+  const cb = document.getElementById(rowId);
+  const ta = document.getElementById('note_' + rowId);
+  const worship = document.getElementById('worship_' + rowId);
+  const attendance = document.getElementById('attendance_' + rowId);
+
+  await callRpc('upsert_weekly_visit_progress', {
+    p_week_key: currentWeekKey,
+    p_row_id: rowId,
+    p_is_target: targetCb ? targetCb.checked : false,
+    p_is_done: cb ? cb.checked : false,
+    p_worship: worship ? (worship.value || null) : null,
+    p_attendance: attendance ? (attendance.value || null) : null,
+    p_note: ta ? ta.value : ''
   });
-  return s;
+}
+const saveTimers = {};
+function scheduleUpsert(rowId) {
+  clearTimeout(saveTimers[rowId]);
+  saveTimers[rowId] = setTimeout(async () => {
+    try {
+      await upsertRow(rowId);
+      showToast('💾 저장됨');
+    } catch (e) {
+      showToast('❌ 저장 실패: ' + e.message, true);
+    }
+  }, 450);
 }
 
-function renderP2(){ updateKPI(); renderTbl(); }
-
-function updateKPI(){
-  const famT = recs.filter(r=>r.cat==='가족'&&r.absent>=thresholds['가족']).length;
-  const extT = recs.filter(r=>r.cat==='가족외'&&r.absent>=thresholds['가족외']).length;
-  const genT = recs.filter(r=>r.cat==='일반'&&r.absent>=thresholds['일반']).length;
-  const tgts = recs.filter(r=>isTgt(r));
-  const tdone= tgts.filter(r=>r.visited).length;
-  
-  document.getElementById('kp0').textContent=recs.length;
-  document.getElementById('kp1').textContent=famT;
-  document.getElementById('kp2').textContent=extT;
-  document.getElementById('kp3').textContent=genT;
-  document.getElementById('kp4').textContent=tgts.length;
-  document.getElementById('kp5').textContent=`${tdone} / ${tgts.length}`;
-  
-  const ws = getWorshipSummary();
-  document.getElementById('worship-kpis').innerHTML = `
-    <div class="kpi kgr"><div class="kpi-l">예배 확정</div><div class="kpi-v" style="font-size:20px;">${ws.confirmed}</div></div>
-    <div class="kpi kor"><div class="kpi-l">예배 예정</div><div class="kpi-v" style="font-size:20px;">${ws.planned}</div></div>
-    <div class="kpi kgy"><div class="kpi-l">미정/무응답</div><div class="kpi-v" style="font-size:20px;">${ws.unknown}</div></div>
-    <div class="kpi kred"><div class="kpi-l">거절</div><div class="kpi-v" style="font-size:20px;">${ws.rejected}</div></div>
-  `;
-
-  document.getElementById('dp-kpi').innerHTML=['자문회','장년회','부녀회','청년회'].map(d=>{
-    const t=recs.filter(r=>r.dept===d&&isTgt(r));
-    const done=t.filter(r=>r.visited).length;
-    return `<div class="kpi" style="min-width:85px;flex:0 0 auto;border-top:3px solid var(--accent);">
-      <div class="kpi-l">${d}</div><div class="kpi-v" style="font-size:20px;">${done}/${t.length}</div>
-      <div class="kpi-s" style="color:${done===t.length&&t.length>0?'var(--ok)':'var(--txt3)'};">완료 ${done}명</div></div>`;
-  }).join('');
-}
-
-function getVis(){ return recs.filter(r=>{ if(fSt==='pend'&&r.visited) return false; if(fDp!=='all'&&r.dept!==fDp) return false; if(fCt!=='all'&&r.cat!==fCt) return false; return true; }); }
-function filt(type,val,el){
-  if(type==='st') fSt=val; if(type==='dp') fDp=val; if(type==='ct') fCt=val;
-  el.parentElement.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on'); renderTbl();
-}
-function renderTbl(){
-  const vis=getVis(); const area=document.getElementById('tbl-area');
-  if(!vis.length){area.innerHTML='<div style="text-align:center;padding:36px;color:var(--txt3);">표시할 데이터가 없습니다.</div>';updateKPI();return;}
-  const grp={};
-  vis.forEach(r=>{const k=r.date||'날짜미정';if(!grp[k])grp[k]=[];grp[k].push(r);});
-  let html='';
-  Object.keys(grp).sort().forEach(date=>{
-    const g=grp[date];
-    html+=`<div class="dh"><span class="dh-d">📅 ${date}</span><span class="dh-c">총 ${g.length}명</span></div>
-    <div class="tw"><table class="mt">
-    <thead><tr>
-      <th>교회</th><th>부서</th><th>이름</th><th>소속</th><th>구분</th><th>연속결석</th>
-      <th>심방자</th><th>심방계획</th><th>타겟</th><th>심방진행</th><th>예배확답</th><th>비고</th>
-      ${ADMIN_ROLES.includes(role)?'<th>삭제</th>':''}
-    </tr></thead><tbody>`;
-    g.forEach(r=>{
-      const idx=recs.indexOf(r), tgt=isTgt(r);
-      const abscls=tgt?'ns-d':'';
-      html+=`<tr class="${r.visited?'done-r':''}">
-        <td>${r.church||'—'}</td><td>${r.dept}</td>
-        <td style="font-weight:700;white-space:nowrap;">${r.name}</td>
-        <td>${r.group||''}</td>
-        <td><select class="ss" onchange="upd(${idx},'cat',this.value)">
-          <option ${r.cat==='일반'?'selected':''}>일반</option>
-          <option ${r.cat==='가족'?'selected':''}>가족</option>
-          <option ${r.cat==='가족외'?'selected':''}>가족외</option>
-        </select></td>
-        <td><input type="number" class="ns ${abscls}" value="${r.absent||0}" min="0" onchange="upd(${idx},'absent',+this.value)"></td>
-        <td><input type="text" class="ss" value="${r.pastor||''}" onchange="upd(${idx},'pastor',this.value)" style="min-width:58px;"></td>
-        <td style="min-width:145px;"><textarea class="tas" onchange="upd(${idx},'plan',this.value)">${r.plan||''}</textarea></td>
-        <td>${tgt?'<span class="t-yes">🎯타겟</span>':'<span class="t-no">—</span>'}</td>
-        <td><div class="ckg"><input type="checkbox" ${r.visited?'checked':''} onchange="upd(${idx},'visited',this.checked)"><div class="ckl ${r.visited?'done':''}">${r.visited?'완료':'미완료'}</div></div></td>
-        <td><select class="ss" onchange="upd(${idx},'worship',this.value)">
-          <option ${!r.worship?'selected':''} value="">미정</option>
-          <option ${(r.worship==='주일확답'||r.worship==='삼일확답'||r.worship==='확정')?'selected':''} value="확정">확정(주일/삼일)</option>
-          <option ${r.worship==='예정'?'selected':''}>예정</option>
-          <option ${r.worship==='거절'?'selected':''}>거절</option>
-          <option ${r.worship==='무응답'?'selected':''}>무응답</option>
-        </select></td>
-        <td style="min-width:115px;"><textarea class="tas" onchange="upd(${idx},'note',this.value)">${r.note||''}</textarea></td>
-        ${ADMIN_ROLES.includes(role)?`<td><button class="delbtn" onclick="delR(${idx})">✕</button></td>`:''}
-      </tr>`;
-    });
-    html+='</tbody></table></div>';
-  });
-  area.innerHTML=html; updateKPI();
-}
-function upd(i,f,v){ recs[i][f]=v; if(f==='absent'||f==='cat') renderTbl(); else updateKPI(); }
-function delR(i){ recs.splice(i,1); renderTbl(); }
-function openAdd(){ document.getElementById('a-dt').value=new Date().toISOString().slice(0,10); document.getElementById('m-add').classList.add('on'); }
-function closeM(id){ document.getElementById(id).classList.remove('on'); }
-function submitAdd(){
-  const r={date:document.getElementById('a-dt').value,church:document.getElementById('a-ch').value,dept:document.getElementById('a-dp').value,name:document.getElementById('a-nm').value.trim(),group:document.getElementById('a-gr').value.trim(),cat:document.getElementById('a-ct').value,absent:+document.getElementById('a-ab').value,pastor:document.getElementById('a-ps').value.trim(),plan:document.getElementById('a-pl').value.trim(),note:document.getElementById('a-nt').value.trim(),visited:false,worship:''};
-  if(!r.name){alert('이름을 입력하세요.');return;}
-  recs.push(r); closeM('m-add'); renderTbl(); toast('추가되었습니다.');
-}
-function confClear(){
-  document.getElementById('cm-t').textContent='초기화 확인';
-  document.getElementById('cm-m').textContent='모든 결석자 데이터가 삭제됩니다.';
-  document.getElementById('cm-ok').onclick=()=>{recs=[];renderTbl();closeM('m-conf');toast('초기화되었습니다.');};
-  document.getElementById('m-conf').classList.add('on');
-}
-function clearAtt(){att={};selWk='';selCh=null;localStorage.removeItem('sj_att');renderP1();toast('출석 데이터 초기화됨');}
-function dlCSV(){
-  let c='날짜,교회,부서,이름,소속,구분,결석수,심방자,심방계획,타겟,심방진행,예배확답,비고\n';
-  recs.forEach(r=>{ c+=`"${r.date||''}","${r.church||''}","${r.dept}","${r.name}","${r.group||''}","${r.cat}",${r.absent||0},"${r.pastor||''}","${(r.plan||'').replace(/"/g,'""')}","${isTgt(r)?'타겟':''}","${r.visited?'완료':'미완료'}","${r.worship||''}","${(r.note||'').replace(/"/g,'""')}"\n`; });
-  const b=new Blob(['\uFEFF'+c],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='심방_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
-}
-
-// ═══════════════ PAGE3: 예배분석 ═══════════════
-function renderP3(){ drawC1(); drawC2(); renderMG(); calcTgt(); }
-function getWD(){ return Object.keys(att).sort().map(wk=>({wk,churches:att[wk].churches,depts:att[wk].depts||[]})); }
-
-function drawC1(){
-  const data=getWD(); if(!data.length) return;
-  const labels=data.map(d=>d.wk.replace('43-',''));
-  const cols=['#2563eb','#0ea5e9','#7c3aed','#16a34a','#d97706'];
-  const ds=CHURCHES.map((ch,i)=>({label:ch,data:data.map(d=>{const c=d.churches.find(x=>x.church===ch);return c?parseFloat((c.rate*100).toFixed(1)):null;}),borderColor:cols[i],backgroundColor:cols[i]+'22',tension:.4,fill:false,pointRadius:4}));
-  
-  const tribeAvg = data.map(d=>{
-      const tAtt = d.churches.reduce((s,c)=>s+c.att, 0);
-      const tBase = d.churches.reduce((s,c)=>s+c.base, 0);
-      return tBase ? parseFloat((tAtt/tBase*100).toFixed(1)) : null;
-  });
-  ds.push({label:'지파 평균',data:tribeAvg,borderColor:'#1e293b',backgroundColor:'#1e293b22',tension:.4,fill:false,pointRadius:5,borderWidth:2.5});
-
-  const ctx=document.getElementById('cw1');
-  if(cw1) cw1.destroy();
-  cw1=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:chartRanges.c1Min,max:chartRanges.c1Max,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
-}
-
-function drawC2(){
-  const data=getWD(); if(!data.length) return;
-  const labels=data.map(d=>d.wk.replace('43-',''));
-  const cols=['#2563eb','#0ea5e9','#7c3aed','#16a34a','#d97706'];
-  const ds = CHURCHES.map((ch,i)=>({
-    label: ch,
-    data: data.map(d=>{const c=d.churches.find(x=>x.church===ch); return c?parseFloat((c.crate*100).toFixed(1)):null;}),
-    borderColor: cols[i], backgroundColor: cols[i]+'22', tension:.4, fill:false, pointRadius:3, borderDash:[4,4]
-  }));
-
-  const tribeCert = data.map(d=>{
-      const tCert = d.churches.reduce((s,c)=>s+c.cert, 0);
-      const tBase = d.churches.reduce((s,c)=>s+c.base, 0);
-      return tBase ? parseFloat((tCert/tBase*100).toFixed(1)) : null;
-  });
-  ds.push({label:'지파 인증 평균',data:tribeCert,borderColor:'#1e293b',backgroundColor:'#1e293b22',tension:.4,fill:false,pointRadius:5,borderWidth:2.5});
-
-  const ctx=document.getElementById('cw2');
-  if(cw2) cw2.destroy();
-  cw2=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:{size:11}}}},scales:{x:{ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'#e2e8f0'}},y:{min:chartRanges.c2Min,max:chartRanges.c2Max,ticks:{color:'#94a3b8',callback:v=>v+'%'},grid:{color:'#e2e8f0'}}}}});
-}
-
-function renderMG(){
-  const data=getWD(); if(!data.length){document.getElementById('mgrid').innerHTML='<div style="color:var(--txt3);">데이터 없음</div>';return;}
-  const recent=data.slice(-4);
-  document.getElementById('mgrid').innerHTML=CHURCHES.map(ch=>{
-    const rates=recent.map(d=>{const c=d.churches.find(x=>x.church===ch);return c?c.rate:null;}).filter(x=>x!==null);
-    const avg=rates.length?rates.reduce((s,r)=>s+r,0)/rates.length:0;
-    const pct=(avg*100).toFixed(1);
-    const col=avg>=0.9?'var(--ok)':avg>=0.8?'var(--warn)':'var(--danger)';
-    return `<div class="mcard"><div class="mc-n">${ch}</div><div class="mc-v" style="color:${col};">${pct}%</div><div style="font-size:10px;color:var(--txt3);margin-top:3px;">최근${rates.length}주 평균</div></div>`;
-  }).join('');
-}
-
-function calcTgt(){
-  const wks=Object.keys(att).sort(); const tbody=document.getElementById('tgt-body');
-  if(!wks.length){tbody.innerHTML='<tr><td colspan="7" style="color:var(--txt3);text-align:center;padding:16px;">출석 데이터를 먼저 업로드하세요.</td></tr>';return;}
-  const lat=att[wks[wks.length-1]]; let html='';
-  let tBaseSum=0, tGoalSum=0;
-  
-  lat.churches.forEach(c=>{
-    const pct=(c.rate*100).toFixed(1);
-    const gRate = chTargets[c.church] || 90;
-    tBaseSum += c.base; tGoalSum += c.base * (gRate/100);
-
-    const needed=Math.max(0,Math.ceil(c.base*(gRate/100))-c.att);
-    const ac=recs.filter(r=>r.church===c.church&&isTgt(r)).length;
-    const tg=Math.min(needed,ac);
-    const col=c.rate>=(gRate/100)?'var(--ok)':c.rate>=(gRate/100)-0.1?'var(--warn)':'var(--danger)';
-    html+=`<tr><td style="font-weight:700;">${c.church}</td><td style="color:var(--txt3);">전체</td><td>${c.base.toLocaleString()}</td>
-      <td><span style="color:${col};font-weight:700;">${pct}%</span></td>
-      <td style="color:var(--accent);font-weight:700;">${gRate}%</td>
-      <td>${needed===0?'<span class="nok">충족 ✓</span>':`<span class="nn">${needed}명</span>`}</td>
-      <td>${tg?`<span class="t-yes">${tg}명</span>`:'—'}</td></tr>`;
-  });
-
-  if(lat.depts&&lat.depts.length) lat.depts.forEach(dep=>{
-    const chName = dep.church === '지파전체' ? '서울' : dep.church; 
-    const pct=(dep.rate*100).toFixed(1);
-    const gRate = chTargets[chName] || 90;
-    const needed=Math.max(0,Math.ceil(dep.base*(gRate/100))-dep.att);
-    
-    const ac=recs.filter(r=>r.dept===dep.dept && (r.church===chName||dep.church==='지파전체') && isTgt(r)).length;
-    const tg=Math.min(needed,ac);
-    const col=dep.rate>=(gRate/100)?'var(--ok)':dep.rate>=(gRate/100)-0.1?'var(--warn)':'var(--danger)';
-    html+=`<tr><td style="color:var(--txt3);">${dep.church}</td><td style="font-weight:600;">${dep.dept}</td><td>${dep.base.toLocaleString()}</td>
-      <td><span style="color:${col};font-weight:700;">${pct}%</span></td>
-      <td style="color:var(--accent);font-weight:700;">${gRate}%</td>
-      <td>${needed===0?'<span class="nok">충족 ✓</span>':`<span class="nn">${needed}명</span>`}</td>
-      <td>${tg?`<span class="t-yes">${tg}명</span>`:'—'}</td></tr>`;
-  });
-  
-  tbody.innerHTML=html; 
-  const overallTarget = tBaseSum ? ((tGoalSum / tBaseSum) * 100).toFixed(1) : 90;
-  document.getElementById('cur-goal').textContent = `현재 지파 전체 목표 평균: ${overallTarget}% (교회별 비례 합산)`;
-}
-
-// ═══════════════ ADMIN PAGE ═══════════════
-function renderAdminSetup() {
-  document.getElementById('ch-targets-row').innerHTML = CHURCHES.map(ch => 
-    `<div class="afield"><label>${ch} (%)</label><input type="number" id="adm-tg-${ch}" min="1" max="100" value="${chTargets[ch]||90}"></div>`
-  ).join('');
-
-  document.getElementById('th-fam').value = thresholds['가족'] || 8;
-  document.getElementById('th-ext').value = thresholds['가족외'] || 8;
-  document.getElementById('th-gen').value = thresholds['일반'] || 4;
-  
-  document.getElementById('c1-min').value = chartRanges.c1Min;
-  document.getElementById('c1-max').value = chartRanges.c1Max;
-  document.getElementById('c2-min').value = chartRanges.c2Min;
-  document.getElementById('c2-max').value = chartRanges.c2Max;
-}
-
-function renderUserList() {
-  const tbody = document.getElementById('user-list');
-  tbody.innerHTML = appUsers.map(u => {
-    return `<tr>
-      <td style="font-weight:600;">${u.role}</td>
-      <td style="font-family:'Oswald',sans-serif;letter-spacing:1px;">${u.unique_id}</td>
-      <td>${u.name}</td>
-      <td>${u.pw}</td>
-      <td>
-        <button class="abtn b-clr" style="padding:4px 8px;font-size:11px;" onclick="deleteUser('${u.unique_id}')">삭제</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-async function deleteUser(uid) {
-  if(!confirm('해당 접속자를 삭제하시겠습니까?')) return;
-  
-  appUsers = appUsers.filter(x => x.unique_id !== uid);
-  localStorage.setItem('sj_users', JSON.stringify(appUsers));
-  
-  if(SB) {
-    await SB.from('app_users').delete().eq('unique_id', uid);
-  }
-  
-  renderUserList();
-  toast('삭제되었습니다.');
-}
-
-async function addUserAdmin() {
-  const r = document.getElementById('np-role').value;
-  const u = document.getElementById('np-uid').value.trim();
-  const n = document.getElementById('np-name').value.trim();
-  const p = document.getElementById('np-pw').value.trim();
-  
-  if(!r || !u || !n || !p){ toast('모든 필드를 입력하세요.'); return; }
-  if(!/^\d{8}-\d{5}$/.test(u)){ toast('고유번호 형식(00000000-00000)을 맞춰주세요.'); return; }
-  
-  const newUser = { unique_id: u, role: r, name: n, pw: p };
-  
-  const existingIndex = appUsers.findIndex(x => x.unique_id === u);
-  if(existingIndex >= 0) {
-    appUsers[existingIndex] = newUser;
+function onTargetCheck(cb, rowId) {
+  const lbl = document.getElementById('target_lbl_' + rowId);
+  if (cb.checked) {
+    lbl.textContent = '타겟';
+    lbl.className = 'check-label target-on';
   } else {
-    appUsers.push(newUser);
+    lbl.textContent = '미타겟';
+    lbl.className = 'check-label target-off';
   }
-  
-  localStorage.setItem('sj_users', JSON.stringify(appUsers));
-  
-  if(SB) {
-    await SB.from('app_users').upsert({
-      unique_id: u, role_name: r, user_name: n, password: p
+  updateProgress();
+  updateDateBadges();
+  applyFilters();
+  if (document.getElementById('pw-overlay').style.display === 'none') scheduleUpsert(rowId);
+}
+function onCheck(cb, rowId) {
+  const lbl = document.getElementById('lbl_' + rowId);
+  if (cb.checked) {
+    lbl.textContent = '완료';
+    lbl.className = 'check-label done';
+    cb.closest('tr').classList.add('row-done');
+  } else {
+    lbl.textContent = '미완료';
+    lbl.className = 'check-label pending';
+    cb.closest('tr').classList.remove('row-done');
+  }
+  updateProgress();
+  updateDateBadges();
+  applyFilters();
+  if (document.getElementById('pw-overlay').style.display === 'none') scheduleUpsert(rowId);
+}
+function onNote(ta, rowId) {
+  if (ta.value.trim()) ta.classList.add('has-note'); else ta.classList.remove('has-note');
+  if (document.getElementById('pw-overlay').style.display === 'none') scheduleUpsert(rowId);
+}
+function applyWorshipStyle(sel) {
+  sel.classList.remove('confirmed', 'pending', 'absent');
+  if (sel.value === '확정') sel.classList.add('confirmed');
+  else if (sel.value === '미정') sel.classList.add('pending');
+  else if (sel.value === '불참') sel.classList.add('absent');
+}
+function onWorship(sel, rowId) {
+  applyWorshipStyle(sel);
+  updateProgress();
+  if (document.getElementById('pw-overlay').style.display === 'none') scheduleUpsert(rowId);
+}
+function applyAttendanceStyle(sel) {
+  sel.classList.remove('attend', 'absent');
+  if (sel.value === '참석') sel.classList.add('attend');
+  else if (sel.value === '불참') sel.classList.add('absent');
+}
+function onAttendance(sel, rowId) {
+  applyAttendanceStyle(sel);
+  updateProgress();
+  if (document.getElementById('pw-overlay').style.display === 'none') scheduleUpsert(rowId);
+}
+
+function updateProgress() {
+  const cbs = document.querySelectorAll('#weekSectionsMount input[type=checkbox][id^="row_"]');
+  const total = cbs.length;
+  let done = 0, attendanceTotal = 0, targetCount = 0;
+  const deptDone = {'자문회':0,'장년회':0,'부녀회':0,'청년회':0};
+  const deptTotal = {'자문회':0,'장년회':0,'부녀회':0,'청년회':0};
+  const deptTarget = {'자문회':0,'장년회':0,'부녀회':0,'청년회':0};
+  const attendanceByDept = {'자문회':0,'장년회':0,'부녀회':0,'청년회':0};
+
+  let worshipConfirmed = 0, worshipPending = 0, worshipAbsent = 0;
+  const worshipByDept = {
+    '확정': {'자문회':0,'장년회':0,'부녀회':0,'청년회':0},
+    '미정': {'자문회':0,'장년회':0,'부녀회':0,'청년회':0},
+    '불참': {'자문회':0,'장년회':0,'부녀회':0,'청년회':0}
+  };
+
+  cbs.forEach(cb => {
+    const row = cb.closest('tr');
+    const dept = row?.querySelector('td:first-child')?.textContent?.trim();
+    if (dept && deptTotal[dept] !== undefined) deptTotal[dept]++;
+
+    const targetChecked = document.getElementById('target_' + cb.id)?.checked;
+    if (targetChecked) {
+      targetCount++;
+      if (dept && deptTarget[dept] !== undefined) deptTarget[dept]++;
+    }
+
+    if (cb.checked) {
+      done++;
+      if (dept && deptDone[dept] !== undefined) deptDone[dept]++;
+    }
+
+    const wVal = document.getElementById('worship_' + cb.id)?.value || '';
+    if (wVal === '확정') { worshipConfirmed++; if (dept) worshipByDept['확정'][dept]++; }
+    else if (wVal === '미정') { worshipPending++; if (dept) worshipByDept['미정'][dept]++; }
+    else if (wVal === '불참') { worshipAbsent++; if (dept) worshipByDept['불참'][dept]++; }
+
+    if (document.getElementById('attendance_' + cb.id)?.value === '참석') {
+      attendanceTotal++;
+      if (dept) attendanceByDept[dept]++;
+    }
+  });
+
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `진행: ${done} / ${total}건 (${pct}%)`;
+
+  document.getElementById('total-cnt').textContent = `${total}건`;
+  document.getElementById('card-all').textContent = `타겟 ${targetCount}건 / 완료 ${done}건 / ${attendanceTotal}건 참석`;
+
+  document.getElementById('target-total-cnt').textContent = `${targetCount}건`;
+  const targetAttendCount = [...cbs].filter(cb => document.getElementById('target_' + cb.id)?.checked && document.getElementById('attendance_' + cb.id)?.value === '참석').length;
+  const targetDoneCount = [...cbs].filter(cb => document.getElementById('target_' + cb.id)?.checked && cb.checked).length;
+  document.getElementById('card-target-total').textContent = `완료 ${targetDoneCount}건 / ${targetAttendCount}건 참석`;
+
+  ['자문회','장년회','부녀회','청년회'].forEach(d => {
+    const p = document.getElementById(`dept-cnt-${d}`);
+    if (p) p.textContent = `${deptTotal[d]}건`;
+    const el = document.getElementById(`card-${d}`);
+    if (el) el.textContent = `타겟 ${deptTarget[d]}건 / 완료 ${deptDone[d]}건 / ${attendanceByDept[d]}건 참석`;
+  });
+
+  const formatBreakdown = (obj) => Object.entries(obj).filter(([, cnt]) => cnt > 0).map(([dept, cnt]) => `${dept} ${cnt}건`).join('\n');
+  const countDoneByWorship = (target) => [...cbs].filter(cb => document.getElementById('worship_' + cb.id)?.value === target && cb.checked).length;
+
+  document.getElementById('card-worship-confirmed').textContent = `${worshipConfirmed}건`;
+  document.getElementById('card-worship-pending').textContent = `${worshipPending}건`;
+  document.getElementById('card-worship-absent').textContent = `${worshipAbsent}건`;
+
+  document.getElementById('card-worship-confirmed-detail').textContent = `완료 ${countDoneByWorship('확정')}건${formatBreakdown(worshipByDept['확정']) ? '\n' + formatBreakdown(worshipByDept['확정']) : ''}`;
+  document.getElementById('card-worship-pending-detail').textContent = `완료 ${countDoneByWorship('미정')}건${formatBreakdown(worshipByDept['미정']) ? '\n' + formatBreakdown(worshipByDept['미정']) : ''}`;
+  document.getElementById('card-worship-absent-detail').textContent = `완료 ${countDoneByWorship('불참')}건${formatBreakdown(worshipByDept['불참']) ? '\n' + formatBreakdown(worshipByDept['불참']) : ''}`;
+}
+
+function updateDateBadges() {
+  document.querySelectorAll('#weekSectionsMount .date-section').forEach(section => {
+    const rows = section.querySelectorAll('tbody tr');
+    let done = 0, target = 0;
+    rows.forEach(r => {
+      if (r.classList.contains('row-done')) done++;
+      const rowId = r.querySelector('input[type=checkbox][id^="row_"]')?.id;
+      if (rowId && document.getElementById('target_' + rowId)?.checked) target++;
     });
+
+    let doneBadge = section.querySelector('.date-done-badge');
+    let targetBadge = section.querySelector('.date-target-badge');
+    if (!doneBadge) {
+      doneBadge = document.createElement('span');
+      doneBadge.className = 'date-done-badge';
+      section.querySelector('.date-header-right').appendChild(doneBadge);
+    }
+    if (!targetBadge) {
+      targetBadge = document.createElement('span');
+      targetBadge.className = 'date-target-badge';
+      section.querySelector('.date-header-right').appendChild(targetBadge);
+    }
+    doneBadge.textContent = `완료 ${done}/${rows.length}`;
+    targetBadge.textContent = `타겟 ${target}/${rows.length}`;
+  });
+}
+
+function setActiveButton(groupSelector, predicate) {
+  document.querySelectorAll(groupSelector).forEach(btn => {
+    btn.classList.remove('active');
+    if (predicate(btn)) btn.classList.add('active');
+  });
+}
+function filterRows(status) { currentStatusFilter = status; setActiveButton('.filter-bar button', btn => btn.getAttribute('onclick')?.includes(`filterRows('${status}')`)); applyFilters(); }
+function filterTarget(type) { currentTargetFilter = type; setActiveButton('.filter-bar button', btn => btn.getAttribute('onclick')?.includes(`filterTarget('${type}')`)); applyFilters(); }
+function filterDept(dept) { currentDeptFilter = dept; setActiveButton('.filter-bar button', btn => btn.getAttribute('onclick')?.includes(`filterDept('${dept}')`)); applyFilters(); }
+function filterAttendance(att) { currentAttendanceFilter = att; setActiveButton('.filter-bar button', btn => btn.getAttribute('onclick')?.includes(`filterAttendance('${att}')`)); applyFilters(); }
+function filterWorshipDept(dept) { currentWorshipDeptFilter = dept; setActiveButton('.worship-subfilters button', btn => btn.getAttribute('onclick')?.includes(`filterWorshipDept('${dept}')`)); applyFilters(); }
+
+function updateWorshipSubfilterUI() {
+  const wrap = document.getElementById('worshipSubfilterWrap');
+  const title = document.getElementById('worshipSubfilterTitle');
+  if (currentWorshipFilter !== 'all') {
+    wrap.style.display = 'block';
+    title.textContent = `[예배확답: ${currentWorshipFilter}] 부서별 보기`;
+  } else {
+    wrap.style.display = 'none';
   }
-  
-  document.getElementById('np-uid').value = '';
-  document.getElementById('np-name').value = '';
-  document.getElementById('np-pw').value = '';
-  
-  renderUserList();
-  toast('접속자가 등록/수정되었습니다.');
+}
+function syncCardActiveState() {
+  document.querySelectorAll('.summary-cards .card').forEach(card => card.classList.remove('active-card'));
+  if (currentWorshipFilter !== 'all') {
+    document.querySelector(`.card[data-card-type="worship"][data-card-value="${currentWorshipFilter}"]`)?.classList.add('active-card');
+  } else if (currentTargetFilter === 'target') {
+    document.querySelector(`.card[data-card-type="target"]`)?.classList.add('active-card');
+  } else if (currentDeptFilter !== 'all') {
+    document.querySelector(`.card[data-card-type="dept"][data-card-value="${currentDeptFilter}"]`)?.classList.add('active-card');
+  } else {
+    document.querySelector(`.card[data-card-type="total"]`)?.classList.add('active-card');
+  }
+}
+function applyCardFilter(type, value) {
+  if (type === 'total') {
+    currentStatusFilter = 'all';
+    currentDeptFilter = 'all';
+    currentWorshipFilter = 'all';
+    currentWorshipDeptFilter = 'all';
+    currentAttendanceFilter = 'all';
+    currentTargetFilter = 'all';
+  } else if (type === 'target') {
+    currentStatusFilter = 'all';
+    currentDeptFilter = 'all';
+    currentWorshipFilter = 'all';
+    currentWorshipDeptFilter = 'all';
+    currentAttendanceFilter = 'all';
+    currentTargetFilter = 'target';
+  } else if (type === 'dept') {
+    currentStatusFilter = 'all';
+    currentDeptFilter = value;
+    currentWorshipFilter = 'all';
+    currentWorshipDeptFilter = 'all';
+    currentAttendanceFilter = 'all';
+    currentTargetFilter = 'all';
+  } else if (type === 'worship') {
+    currentStatusFilter = 'all';
+    currentDeptFilter = 'all';
+    currentWorshipFilter = value;
+    currentWorshipDeptFilter = 'all';
+    currentAttendanceFilter = 'all';
+    currentTargetFilter = 'all';
+  }
+  updateWorshipSubfilterUI();
+  syncCardActiveState();
+  applyFilters();
+}
+function applyFilters() {
+  document.querySelectorAll('#weekSectionsMount tbody tr').forEach(row => {
+    const isDone = row.classList.contains('row-done');
+    const dept = row.querySelector('td:first-child')?.textContent?.trim();
+    const rowId = row.querySelector('input[type=checkbox][id^="row_"]')?.id;
+    const worshipVal = rowId ? document.getElementById('worship_' + rowId)?.value : '';
+    const attendanceVal = rowId ? document.getElementById('attendance_' + rowId)?.value : '';
+    const isTarget = rowId ? !!document.getElementById('target_' + rowId)?.checked : false;
+    let show = true;
+
+    if (currentStatusFilter === 'done' && !isDone) show = false;
+    if (currentStatusFilter === 'pending' && isDone) show = false;
+    if (currentTargetFilter === 'target' && !isTarget) show = false;
+    if (currentTargetFilter === 'non-target' && isTarget) show = false;
+    if (currentDeptFilter !== 'all' && dept !== currentDeptFilter) show = false;
+    if (currentAttendanceFilter !== 'all' && attendanceVal !== currentAttendanceFilter) show = false;
+    if (currentWorshipFilter !== 'all' && worshipVal !== currentWorshipFilter) show = false;
+    if (currentWorshipFilter !== 'all' && currentWorshipDeptFilter !== 'all' && dept !== currentWorshipDeptFilter) show = false;
+
+    row.style.display = show ? '' : 'none';
+  });
+
+  document.querySelectorAll('#weekSectionsMount .date-section').forEach(sec => {
+    const visible = [...sec.querySelectorAll('tbody tr')].some(r => r.style.display !== 'none');
+    sec.style.display = visible ? '' : 'none';
+  });
+  updateWorshipSubfilterUI();
+  syncCardActiveState();
 }
 
-function saveSB(){
-  const url=document.getElementById('sb-url').value.trim();
-  const key=document.getElementById('sb-key').value.trim();
-  if(!url||!key){toast('URL과 Key를 입력하세요.');return;}
-  localStorage.setItem('sb_url',url); localStorage.setItem('sb_key',key);
-  toast('저장 완료. 새로고침 후 연동됩니다.');
+async function saveAll() {
+  showLoading(true);
+  try {
+    const rowIds = [...document.querySelectorAll('#weekSectionsMount input[type=checkbox][id^="row_"]')].map(el => el.id);
+    for (const rowId of rowIds) {
+      await upsertRow(rowId);
+    }
+    showToast('✅ 전체 저장 완료!');
+  } catch(e) {
+    showToast('❌ 저장 실패: ' + e.message, true);
+  } finally {
+    showLoading(false);
+  }
 }
 
-function saveTargets(){
-  CHURCHES.forEach(ch => { chTargets[ch] = parseFloat(document.getElementById(`adm-tg-${ch}`).value) || 90; });
-  localStorage.setItem('sj_ch_targets', JSON.stringify(chTargets));
-  toast(`교회별 목표가 저장되었습니다.`);
-  calcTgt();
+async function readImportInputText() {
+  const fileInput = document.getElementById('importFile');
+  const textarea = document.getElementById('importTextarea');
+  if (fileInput?.files?.[0]) return await fileInput.files[0].text();
+  return textarea?.value || '';
 }
-
-function saveThresholds() {
-  thresholds['가족'] = parseInt(document.getElementById('th-fam').value) || 8;
-  thresholds['가족외'] = parseInt(document.getElementById('th-ext').value) || 8;
-  thresholds['일반'] = parseInt(document.getElementById('th-gen').value) || 4;
-  localStorage.setItem('sj_thresholds', JSON.stringify(thresholds));
-  toast('타겟 조건이 저장되었습니다.');
-  renderP2();
+function downloadImportTemplate() {
+  const sample = "이름\t전화번호\t지파\t교회\t부서\t지역\t구역\t출석\t사유\t연속결석횟수\n홍길동\t1234\t서울야고보지파\t서울교회\t청년회\t노원\t1-1\t사유 결석\t믿음부족\t3";
+  const blob = new Blob(["\uFEFF" + sample], { type: 'text/plain;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "결석자_업로드양식.txt";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
+async function uploadWeekTargets() {
+  const inputWeekKey = document.getElementById('importWeekKey')?.value?.trim();
+  const inputWeekLabel = document.getElementById('importWeekLabel')?.value?.trim();
+  const defaultVisitDate = document.getElementById('importVisitDate')?.value?.trim() || null;
+  const defaultShepherd = document.getElementById('importShepherd')?.value?.trim() || null;
 
-async function saveChartRanges() {
-  chartRanges.c1Min = parseInt(document.getElementById('c1-min').value) || 80;
-  chartRanges.c1Max = parseInt(document.getElementById('c1-max').value) || 100;
-  chartRanges.c2Min = parseInt(document.getElementById('c2-min').value) || 50;
-  chartRanges.c2Max = parseInt(document.getElementById('c2-max').value) || 100;
-  
-  localStorage.setItem('sj_chart_ranges', JSON.stringify(chartRanges));
-  
-  if(SB) {
-    await SB.from('dashboard_settings').upsert({
-      id: 1, c1_min: chartRanges.c1Min, c1_max: chartRanges.c1Max, c2_min: chartRanges.c2Min, c2_max: chartRanges.c2Max
+  if (!inputWeekKey) return alert('타겟 주차 키가 필요합니다.');
+  const text = await readImportInputText();
+  if (!text) return alert('CSV 파일을 선택하거나 텍스트를 입력해주세요.');
+
+  try {
+    showLoading(true);
+    const sourceName =
+      document.getElementById('importFile')?.files?.[0]?.name ||
+      `${inputWeekLabel || inputWeekKey}_붙여넣기텍스트`;
+
+    const result = await callRpc('import_absentee_text_to_targets', {
+      p_week_key: inputWeekKey,
+      p_week_label: inputWeekLabel || inputWeekKey,
+      p_source_name: sourceName,
+      p_raw_text: text,
+      p_default_visit_date: defaultVisitDate,
+      p_default_shepherd: defaultShepherd
     });
+
+    const insertedCount = Array.isArray(result) && result[0] ? result[0].inserted_count : 0;
+    weekLabelMap[inputWeekKey] = inputWeekLabel || inputWeekKey;
+    delete weekTargetsCache[inputWeekKey];
+
+    document.getElementById('importTextarea').value = '';
+    if (document.getElementById('importFile')) document.getElementById('importFile').value = '';
+
+    await switchWeek(inputWeekKey);
+    toggleImportPanel();
+    showToast(`✅ ${insertedCount}건 저장 완료`);
+  } catch (e) {
+    alert('❌ 업로드 오류: ' + e.message);
+  } finally {
+    showLoading(false);
   }
-  toast('차트 범위가 적용되었습니다.');
-  drawC1(); drawC2();
 }
 
-// ═══════════════ UTIL ═══════════════
-function showLoad(v){document.getElementById('loading').style.display=v?'flex':'none';}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>{t.style.display='none';},2200);}
-
-const ub=document.getElementById('upbox');
-ub.addEventListener('dragover',e=>{e.preventDefault();ub.classList.add('drag');});
-ub.addEventListener('dragleave',()=>ub.classList.remove('drag');});
-ub.addEventListener('drop',e=>{e.preventDefault();ub.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){const inp=document.getElementById('xinp');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;handleXlsx(inp);}});
+window.addEventListener('DOMContentLoaded', () => {
+  renderMonthButtons();
+  renderWeekButtons();
+  syncImportInputs();
+  focusPwInput();
+});
 </script>
 </body>
 </html>
