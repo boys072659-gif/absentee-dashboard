@@ -815,45 +815,65 @@ const DEPT_PASSWORDS = {
 
 const DEFAULT_YEAR = 2026;
 const MONTHS = [1,2,3,4,5,6,7,8,9,10,11,12];
-const WEEKS = [1,2,3,4,5];
 const DEPTS = ['자문회','장년회','부녀회','청년회'];
 
-// ── 화요일 18시 기준으로 다음 주일 주차 자동 계산 ──────────────────────────────
-function getActiveWeek(){
-  const now = new Date();
-  // 한국 시간 기준 (UTC+9)
+// ── 주일 기준 주차 계산 (화요일 18시 이후면 다음 주일) ─────────────────────────
+function getTargetSunday(now = new Date()){
   const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   const day = kst.getUTCDay();   // 0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토
   const hour = kst.getUTCHours();
 
-  // 화요일(2) 18시 이후 ~ 다음 화요일 18시 전 → 해당 주일(일요일) 주차
-  // 화요일 18시 이전 → 지난 주일 주차
-  // 기준: 화요일 18시부터 "이번 주일"이 다음 주일이 됨
-  const isTuesdayAfter18 = (day === 2 && hour >= 18);
-  const isAfterTuesday = (day > 2) || isTuesdayAfter18;
-
-  // 이번 주 일요일을 계산
-  let daysToSunday;
+  let diff;
   if(day === 0){
-    // 일요일이면 현재 = 이번 주일
-    daysToSunday = isAfterTuesday ? 7 : 0;
+    diff = 0; // 일요일은 해당 주일
+  } else if(day < 2 || (day === 2 && hour < 18)){
+    diff = -day; // 화요일 18시 전까지는 지난 주일
   } else {
-    daysToSunday = (7 - day) % 7; // 다음 일요일까지 남은 날
-    if(!isAfterTuesday && day !== 0) daysToSunday -= 7; // 지난 주일
+    diff = 7 - day; // 화요일 18시 이후부터는 다음 주일
   }
 
-  const targetSunday = new Date(kst);
-  targetSunday.setUTCDate(kst.getUTCDate() + daysToSunday);
+  const sunday = new Date(kst);
+  sunday.setUTCHours(0,0,0,0);
+  sunday.setUTCDate(kst.getUTCDate() + diff);
+  return sunday;
+}
 
+function getSundayWeekNumber(date){
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  let count = 0;
+  const cursor = new Date(Date.UTC(year, month, 1));
+  const lastDate = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  for(let d=1; d<=lastDate; d++){
+    cursor.setUTCDate(d);
+    if(cursor.getUTCDay() === 0){
+      count += 1;
+      if(d === date.getUTCDate()) return count;
+    }
+  }
+  return 1;
+}
+
+function getSundayWeekCount(year, month){
+  const cursor = new Date(Date.UTC(year, month - 1, 1));
+  const lastDate = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  let count = 0;
+  for(let d=1; d<=lastDate; d++){
+    cursor.setUTCDate(d);
+    if(cursor.getUTCDay() === 0) count += 1;
+  }
+  return count;
+}
+
+function getWeeksForMonth(month){
+  return Array.from({length: getSundayWeekCount(DEFAULT_YEAR, month)}, (_, i) => i + 1);
+}
+
+function getActiveWeek(){
+  const targetSunday = getTargetSunday();
   const month = targetSunday.getUTCMonth() + 1;
-  const date  = targetSunday.getUTCDate();
-
-  // 해당 월의 몇 주차인지 계산 (1일이 속한 주를 1주차)
-  const firstDay = new Date(Date.UTC(targetSunday.getUTCFullYear(), targetSunday.getUTCMonth(), 1));
-  const firstDayOfWeek = firstDay.getUTCDay(); // 0=일
-  const weekNo = Math.ceil((date + firstDayOfWeek) / 7);
-
-  return { month, weekNo: Math.min(weekNo, 5) };
+  const weekNo = getSundayWeekNumber(targetSunday);
+  return { month, weekNo };
 }
 
 const _aw = getActiveWeek();
@@ -981,7 +1001,10 @@ function populateDropdowns(){
   const monthSel = document.getElementById('monthSelect');
   const weekSel = document.getElementById('weekSelect');
   monthSel.innerHTML = MONTHS.map(m => `<option value="${m}" ${m===currentMonth?'selected':''}>${m}월</option>`).join('');
-  weekSel.innerHTML = WEEKS.map(w => `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${w}주차</option>`).join('');
+
+  const weeks = getWeeksForMonth(currentMonth);
+  if(!weeks.includes(currentWeekNumber)) currentWeekNumber = weeks[weeks.length - 1];
+  weekSel.innerHTML = weeks.map(w => `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${w}주차</option>`).join('');
 }
 function populateRegionDropdown(rows){
   const sel = document.getElementById('regionSelect');
@@ -992,7 +1015,10 @@ function populateRegionDropdown(rows){
 }
 function onMonthChange(){
   currentMonth = Number(document.getElementById('monthSelect').value);
+  const weeks = getWeeksForMonth(currentMonth);
+  if(!weeks.includes(currentWeekNumber)) currentWeekNumber = weeks[weeks.length - 1];
   currentWeekKey = formatWeekKey(currentMonth, currentWeekNumber);
+  populateDropdowns();
   syncWeekInputs();
   loadWeek(currentWeekKey);
 }
