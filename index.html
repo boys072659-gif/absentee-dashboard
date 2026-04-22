@@ -41,11 +41,12 @@
   }
   h1{
     margin:0 0 14px;
-    font-size:28px;
+    font-size:26px;
     text-align:center;
     color:#0f172a;
     padding-bottom:14px;
     border-bottom:2px solid #e7eef8;
+    letter-spacing:-0.3px;
   }
 
   #pw-overlay{
@@ -257,9 +258,9 @@
   }
 
   .summary-grid{
-    display:grid;
-    grid-template-columns:repeat(6,minmax(140px,1fr));
-    gap:10px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
     margin-bottom:14px;
   }
   .card{
@@ -298,20 +299,139 @@
   .card.dept-young{ border-top:4px solid #2563eb; }
   .card.region{ border-top:4px solid #0ea5e9; }
 
+  /* ── 새 대시보드 ─────────────────────────────────────── */
+  .kpi-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+  }
+  .kpi-card{
+    border-radius:20px;
+    padding:20px 18px;
+    cursor:pointer;
+    transition:transform .18s,box-shadow .18s;
+    border:1.5px solid rgba(0,0,0,.07);
+    box-shadow:0 4px 16px rgba(0,0,0,.06);
+    position:relative;
+    overflow:hidden;
+  }
+  .kpi-card:hover{ transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,.13); }
+  .kpi-card.no-click{ cursor:default; }
+  .kpi-card.no-click:hover{ transform:none; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+  .kpi-total{ background:linear-gradient(140deg,#fff5f5,#fef2f2); }
+  .kpi-target{ background:linear-gradient(140deg,#faf5ff,#f5f3ff); }
+  .kpi-done{ background:linear-gradient(140deg,#f0fdf6,#dcfce7); }
+  .kpi-attend{ background:linear-gradient(140deg,#eff6ff,#dbeafe); }
+  .kpi-icon{ font-size:30px; margin-bottom:10px; line-height:1; }
+  .kpi-value{ font-size:44px; font-weight:900; color:#0f172a; line-height:1; margin-bottom:5px; }
+  .kpi-label{ font-size:13px; font-weight:800; color:#374151; margin-bottom:4px; }
+  .kpi-sub{ font-size:12px; color:#6b7280; margin-bottom:12px; min-height:16px; }
+  .kpi-bar{ height:7px; background:rgba(0,0,0,.08); border-radius:999px; overflow:hidden; }
+  .kpi-bar-fill{ height:100%; border-radius:999px; transition:width .5s ease; }
+  .kpi-total .kpi-bar-fill{ background:linear-gradient(90deg,#ef4444,#f87171); }
+  .kpi-target .kpi-bar-fill{ background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+  .kpi-done .kpi-bar-fill{ background:linear-gradient(90deg,#16a34a,#4ade80); }
+  .kpi-attend .kpi-bar-fill{ background:linear-gradient(90deg,#2563eb,#60a5fa); }
+
+  /* 부서/지역 카드 그리드 */
+  .dept-overview-label{
+    font-size:15px;
+    font-weight:900;
+    color:#374151;
+    margin-bottom:10px;
+    padding-left:2px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .dept-overview-label::before{
+    content:'';
+    display:inline-block;
+    width:4px;
+    height:18px;
+    border-radius:2px;
+    background:var(--primary);
+  }
+  .dept-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+  }
+  .dept-card{
+    background:var(--dept-bg,#f8faff);
+    border:1.5px solid rgba(0,0,0,.07);
+    border-left:4px solid var(--dept-color,#2563eb);
+    border-radius:16px;
+    padding:16px 14px;
+    cursor:pointer;
+    transition:transform .18s,box-shadow .18s;
+    box-shadow:0 3px 10px rgba(0,0,0,.05);
+  }
+  .dept-card:hover{ transform:translateY(-2px); box-shadow:0 8px 22px rgba(0,0,0,.11); }
+  .dept-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .dept-name{ font-size:17px; font-weight:900; color:var(--dept-color); }
+  .dept-total{ font-size:26px; font-weight:900; color:#0f172a; }
+  .dept-bar-wrap{
+    height:8px;
+    background:rgba(0,0,0,.09);
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:10px;
+  }
+  .dept-bar-fill{
+    height:100%;
+    border-radius:999px;
+    background:var(--dept-color);
+    transition:width .5s ease;
+  }
+  .dept-stats{
+    display:flex;
+    gap:0;
+    align-items:center;
+  }
+  .dept-stat{
+    font-size:11.5px;
+    font-weight:700;
+    color:#475569;
+    display:flex;
+    align-items:center;
+    gap:3px;
+    margin-right:10px;
+  }
+  .stat-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .dept-pct{
+    margin-left:auto;
+    font-size:15px;
+    font-weight:900;
+    color:var(--dept-color);
+  }
+  /* ─────────────────────────────────────────────────────── */
+
   .progress-wrap{
     position:relative;
-    height:28px;
+    height:32px;
     background:#edf2f7;
     border-radius:999px;
     overflow:hidden;
-    margin-bottom:14px;
+    margin-bottom:16px;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.08);
   }
   .progress-fill{
     position:absolute;
     inset:0 auto 0 0;
     width:0;
-    background:linear-gradient(90deg,#16a34a,#22c55e);
-    transition:width .25s;
+    background:linear-gradient(90deg,#16a34a,#4ade80);
+    transition:width .4s ease;
   }
   .progress-label{
     position:absolute;
@@ -572,6 +692,8 @@
 
   @media (max-width:1100px){
     .summary-grid{ grid-template-columns:repeat(3,minmax(130px,1fr)); }
+    .kpi-row{ grid-template-columns:repeat(2,1fr); }
+    .dept-grid{ grid-template-columns:repeat(2,1fr); }
   }
 
   @media (max-width:768px){
@@ -583,6 +705,14 @@
     .control-group{ width:100%; }
     .top-actions{ width:100%; }
     .top-select, .btn{ flex:1; min-width:0; }
+
+    .kpi-row{ grid-template-columns:repeat(2,1fr); gap:8px; }
+    .kpi-value{ font-size:34px; }
+    .kpi-icon{ font-size:24px; }
+
+    .dept-grid{ grid-template-columns:repeat(2,1fr); gap:8px; }
+    .dept-total{ font-size:20px; }
+    .dept-name{ font-size:15px; }
 
     .summary-grid{
       grid-template-columns:repeat(2,minmax(120px,1fr));
@@ -717,7 +847,8 @@
   <div class="upload-panel" id="uploadPanel">
     <h3>주차별 결석자 명단 업로드</h3>
     <p class="upload-help">
-      결석자 원본만 업로드하면 됩니다. <strong>심방자 / 심방날짜 / 심방계획</strong>은 업로드 후 각 행에서 직접 입력합니다.
+      결석자 원본만 업로드하면 됩니다. <strong>심방자 / 심방날짜 / 심방계획</strong>은 업로드 후 각 행에서 직접 입력합니다.<br>
+      <span style="color:var(--primary);font-weight:800">✅ 모든 부서에서 자기 부서 명단을 업로드할 수 있습니다.</span>
     </p>
     <div class="upload-grid">
       <label>주차 키 <input id="importWeekKey" type="text" value="2026-04-w3"></label>
@@ -743,8 +874,12 @@
     <hr style="margin:18px 0;border:none;border-top:1px solid #e7eef8;">
     <h3>심방 진행현황 CSV 업로드 <span style="font-size:13px;color:#6b7280;font-weight:400">(모든 부서 가능)</span></h3>
     <p class="upload-help">
-      심방 결과를 CSV로 일괄 업로드합니다.<br>
-      컬럼 순서: <strong>row_id, 심방자, 심방날짜(YYYY-MM-DD), 심방계획, 타겟여부(true/false), 진행여부(true/false), 예배확답(확정/미정/불참), 진행사항, 예배참석(참석/불참)</strong>
+      심방 결과를 CSV로 일괄 업로드합니다. 엑셀에서 저장한 <code>.csv</code> 그대로 업로드 가능합니다.<br>
+      <strong>📋 컬럼 순서 (12개):</strong>
+      <span style="background:#f1f5f9;padding:4px 8px;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:inline-block;margin-top:4px;color:#1e40af">
+        이름 · 부서 · 지역 · 구역 · 심방자 · 심방날짜(YYYY-MM-DD) · 심방계획 · 타겟여부(타겟/미타겟) · 진행여부(완료/미완료) · 예배확답(확정/미정/불참) · 진행사항 · 예배참석(참석/불참)
+      </span><br>
+      <span style="color:#6b7280">이름·부서·지역·구역으로 결석자를 찾아 저장합니다. row_id를 몰라도 됩니다.</span>
     </p>
     <div class="upload-grid">
       <label>심방현황 CSV 파일 <input id="visitFile" type="file" accept=".csv,.txt"></label>
@@ -966,8 +1101,8 @@ function applyDeptPermissionUI(){
   // 명단저장 버튼은 내무부만
   const absenteesBtn = document.getElementById('uploadAbsenteesBtn');
   const templateBtn = document.getElementById('downloadTemplateBtn');
-  if(absenteesBtn) absenteesBtn.style.display = userDept === '내무부' ? '' : 'none';
-  if(templateBtn) templateBtn.style.display = userDept === '내무부' ? '' : 'none';
+  if(absenteesBtn) absenteesBtn.style.display = '';
+  if(templateBtn) templateBtn.style.display = '';
   if(userDept !== '내무부'){
     currentDeptFilter = userDept;
   } else {
@@ -1201,15 +1336,6 @@ function selectClass(value, type){
 }
 
 /* 현황판 */
-function buildSummaryCard({ title, count, sub, className = '', onClick = '' }) {
-  return `
-    <div class="card clickable ${className}" ${onClick ? `onclick="${onClick}"` : ''}>
-      <h3>${escapeHtml(title)}</h3>
-      <p>${count}건</p>
-      <div class="sub">${escapeHtml(sub)}</div>
-    </div>
-  `;
-}
 function renderDashboard(){
   const rows = sortRows(getVisibleRowsBase());
   const summaryGrid = document.getElementById('summaryGrid');
@@ -1219,73 +1345,116 @@ function renderDashboard(){
   const done = rows.filter(r => r.is_done).length;
   const attend = rows.filter(r => r.attendance === '참석').length;
   const targetDone = rows.filter(r => r.is_target && r.is_done).length;
-  const targetAttend = rows.filter(r => r.is_target && r.attendance === '참석').length;
 
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  const targetPct = total === 0 ? 0 : Math.round((target / total) * 100);
+  const attendPct = total === 0 ? 0 : Math.round((attend / total) * 100);
+
   document.getElementById('progressFill').style.width = `${pct}%`;
-  document.getElementById('progressLabel').textContent = `진행: ${done} / ${total}건 (${pct}%)`;
+  document.getElementById('progressLabel').textContent = `⛪ 심방 진행률 ${pct}%  ·  ${done} / ${total}건 완료`;
 
-  const cards = [];
+  // KPI 카드
+  let html = `
+    <div class="kpi-row">
+      <div class="kpi-card kpi-total" onclick="openListPage({mode:'all'})">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-value">${total}</div>
+        <div class="kpi-label">총 결석자</div>
+        <div class="kpi-sub">타겟 ${target}명 포함</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:100%"></div></div>
+      </div>
+      <div class="kpi-card kpi-target" onclick="openListPage({mode:'target'})">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-value">${target}</div>
+        <div class="kpi-label">타겟</div>
+        <div class="kpi-sub">완료 ${targetDone}건 · ${targetPct}% 비율</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${targetPct}%"></div></div>
+      </div>
+      <div class="kpi-card kpi-done" onclick="openListPage({mode:'all'})">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-value">${done}</div>
+        <div class="kpi-label">심방완료</div>
+        <div class="kpi-sub">${pct}% 달성</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="kpi-card kpi-attend no-click">
+        <div class="kpi-icon">⛪</div>
+        <div class="kpi-value">${attend}</div>
+        <div class="kpi-label">예배참석</div>
+        <div class="kpi-sub">${attendPct}% 비율</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${attendPct}%"></div></div>
+      </div>
+    </div>
+  `;
 
-  cards.push(buildSummaryCard({
-    title:'총결석자',
-    count: total,
-    sub:`타겟 ${target}건 / 완료 ${done}건 / 참석 ${attend}건`,
-    className:'total',
-    onClick:`openListPage({mode:'all'})`
-  }));
-
-  cards.push(buildSummaryCard({
-    title:'타겟수',
-    count: target,
-    sub:`완료 ${targetDone}건 / 참석 ${targetAttend}건`,
-    className:'target',
-    onClick:`openListPage({mode:'target'})`
-  }));
-
+  // 부서 또는 지역 카드
   if(userDept === '내무부'){
     const deptMap = [
-      ['자문회','dept-jamun'],
-      ['장년회','dept-jang'],
-      ['부녀회','dept-bunyeo'],
-      ['청년회','dept-young']
+      {dept:'자문회', color:'#7c3aed', bg:'#faf5ff'},
+      {dept:'장년회', color:'#16a34a', bg:'#f0fdf6'},
+      {dept:'부녀회', color:'#ea580c', bg:'#fff7ed'},
+      {dept:'청년회', color:'#2563eb', bg:'#eff6ff'},
     ];
-
-    deptMap.forEach(([dept, className]) => {
-      const deptRows = rows.filter(r => r.dept === dept);
-      const deptTarget = deptRows.filter(r => r.is_target).length;
-      const deptDone = deptRows.filter(r => r.is_done).length;
-      const deptAttend = deptRows.filter(r => r.attendance === '참석').length;
-
-      cards.push(buildSummaryCard({
-        title: dept,
-        count: deptRows.length,
-        sub: `타겟 ${deptTarget}건 / 완료 ${deptDone}건 / 참석 ${deptAttend}건`,
-        className,
-        onClick: `openListPage({mode:'dept', dept:'${dept}'})`
-      }));
+    html += `<div class="dept-overview-label">부서별 현황</div><div class="dept-grid">`;
+    deptMap.forEach(({dept, color, bg}) => {
+      const dr = rows.filter(r => r.dept === dept);
+      if(dr.length === 0) return;
+      const dt = dr.filter(r => r.is_target).length;
+      const dd = dr.filter(r => r.is_done).length;
+      const da = dr.filter(r => r.attendance === '참석').length;
+      const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
+      html += `
+        <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="openListPage({mode:'dept',dept:'${dept}'})">
+          <div class="dept-header">
+            <span class="dept-name">${escapeHtml(dept)}</span>
+            <span class="dept-total">${dr.length}명</span>
+          </div>
+          <div class="dept-bar-wrap">
+            <div class="dept-bar-fill" style="width:${dpct}%"></div>
+          </div>
+          <div class="dept-stats">
+            <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
+            <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
+            <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+            <span class="dept-pct">${dpct}%</span>
+          </div>
+        </div>
+      `;
     });
+    html += `</div>`;
   } else {
-    const regions = [...new Set(rows.map(r => r.region_first).filter(Boolean))]
-      .sort((a,b)=>a.localeCompare(b,'ko'));
-
-    regions.forEach(region => {
-      const regionRows = rows.filter(r => r.region_first === region);
-      const regionTarget = regionRows.filter(r => r.is_target).length;
-      const regionDone = regionRows.filter(r => r.is_done).length;
-      const regionAttend = regionRows.filter(r => r.attendance === '참석').length;
-
-      cards.push(buildSummaryCard({
-        title: region,
-        count: regionRows.length,
-        sub: `타겟 ${regionTarget}건 / 완료 ${regionDone}건 / 참석 ${regionAttend}건`,
-        className:'region',
-        onClick:`openListPage({mode:'region', region:'${region}'})`
-      }));
-    });
+    const regions = [...new Set(rows.map(r => r.region_first).filter(Boolean))].sort((a,b) => a.localeCompare(b,'ko'));
+    if(regions.length > 0){
+      html += `<div class="dept-overview-label">지역별 현황</div><div class="dept-grid">`;
+      regions.forEach(region => {
+        const rr = rows.filter(r => r.region_first === region);
+        const rt = rr.filter(r => r.is_target).length;
+        const rd = rr.filter(r => r.is_done).length;
+        const ra = rr.filter(r => r.attendance === '참석').length;
+        const rpct = rr.length ? Math.round(rd / rr.length * 100) : 0;
+        html += `
+          <div class="dept-card" style="--dept-color:#0ea5e9;--dept-bg:#f0f9ff" onclick="openListPage({mode:'region',region:'${escapeHtml(region)}'})">
+            <div class="dept-header">
+              <span class="dept-name">${escapeHtml(region)}</span>
+              <span class="dept-total">${rr.length}명</span>
+            </div>
+            <div class="dept-bar-wrap">
+              <div class="dept-bar-fill" style="width:${rpct}%"></div>
+            </div>
+            <div class="dept-stats">
+              <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${rt}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${rd}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${ra}</span>
+              <span class="dept-pct">${rpct}%</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
   }
 
-  summaryGrid.innerHTML = cards.join('');
+  summaryGrid.innerHTML = html;
 }
 
 /* 리스트 */
@@ -1622,10 +1791,6 @@ async function readImportText(){
   return document.getElementById('importTextarea').value || '';
 }
 async function uploadAbsentees(){
-  if(userDept !== '내무부'){
-    alert('내무부만 결석자 명단을 업로드할 수 있습니다.');
-    return;
-  }
   const weekKey = document.getElementById('importWeekKey').value.trim();
   const weekLabel = document.getElementById('importWeekLabel').value.trim();
   const rawText = await readImportText();
@@ -1642,11 +1807,25 @@ async function uploadAbsentees(){
       p_raw_text: rawText
     });
     const inserted = Array.isArray(result) && result[0] ? result[0].inserted_count : 0;
+
+    // ── 연속결석 +1 (업로드된 숫자는 이전 주차 기준이므로 이번 주 결석 1회를 더함) ──
+    // SQL 마이그레이션을 돌리기 전에는 RPC가 없을 수 있으므로 404/missing을 조용히 무시
+    try{
+      await callRpc('apply_consecutive_absent_increment', { p_week_key: weekKey });
+    }catch(e){
+      const msg = String(e.message || '');
+      if(/Could not find|function|404|PGRST202/i.test(msg)){
+        console.info('[info] apply_consecutive_absent_increment RPC 미설치 — 건너뜀');
+      } else {
+        console.warn('연속결석 +1 실패:', msg);
+      }
+    }
+
     weekLabelMap[weekKey] = weekLabel || weekKey;
     document.getElementById('importTextarea').value = '';
     if(document.getElementById('importFile')) document.getElementById('importFile').value = '';
     await loadWeek(weekKey);
-    showToast(`✅ ${inserted}건 저장 완료`);
+    showToast(`✅ ${inserted}건 저장 완료 (연속결석 +1 적용됨)`);
   }catch(e){
     alert('업로드 실패: ' + e.message);
   }finally{
@@ -1654,74 +1833,261 @@ async function uploadAbsentees(){
   }
 }
 
-/* 심방현황 CSV 양식 다운로드 */
+/* 심방현황 CSV 양식 다운로드 — 진짜 CSV(쉼표 구분) + UTF-8 BOM + 예시 3행 */
+function csvCell(v){
+  const s = String(v ?? '');
+  // 쉼표, 큰따옴표, 줄바꿈 포함 시 큰따옴표로 감싸고 내부 따옴표는 이중화
+  if(/[",\n\r]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
+}
+function csvRow(arr){ return arr.map(csvCell).join(','); }
+
 function downloadVisitTemplate(){
-  const header = 'row_id\t심방자\t심방날짜\t심방계획\t타겟여부\t진행여부\t예배확답\t진행사항\t예배참석';
-  const sample = 'row_1\t홍길동(집사)\t2026-04-27\t생일 축하 안부 연락 후 카페 친교\tfalse\tfalse\t미정\t\t불참';
-  const blob = new Blob(["\uFEFF" + header + '\n' + sample], {type:'text/plain;charset=utf-8;'});
+  // 순서: 이름, 부서, 지역, 구역, 심방자, 심방날짜, 심방계획, 타겟여부, 진행여부, 예배확답, 진행사항, 예배참석
+  const header = ['이름','부서','지역','구역','심방자','심방날짜','심방계획','타겟여부','진행여부','예배확답','진행사항','예배참석'];
+  const examples = [
+    ['박*란','자문회','강북','1팀6','홍길동(집사)','2026-04-27','생일 축하 안부 연락 후 카페 친교','타겟','완료','확정','심방 후 예배 나오기로 약속','참석'],
+    ['김*수','장년회','강남','2팀3','이순신(집사)','2026-04-27','가정 심방 예정, 가족 동반 여부 확인','미타겟','미완료','미정','연락 대기 중','불참'],
+    ['최*희','부녀회','강서','3팀1','유관순(권사)','2026-04-28','차 한잔 하며 근황, 건강 상태 확인','타겟','미완료','불참','건강 악화, 병원 방문 예정','불참'],
+  ];
+  const content = [csvRow(header), ...examples.map(csvRow)].join('\r\n');
+  // UTF-8 BOM 포함 → 엑셀에서 한글 깨짐 방지
+  const blob = new Blob(["\uFEFF" + content], { type:'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'visit_progress_template.txt';
+  a.download = 'visit_progress_template.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
-/* 심방현황 CSV 일괄 업로드 (모든 부서 가능) */
+/* CSV 한 줄 파서: 쉼표 구분 + "..." 쿼팅 + "" 이스케이프 지원 */
+function parseCsvLine(line){
+  const out = [];
+  let cur = '';
+  let inQuotes = false;
+  for(let i=0; i<line.length; i++){
+    const ch = line[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(line[i+1] === '"'){ cur += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        cur += ch;
+      }
+    } else {
+      if(ch === ','){ out.push(cur); cur = ''; }
+      else if(ch === '"' && cur === ''){ inQuotes = true; }
+      else { cur += ch; }
+    }
+  }
+  out.push(cur);
+  return out.map(c => c.trim());
+}
+
+/* CSV 전체 파서 (따옴표 안 줄바꿈도 허용) */
+function parseCsv(text){
+  // BOM 제거
+  text = text.replace(/^\uFEFF/, '');
+  // CRLF → LF
+  text = text.replace(/\r\n/g, '\n');
+
+  const rows = [];
+  let field = '';
+  let row = [];
+  let inQuotes = false;
+  for(let i=0; i<text.length; i++){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += ch;
+      }
+    } else {
+      if(ch === '"' && field === ''){ inQuotes = true; }
+      else if(ch === ','){ row.push(field); field = ''; }
+      else if(ch === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+      else if(ch === '\t'){ row.push(field); field = ''; } // 탭도 허용 (TSV 호환)
+      else { field += ch; }
+    }
+  }
+  if(field !== '' || row.length > 0){ row.push(field); rows.push(row); }
+
+  // 빈 줄 제거 & 각 셀 trim
+  return rows
+    .map(r => r.map(c => c.trim()))
+    .filter(r => r.some(c => c !== ''));
+}
+
+/* 심방현황 CSV 일괄 업로드
+ * - 이름/부서/지역/구역 기준으로 클라이언트에서 weekly_visit_targets를 조회해 row_id 확보
+ * - 확보한 row_id로 기존 RPC(upsert_weekly_visit_progress) 호출 → 신규 RPC 불필요
+ */
 async function uploadVisitProgress(){
   const file = document.getElementById('visitFile')?.files?.[0];
   if(!file) return alert('CSV 파일을 선택해주세요.');
 
   const weekKey = currentWeekKey;
   const rawText = await file.text();
-  const lines = rawText.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  const rows = parseCsv(rawText);
 
-  if(lines.length < 2){ alert('데이터가 없습니다. 헤더 포함 2줄 이상이어야 합니다.'); return; }
+  if(rows.length < 2){
+    alert('데이터가 없습니다. 헤더 포함 2줄 이상이어야 합니다.');
+    return;
+  }
 
-  // 헤더 건너뜀
-  const dataLines = lines.slice(1);
-  let successCount = 0;
-  let failCount = 0;
+  // 헤더 → 컬럼 인덱스 (컬럼명 별칭 허용, 순서 변경도 허용)
+  const header = rows[0];
+  const ALIASES = {
+    name:        ['이름','name'],
+    dept:        ['부서','dept'],
+    region:      ['지역','region','region_name'],
+    zone:        ['구역','팀-구역','zone','zone_name','team','팀'],
+    shepherd:    ['심방자','shepherd'],
+    date:        ['심방날짜','날짜','date','visit_date'],
+    plan:        ['심방계획','계획','plan','plan_text'],
+    target:      ['타겟여부','타겟','is_target','target'],
+    done:        ['진행여부','진행','완료여부','is_done','done'],
+    worship:     ['예배확답','확답','worship'],
+    note:        ['진행사항','사항','메모','note'],
+    attendance:  ['예배참석','참석','attendance'],
+  };
+  const idx = {};
+  for(const [k, aliases] of Object.entries(ALIASES)){
+    idx[k] = header.findIndex(h => aliases.includes(h));
+  }
+
+  // 필수 컬럼: 이름/부서/지역
+  const required = ['name','dept','region'];
+  for(const k of required){
+    if(idx[k] === -1){
+      alert(`CSV 헤더에 "${ALIASES[k][0]}" 컬럼이 없습니다.`);
+      return;
+    }
+  }
+
+  const dataRows = rows.slice(1);
+  const get = (row, key) => (idx[key] >= 0 ? (row[idx[key]] || '') : '');
+
+  // 권한 사전 검사: 현재 주차 대상자 풀을 미리 로드 (빠른 매칭)
+  // currentRows 가 이미 로드돼 있으므로 재활용
+  const poolByKey = new Map();
+  for(const r of (currentRows || [])){
+    const k = `${r.dept}|${r.region_name||''}|${r.zone_name||''}|${r.name}`;
+    poolByKey.set(k, r.row_id);
+    // 구역 없는 대체 키
+    const k2 = `${r.dept}|${r.region_name||''}||${r.name}`;
+    if(!poolByKey.has(k2)) poolByKey.set(k2, r.row_id);
+  }
+
+  let ok = 0, fail = 0;
+  const failDetails = [];
 
   showLoading(true);
   try{
-    for(const line of dataLines){
-      const cols = line.split('\t');
-      if(cols.length < 9) continue;
-      const [rowId, shepherd, dateStr, planText, isTargetStr, isDoneStr, worship, note, attendance] = cols.map(c=>c.trim());
-      if(!rowId) continue;
+    for(const row of dataRows){
+      const name   = get(row,'name');
+      const dept   = get(row,'dept');
+      const region = get(row,'region');
+      const zone   = get(row,'zone');
+      if(!name || !dept || !region){ fail++; failDetails.push(`(빈 행 스킵)`); continue; }
 
-      // 부서 권한 체크: 내무부는 전체, 그 외는 자기 부서 row_id만
-      if(userDept !== '내무부'){
-        const targetRow = currentRows.find(r => r.row_id === rowId);
-        if(!targetRow || targetRow.dept !== userDept){
-          failCount++;
+      // 권한: 내무부는 전체, 그 외는 자기 부서만
+      if(userDept !== '내무부' && dept !== userDept){
+        fail++;
+        failDetails.push(`${name}/${dept}: 다른 부서 데이터 (권한 없음)`);
+        continue;
+      }
+
+      // 1) 현재 주차 풀에서 매칭 시도 — 구역 포함 → 구역 제외 순
+      let rowId = poolByKey.get(`${dept}|${region}|${zone}|${name}`)
+               || poolByKey.get(`${dept}|${region}||${name}`);
+
+      // 2) 풀에 없으면 Supabase에 직접 질의 (다른 주차/지연 동기화 대비)
+      if(!rowId){
+        try{
+          let q = `weekly_visit_targets?select=row_id`
+                + `&week_key=eq.${encodeURIComponent(weekKey)}`
+                + `&dept=eq.${encodeURIComponent(dept)}`
+                + `&region_name=eq.${encodeURIComponent(region)}`
+                + `&name=eq.${encodeURIComponent(name)}`
+                + `&limit=1`;
+          if(zone) q += `&zone_name=eq.${encodeURIComponent(zone)}`;
+          const found = await sbFetch(q);
+          rowId = found[0]?.row_id;
+
+          // 구역으로 못 찾으면 구역 제외 재시도
+          if(!rowId && zone){
+            const q2 = `weekly_visit_targets?select=row_id`
+                     + `&week_key=eq.${encodeURIComponent(weekKey)}`
+                     + `&dept=eq.${encodeURIComponent(dept)}`
+                     + `&region_name=eq.${encodeURIComponent(region)}`
+                     + `&name=eq.${encodeURIComponent(name)}`
+                     + `&limit=1`;
+            const found2 = await sbFetch(q2);
+            rowId = found2[0]?.row_id;
+          }
+        }catch(e){
+          fail++;
+          failDetails.push(`${name}/${dept}/${region}: 조회 실패 - ${e.message}`);
           continue;
         }
       }
 
+      if(!rowId){
+        fail++;
+        failDetails.push(`${name}/${dept}/${region}/${zone||'(구역없음)'}: 일치하는 결석자 없음`);
+        continue;
+      }
+
+      // 값 정제
+      const targetStr     = get(row,'target');
+      const doneStr       = get(row,'done');
+      const worshipRaw    = get(row,'worship');
+      const attendanceRaw = get(row,'attendance');
+      const dateStr       = get(row,'date');
+
+      const isTarget = ['타겟','TRUE','true','1','Y','y','O','o'].includes(targetStr);
+      const isDone   = ['완료','TRUE','true','1','Y','y','O','o'].includes(doneStr);
+      const worship    = ['확정','미정','불참'].includes(worshipRaw) ? worshipRaw : null;
+      const attendance = ['참석','불참'].includes(attendanceRaw) ? attendanceRaw : null;
+
+      // 3) 기존 RPC로 저장 (신규 RPC 불필요)
       try{
         await callRpc('upsert_weekly_visit_progress', {
-          p_week_key: weekKey,
-          p_row_id: rowId,
-          p_shepherd: shepherd || '',
-          p_visit_date_sort: dateStr || null,
+          p_week_key:           weekKey,
+          p_row_id:             rowId,
+          p_shepherd:           get(row,'shepherd') || '',
+          p_visit_date_sort:    dateStr || null,
           p_visit_date_display: dateStr || '',
-          p_plan_text: planText || '',
-          p_is_target: isTargetStr === 'true' || isTargetStr === '1' || isTargetStr === 'TRUE',
-          p_is_done: isDoneStr === 'true' || isDoneStr === '1' || isDoneStr === 'TRUE',
-          p_worship: ['확정','미정','불참'].includes(worship) ? worship : null,
-          p_note: note || '',
-          p_attendance: ['참석','불참'].includes(attendance) ? attendance : null,
+          p_plan_text:          get(row,'plan') || '',
+          p_is_target:          isTarget,
+          p_is_done:            isDone,
+          p_worship:            worship,
+          p_note:               get(row,'note') || '',
+          p_attendance:         attendance,
         });
-        successCount++;
+        ok++;
       }catch(e){
-        failCount++;
+        fail++;
+        failDetails.push(`${name}/${dept}/${region}: ${e.message}`);
       }
     }
+
     await loadWeek(weekKey);
-    showToast(`✅ 심방현황 저장: ${successCount}건 완료${failCount>0?' / '+failCount+'건 실패':''}`);
+    const extra = fail > 0
+      ? `\n\n실패 ${fail}건:\n` + failDetails.slice(0,8).join('\n')
+        + (failDetails.length>8 ? `\n외 ${failDetails.length-8}건` : '')
+      : '';
+    if(fail > 0){
+      alert(`✅ 저장 ${ok}건 완료 / ❌ 실패 ${fail}건${extra}`);
+    } else {
+      showToast(`✅ 심방현황 저장: ${ok}건 완료`);
+    }
     if(document.getElementById('visitFile')) document.getElementById('visitFile').value = '';
   }catch(e){
     alert('심방현황 업로드 실패: ' + e.message);
