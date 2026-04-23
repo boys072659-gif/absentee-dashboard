@@ -1439,6 +1439,7 @@
       <button class="admin-tab" data-admin-tab="members" onclick="switchAdminTab('members')">👥 성도 등록</button>
       <button class="admin-tab" data-admin-tab="attendance" onclick="switchAdminTab('attendance')">📈 출석률 업로드</button>
       <button class="admin-tab" data-admin-tab="rooms" onclick="switchAdminTab('rooms')">💬 텔레그램 방 목록</button>
+      <button class="admin-tab" data-admin-tab="auth" onclick="switchAdminTab('auth')">🛡 봇 방 승인</button>
       <button class="admin-tab" data-admin-tab="classification" onclick="switchAdminTab('classification')">📊 분류 통계</button>
       <button class="admin-tab" data-admin-tab="church-analysis" onclick="switchAdminTab('church-analysis')">⛪ 교회별 분석</button>
       <button class="admin-tab" data-admin-tab="dept-analysis" onclick="switchAdminTab('dept-analysis')">🏛 부서별 분석</button>
@@ -1505,6 +1506,96 @@
         </div>
 
         <div id="memberOverview" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- 탭: 봇 방 승인 관리 -->
+    <div class="admin-panel" id="adminAuth" style="display:none">
+      <div class="an-card">
+        <div class="an-card-head">
+          <div>
+            <div class="an-card-title">🛡 봇 방 승인 관리</div>
+            <div class="an-card-sub">
+              사전 승인된 Chat ID만 봇 기능 사용 가능 (보안 레벨 3)
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-light" onclick="loadAuthorizedChats()">🔄 새로고침</button>
+          </div>
+        </div>
+
+        <div style="padding:16px;background:#f8fafc;border-radius:10px;margin:12px">
+          <h4 style="margin:0 0 8px 0;font-size:14px">➕ 새 방 승인 추가</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+            <div style="flex:1;min-width:200px">
+              <label class="control-label" style="font-size:11px">Chat ID (필수)</label>
+              <input id="authChatId" class="text-input" placeholder="예: -1001234567890" />
+            </div>
+            <div style="flex:2;min-width:240px">
+              <label class="control-label" style="font-size:11px">방 이름 / 메모</label>
+              <input id="authNotes" class="text-input" placeholder="예: 서울교회 청년회 강북 대책방" />
+            </div>
+            <div>
+              <label class="control-label" style="font-size:11px">승인자</label>
+              <input id="authAuthorizer" class="text-input" placeholder="홍길동 목사" />
+            </div>
+            <button class="btn btn-primary" onclick="addAuthorizedChat()">✅ 승인 추가</button>
+          </div>
+        </div>
+
+        <div style="padding:0 16px 8px">
+          <input id="authSearch" class="text-input" style="width:100%" placeholder="🔍 Chat ID, 방이름, 승인자로 검색" oninput="filterAuthTable()" />
+          <div id="authCount" style="color:#64748b;font-size:12px;margin-top:6px"></div>
+        </div>
+
+        <div id="authListMount" style="padding:0 16px 16px;overflow:auto"></div>
+
+        <div style="padding:16px;margin:12px;background:#fef3c7;border-radius:10px;font-size:13px">
+          💡 <strong>사용 가이드</strong><br>
+          1️⃣ 봇을 텔레그램 그룹방에 초대합니다.<br>
+          2️⃣ 방에서 <code>/start</code> 실행 → 봇이 Chat ID를 안내합니다.<br>
+          3️⃣ 해당 Chat ID를 여기에 입력하여 승인합니다.<br>
+          4️⃣ 방에서 <code>/start</code> 재실행 → 이제 사용 가능합니다.<br>
+          <br>
+          ⚠️ 승인 해제(비활성) 하면 해당 방은 즉시 사용 차단됩니다.
+        </div>
+
+        <!-- 봇 관리자 등록 -->
+        <div class="an-card-head" style="margin-top:24px">
+          <div>
+            <div class="an-card-title">👨‍💼 봇 관리자 user_id 등록</div>
+            <div class="an-card-sub">
+              여기에 등록된 관리자에게 승인 신청 DM 이 발송되며, 관리자는 <code>/approve</code> <code>/deny</code> 명령어 사용 가능
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-light" onclick="loadBotAdmins()">🔄 새로고침</button>
+          </div>
+        </div>
+
+        <div style="padding:16px;background:#ecfdf5;border-radius:10px;margin:12px">
+          <h4 style="margin:0 0 8px 0;font-size:14px">➕ 관리자 추가</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+            <div style="flex:1;min-width:200px">
+              <label class="control-label" style="font-size:11px">User ID (필수, 텔레그램 숫자 ID)</label>
+              <input id="adminUserId" class="text-input" placeholder="예: 123456789" />
+            </div>
+            <div style="flex:2;min-width:240px">
+              <label class="control-label" style="font-size:11px">표시 이름</label>
+              <input id="adminDisplay" class="text-input" placeholder="홍길동 목사" />
+            </div>
+            <div style="flex:2;min-width:200px">
+              <label class="control-label" style="font-size:11px">메모</label>
+              <input id="adminNotes" class="text-input" placeholder="선택사항" />
+            </div>
+            <button class="btn btn-primary" onclick="addBotAdmin()">✅ 등록</button>
+          </div>
+          <p style="margin:8px 0 0 0;color:#64748b;font-size:12px">
+            💡 관리자의 User ID 확인 방법: 관리자가 봇과 1:1 개인채팅에서 <code>/chatid</code> 명령 실행 → "내 User ID" 표시됨
+          </p>
+        </div>
+
+        <div id="botAdminsMount" style="padding:0 16px 16px;overflow:auto"></div>
       </div>
     </div>
 
@@ -3767,7 +3858,7 @@ function switchAdminTab(tab){
     b.classList.toggle('active', b.dataset.adminTab === tab);
   });
   // 모든 패널 숨김
-  ['adminChurchStatus','adminPasswords','adminMembers','adminAttendance','adminRooms','adminClassification','adminChurchAnalysis','adminDeptAnalysis','adminDataExport'].forEach(id => {
+  ['adminChurchStatus','adminPasswords','adminMembers','adminAttendance','adminRooms','adminAuth','adminClassification','adminChurchAnalysis','adminDeptAnalysis','adminDataExport'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
@@ -3778,6 +3869,7 @@ function switchAdminTab(tab){
     'members':          'adminMembers',
     'attendance':       'adminAttendance',
     'rooms':            'adminRooms',
+    'auth':             'adminAuth',
     'classification':   'adminClassification',
     'church-analysis':  'adminChurchAnalysis',
     'dept-analysis':    'adminDeptAnalysis',
@@ -3791,6 +3883,7 @@ function switchAdminTab(tab){
   else if(tab === 'members')        loadMembersOverview();
   else if(tab === 'attendance')     initAttendanceTab();
   else if(tab === 'rooms')          loadRoomsOverview();
+  else if(tab === 'auth')           loadAuthorizedChats();
   else if(tab === 'classification') initClassificationTab();
   else if(tab === 'church-analysis')loadChurchAnalysis();
   else if(tab === 'dept-analysis')  loadDeptAnalysis();
@@ -4618,6 +4711,281 @@ async function renderAdminDeptRegion(){
     console.error(e);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   🛡 탭: 봇 방 승인 관리 (보안 레벨 3)
+   ═══════════════════════════════════════════════════════════════════════════ */
+let _authorizedChats = [];
+
+async function loadAuthorizedChats(){
+  const mount = document.getElementById('authListMount');
+  if(!mount) return;
+  mount.innerHTML = '<div style="padding:20px;color:#64748b">불러오는 중...</div>';
+  try{
+    const rows = await sbFetch('bot_authorized_chats?select=*&order=authorized_at.desc&limit=2000') || [];
+    _authorizedChats = rows;
+    renderAuthTable(_authorizedChats);
+    document.getElementById('authCount').textContent = `총 ${rows.length}개 방 (활성 ${rows.filter(r=>r.is_active).length}개)`;
+  }catch(e){
+    mount.innerHTML = '<div style="padding:20px;color:#dc2626">❌ ' + escapeHtml(e.message) + '<br>SQL 섹션 7.9 미적용 가능성 있음</div>';
+  }
+  // 관리자 목록도 같이 로드
+  await loadBotAdmins();
+}
+
+/* ═ 봇 관리자 user_id 관리 ═ */
+let _botAdmins = [];
+
+async function loadBotAdmins(){
+  const mount = document.getElementById('botAdminsMount');
+  if(!mount) return;
+  mount.innerHTML = '<div style="padding:20px;color:#64748b">불러오는 중...</div>';
+  try{
+    const rows = await sbFetch('bot_admins?select=*&order=added_at.asc&limit=100') || [];
+    _botAdmins = rows;
+    if(rows.length === 0){
+      mount.innerHTML = '<div style="padding:20px;color:#64748b">📭 등록된 관리자가 없습니다. 위에서 추가하세요.</div>';
+      return;
+    }
+    let html = '<table class="export-table" style="font-size:12px"><thead><tr>';
+    ['User ID','이름','메모','상태','등록일','작업'].forEach(h => html += `<th>${h}</th>`);
+    html += '</tr></thead><tbody>';
+    rows.forEach(r => {
+      const addedAt = r.added_at ? new Date(r.added_at).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '-';
+      const stateBadge = r.is_active 
+        ? '<span style="color:#16a34a;font-weight:700">● 활성</span>'
+        : '<span style="color:#94a3b8">● 비활성</span>';
+      const toggleLabel = r.is_active ? '🚫 비활성' : '✅ 활성화';
+      const toggleStyle = r.is_active ? 'btn-danger' : 'btn-primary';
+      html += `<tr ${r.is_active ? '' : 'style="opacity:0.5"'}>
+        <td><code>${r.user_id}</code></td>
+        <td>${escapeHtml(r.display_name || '-')}</td>
+        <td style="font-size:11px;color:#64748b">${escapeHtml(r.notes || '-')}</td>
+        <td>${stateBadge}</td>
+        <td style="font-size:11px;color:#64748b">${addedAt}</td>
+        <td>
+          <button class="btn ${toggleStyle}" style="padding:4px 8px;font-size:11px" onclick="toggleBotAdmin(${r.user_id}, ${!r.is_active})">${toggleLabel}</button>
+          <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteBotAdmin(${r.user_id})">🗑</button>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    mount.innerHTML = html;
+  }catch(e){
+    mount.innerHTML = '<div style="padding:20px;color:#dc2626">❌ ' + escapeHtml(e.message) + '<br>SQL에 bot_admins 테이블 미적용 가능성 있음</div>';
+  }
+}
+
+async function addBotAdmin(){
+  const uidRaw = document.getElementById('adminUserId').value.trim();
+  const display = document.getElementById('adminDisplay').value.trim();
+  const notes = document.getElementById('adminNotes').value.trim();
+  if(!uidRaw){ alert('User ID는 필수입니다.'); return; }
+  const uid = parseInt(uidRaw);
+  if(isNaN(uid) || uid <= 0){ alert('User ID는 양의 정수여야 합니다.'); return; }
+
+  showLoading(true);
+  try{
+    await callRpc('upsert_bot_admin', {
+      p_user_id: uid,
+      p_display_name: display || null,
+      p_is_active: true,
+      p_notes: notes || null,
+    });
+    document.getElementById('adminUserId').value = '';
+    document.getElementById('adminDisplay').value = '';
+    document.getElementById('adminNotes').value = '';
+    await loadBotAdmins();
+    showToast('✅ 관리자 추가 완료');
+  }catch(e){
+    alert('등록 실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function toggleBotAdmin(userId, newActive){
+  const action = newActive ? '활성화' : '비활성화';
+  if(!confirm(`User ID ${userId} 관리자를 ${action}하시겠습니까?`)) return;
+  showLoading(true);
+  try{
+    const row = _botAdmins.find(r => r.user_id === userId);
+    await callRpc('upsert_bot_admin', {
+      p_user_id: userId,
+      p_display_name: row ? row.display_name : null,
+      p_is_active: newActive,
+      p_notes: row ? row.notes : null,
+    });
+    await loadBotAdmins();
+    showToast(`✅ ${action} 완료`);
+  }catch(e){
+    alert('실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function deleteBotAdmin(userId){
+  if(!confirm(`User ID ${userId} 관리자를 완전 삭제하시겠습니까?`)) return;
+  showLoading(true);
+  try{
+    await callRpc('delete_bot_admin', { p_user_id: userId });
+    await loadBotAdmins();
+    showToast('✅ 삭제 완료');
+  }catch(e){
+    alert('실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+function renderAuthTable(rows){
+  const mount = document.getElementById('authListMount');
+  if(rows.length === 0){
+    mount.innerHTML = '<div style="padding:20px;color:#64748b">📭 승인된 방이 없습니다. 위에서 Chat ID를 추가하세요.</div>';
+    return;
+  }
+  let html = '<table class="export-table" style="font-size:12px"><thead><tr>';
+  ['Chat ID','방 이름 / 메모','상태','승인자','승인일','마지막 접근','접근 횟수','작업'].forEach(h => html += `<th>${h}</th>`);
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(r => {
+    const authAt = r.authorized_at ? new Date(r.authorized_at).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '-';
+    const lastAt = r.last_access_at ? new Date(r.last_access_at).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '-';
+    const stateBadge = r.is_active 
+      ? '<span style="color:#16a34a;font-weight:700">● 활성</span>'
+      : '<span style="color:#94a3b8">● 비활성</span>';
+    const toggleLabel = r.is_active ? '🚫 차단' : '✅ 활성화';
+    const toggleStyle = r.is_active ? 'btn-danger' : 'btn-primary';
+    
+    html += `<tr ${r.is_active ? '' : 'style="opacity:0.5"'}>
+      <td><code style="font-size:11px">${r.chat_id}</code></td>
+      <td>${escapeHtml(r.notes || r.chat_title || '-')}</td>
+      <td>${stateBadge}</td>
+      <td>${escapeHtml(r.authorized_by || '-')}</td>
+      <td style="font-size:11px;color:#64748b">${authAt}</td>
+      <td style="font-size:11px;color:#64748b">${lastAt}</td>
+      <td style="text-align:center">${r.access_count || 0}</td>
+      <td>
+        <button class="btn btn-light" style="padding:4px 8px;font-size:11px" onclick="editAuthChat(${r.chat_id})">✏️</button>
+        <button class="btn ${toggleStyle}" style="padding:4px 8px;font-size:11px" onclick="toggleAuthChat(${r.chat_id}, ${!r.is_active})">${toggleLabel}</button>
+        <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteAuthChat(${r.chat_id})">🗑</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  mount.innerHTML = html;
+}
+
+function filterAuthTable(){
+  const q = (document.getElementById('authSearch').value || '').trim().toLowerCase();
+  if(!q){ 
+    renderAuthTable(_authorizedChats); 
+    document.getElementById('authCount').textContent = `총 ${_authorizedChats.length}개 방 (활성 ${_authorizedChats.filter(r=>r.is_active).length}개)`;
+    return; 
+  }
+  const filtered = _authorizedChats.filter(r => {
+    const combined = [String(r.chat_id), r.notes, r.chat_title, r.authorized_by].join(' ').toLowerCase();
+    return combined.includes(q);
+  });
+  renderAuthTable(filtered);
+  document.getElementById('authCount').textContent = `${filtered.length} / ${_authorizedChats.length}개 방`;
+}
+
+async function addAuthorizedChat(){
+  const chatIdRaw = document.getElementById('authChatId').value.trim();
+  const notes = document.getElementById('authNotes').value.trim();
+  const authorizer = document.getElementById('authAuthorizer').value.trim();
+  
+  if(!chatIdRaw){ alert('Chat ID는 필수입니다.'); return; }
+  const chatId = parseInt(chatIdRaw);
+  if(isNaN(chatId)){ alert('Chat ID는 숫자여야 합니다. (음수도 가능)'); return; }
+  
+  showLoading(true);
+  try{
+    await callRpc('upsert_authorized_chat', {
+      p_chat_id: chatId,
+      p_chat_title: null,
+      p_notes: notes || null,
+      p_is_active: true,
+      p_authorized_by: authorizer || null,
+    });
+    document.getElementById('authChatId').value = '';
+    document.getElementById('authNotes').value = '';
+    document.getElementById('authAuthorizer').value = '';
+    await loadAuthorizedChats();
+    showToast(`✅ Chat ID ${chatId} 승인 완료`);
+  }catch(e){
+    alert('승인 실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function toggleAuthChat(chatId, newActive){
+  const action = newActive ? '활성화' : '차단';
+  if(!confirm(`Chat ID ${chatId} 를 ${action}하시겠습니까?`)) return;
+  
+  showLoading(true);
+  try{
+    const row = _authorizedChats.find(r => r.chat_id === chatId);
+    await callRpc('upsert_authorized_chat', {
+      p_chat_id: chatId,
+      p_chat_title: row ? row.chat_title : null,
+      p_notes: row ? row.notes : null,
+      p_is_active: newActive,
+      p_authorized_by: row ? row.authorized_by : null,
+    });
+    await loadAuthorizedChats();
+    showToast(`✅ ${action} 완료`);
+  }catch(e){
+    alert('실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function editAuthChat(chatId){
+  const row = _authorizedChats.find(r => r.chat_id === chatId);
+  if(!row) return;
+  const newNotes = prompt('방 이름 / 메모 수정', row.notes || '');
+  if(newNotes === null) return;
+  const newAuth = prompt('승인자 수정', row.authorized_by || '');
+  if(newAuth === null) return;
+  
+  showLoading(true);
+  try{
+    await callRpc('upsert_authorized_chat', {
+      p_chat_id: chatId,
+      p_chat_title: row.chat_title,
+      p_notes: newNotes.trim() || null,
+      p_is_active: row.is_active,
+      p_authorized_by: newAuth.trim() || null,
+    });
+    await loadAuthorizedChats();
+    showToast('✅ 수정 완료');
+  }catch(e){
+    alert('실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function deleteAuthChat(chatId){
+  if(!confirm(`Chat ID ${chatId} 를 승인 목록에서 완전 삭제하시겠습니까?\n\n(차단만 원하시면 취소 후 "🚫 차단" 버튼을 눌러주세요)`)) return;
+  
+  showLoading(true);
+  try{
+    await callRpc('delete_authorized_chat', { p_chat_id: chatId });
+    await loadAuthorizedChats();
+    showToast('✅ 삭제 완료');
+  }catch(e){
+    alert('실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════════════
    💬 탭: 텔레그램 방 관리
