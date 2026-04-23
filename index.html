@@ -210,6 +210,8 @@
   .btn-light{ background:#fff; color:#0f172a; border:1px solid #dbe4ef; }
   .btn-dark{ background:#0f172a; color:#fff; }
   .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-danger{ background:#dc2626; color:#fff; border:none; }
+  .btn-danger:hover{ background:#b91c1c; }
   .current-week{
     font-size:13px;
     color:var(--muted);
@@ -1305,6 +1307,7 @@
       <button class="btn btn-light" type="button" onclick="goAnalytics()" id="analyticsBtn">📊 분석</button>
       <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
       <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
+      <button class="btn btn-danger" type="button" onclick="logout()" id="logoutBtn">🚪 로그아웃</button>
       <div class="current-week" id="currentWeekLabel">현재 주차: 2026년 4월 3주차</div>
     </div>
   </div>
@@ -1367,7 +1370,7 @@
     <div class="list-toolbar">
       <div class="list-title" id="listPageTitle">결석자 리스트</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-light" onclick="goDashboard()">← 현황판으로</button>
+        <button class="btn btn-light" onclick="goBack()">↶ 이전 페이지</button> <button class="btn btn-light" onclick="goDashboard()">🏠 현황판으로</button>
         <button class="btn btn-primary" onclick="saveAll()">전체 저장</button>
       </div>
     </div>
@@ -1407,7 +1410,7 @@
     <div class="list-toolbar">
       <div class="list-title" id="analyticsTitle">📊 결석자 추이 분석</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-light" onclick="goDashboard()">← 현황판으로</button>
+        <button class="btn btn-light" onclick="goBack()">↶ 이전 페이지</button> <button class="btn btn-light" onclick="goDashboard()">🏠 현황판으로</button>
         <button class="btn btn-light" onclick="loadAnalytics()">🔄 새로고침</button>
       </div>
     </div>
@@ -1427,13 +1430,15 @@
     <div class="list-toolbar">
       <div class="list-title">🔧 관리자 페이지</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-light" onclick="goDashboard()">← 현황판으로</button>
+        <button class="btn btn-light" onclick="goBack()">↶ 이전 페이지</button> <button class="btn btn-light" onclick="goDashboard()">🏠 현황판으로</button>
       </div>
     </div>
     <div class="admin-tabs">
       <button class="admin-tab active" data-admin-tab="church-status" onclick="switchAdminTab('church-status')">🏛 교회별 현황</button>
       <button class="admin-tab" data-admin-tab="passwords" onclick="switchAdminTab('passwords')">🔐 비밀번호</button>
       <button class="admin-tab" data-admin-tab="members" onclick="switchAdminTab('members')">👥 성도 등록</button>
+      <button class="admin-tab" data-admin-tab="attendance" onclick="switchAdminTab('attendance')">📈 출석률 업로드</button>
+      <button class="admin-tab" data-admin-tab="rooms" onclick="switchAdminTab('rooms')">💬 텔레그램 방 목록</button>
       <button class="admin-tab" data-admin-tab="classification" onclick="switchAdminTab('classification')">📊 분류 통계</button>
       <button class="admin-tab" data-admin-tab="church-analysis" onclick="switchAdminTab('church-analysis')">⛪ 교회별 분석</button>
       <button class="admin-tab" data-admin-tab="dept-analysis" onclick="switchAdminTab('dept-analysis')">🏛 부서별 분석</button>
@@ -1481,8 +1486,8 @@
           <div>
             <div class="an-card-title">👥 성도 교적 + 가족/가족외 분류</div>
             <div class="an-card-sub">
-              CSV 컬럼: <code>이름, 교회, 구분(가족/가족외/일반), 부서, 지역, 구역, 전화뒷4, 고유번호</code><br>
-              <strong>이름 · 교회 · 구분</strong> 만 필수. 같은 (교회, 이름, 전화뒷4) 조합은 덮어써집니다.
+              CSV 컬럼: <code>이름, 교회, 구분(가족/가족외/일반), 부서, 지역, 구역, 번호 뒷자리, 고유번호, 등록구분(입교/교회등록/총회등록), 등록상태(정상/출결제외)</code><br>
+              <strong>이름 · 교회 · 등록구분 · 등록상태</strong> 는 필수. 등록상태가 <code>출결제외</code> 인 성도는 출석율 계산에서 자동 제외됩니다. 같은 (교회, 이름, 번호 뒷자리) 조합은 덮어써집니다.
             </div>
           </div>
         </div>
@@ -1503,6 +1508,63 @@
       </div>
     </div>
 
+    <!-- 탭: 텔레그램 방 목록 -->
+    <div class="admin-panel" id="adminRooms" style="display:none">
+      <div class="an-card">
+        <div class="an-card-head">
+          <div>
+            <div class="an-card-title">💬 텔레그램 방 관리</div>
+            <div class="an-card-sub">
+              봇이 설치된 모든 방 · 각 방의 담당 범위(교회/부서/지역/구역) · 특별관리 등록 상태
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <button class="btn btn-primary" onclick="downloadRoomsCsv()">💾 CSV 내려받기</button>
+            <button class="btn btn-light" onclick="loadRoomsOverview()">🔄 새로고침</button>
+          </div>
+        </div>
+
+        <div style="padding:16px;display:flex;gap:8px;align-items:center">
+          <input id="roomSearchInput" class="text-input" style="flex:1" placeholder="🔍 방 이름·교회·부서·지역으로 검색" oninput="filterRoomsTable()" />
+          <span id="roomsCount" style="color:#64748b;font-size:13px"></span>
+        </div>
+
+        <div id="roomsOverview" style="padding:0 16px 16px;overflow:auto"></div>
+      </div>
+    </div>
+
+    <!-- 탭: 출석률 업로드 -->
+    <div class="admin-panel" id="adminAttendance" style="display:none">
+      <div class="an-card">
+        <div class="an-card-head">
+          <div>
+            <div class="an-card-title">📈 주차별 출석률 업로드</div>
+            <div class="an-card-sub">
+              탭 구분(TSV) 또는 CSV 형식. 컬럼: No, 지파, 교회, 부서, 지역, 구역, 출결재적, 미출석자, 인증출석, 사유출석, 출석수, 출석율, 결석자수, 연속결석자수
+            </div>
+          </div>
+          <div>
+            <label class="control-label" style="font-size:11px">대상 주차</label>
+            <select id="attWeekSelect" class="top-select" style="min-width:160px"></select>
+          </div>
+        </div>
+
+        <div style="padding:16px">
+          <p style="color:#64748b; margin:0 0 10px 0; font-size:13px">
+            💡 엑셀에서 복붙하거나 CSV 파일을 붙여넣으세요. 같은 주차에 여러 번 올려도 UPSERT(덮어쓰기)로 안전합니다.
+          </p>
+          <textarea id="attTextarea" class="import-textarea" style="width:100%;min-height:180px;font-family:monospace;font-size:12px" placeholder="1&#9;서울야고보지파&#9;서울교회&#9;교역자&#9;강사회&#9;&lt;알수없음&gt;&#9;18&#9;0&#9;14&#9;4&#9;18&#9;100&#9;0&#9;0"></textarea>
+          <div style="margin-top:10px; display:flex; gap:8px; align-items:center">
+            <button class="btn btn-primary" onclick="uploadAttendance()">📤 업로드</button>
+            <button class="btn btn-light" onclick="loadAttendanceOverview()">🔄 새로고침</button>
+            <span id="attStatus" style="color:#64748b; font-size:13px"></span>
+          </div>
+        </div>
+
+        <div id="attendanceOverview" style="padding:0 16px 16px"></div>
+      </div>
+    </div>
+
     <!-- 탭 3: 분류 통계 매트릭스 -->
     <div class="admin-panel" id="adminClassification" style="display:none">
       <div class="an-card">
@@ -1514,9 +1576,22 @@
               <span id="classMatrixWeekSub" style="color:#0f172a;font-weight:800"></span>
             </div>
           </div>
-          <div>
-            <label class="control-label" style="font-size:11px">기준 주차</label>
-            <select id="classMatrixWeek" class="top-select" onchange="loadClassificationMatrix()" style="min-width:160px"></select>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <div>
+              <label class="control-label" style="font-size:11px">교회 범위</label>
+              <select id="classMatrixChurch" class="top-select" onchange="loadClassificationMatrix()" style="min-width:140px">
+                <option value="all">전체 (지파 합계)</option>
+                <option value="서울교회">서울교회</option>
+                <option value="포천교회">포천교회</option>
+                <option value="구리교회">구리교회</option>
+                <option value="동대문교회">동대문교회</option>
+                <option value="의정부교회">의정부교회</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" style="font-size:11px">기준 주차</label>
+              <select id="classMatrixWeek" class="top-select" onchange="loadClassificationMatrix()" style="min-width:160px"></select>
+            </div>
           </div>
         </div>
         <div id="classMatrixMount"></div>
@@ -1730,6 +1805,37 @@ let currentRegionFilter = 'all';
 let currentChurchFilter = 'all';  // 지파 사용자의 교회 선택 필터
 
 let currentPage = 'dashboard';
+let pageHistory = []; // 🎯 페이지 이동 히스토리 (이전 페이지 복귀용)
+function pushHistory(page){
+  if(pageHistory.length === 0 || pageHistory[pageHistory.length - 1] !== page){
+    pageHistory.push(page);
+    if(pageHistory.length > 20) pageHistory.shift();
+  }
+}
+function popHistory(){
+  // 현재 페이지 빼고, 마지막(직전) 반환
+  if(pageHistory.length >= 2){
+    pageHistory.pop();
+    return pageHistory[pageHistory.length - 1];
+  }
+  return null;
+}
+function goBack(){
+  const prev = popHistory();
+  if(!prev){
+    goDashboard();
+    return;
+  }
+  switch(prev){
+    case 'dashboard': goDashboard(); break;
+    case 'list':      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                      document.getElementById('listPage').classList.add('active');
+                      currentPage = 'list'; renderListPage(); break;
+    case 'analytics': goAnalytics(); break;
+    case 'admin':     goAdmin(); break;
+    default:          goDashboard();
+  }
+}
 let userDept = '내무부';
 let userChurch = '서울교회';
 const saveTimers = {};
@@ -1882,6 +1988,10 @@ async function checkPw(){
   if(val === correctPw && correctPw){
     document.getElementById('pw-overlay').style.display = 'none';
     applyDeptPermissionUI();
+    // 🎯 로그인 직후 대시보드 페이지 활성화 (로그아웃 후 재로그인 시 현황판 표시 보장)
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('dashboardPage').classList.add('active');
+    currentPage = 'dashboard';
     loadWeek(currentWeekKey);
   }else{
     const err=document.getElementById('pw-error');
@@ -1970,11 +2080,46 @@ function hideAllPages(){
 }
 function goDashboard(){
   currentPage = 'dashboard';
+  pushHistory('dashboard');
   hideAllPages();
   document.getElementById('dashboardPage').classList.add('active');
 }
+
+function logout(){
+  if(!confirm('로그아웃 하시겠습니까?')) return;
+  try{
+    localStorage.removeItem('yago_login');
+    sessionStorage.clear();
+  }catch(e){}
+  // 전역 상태 초기화
+  userChurch = '';
+  userDept = '';
+  currentRows = [];
+  currentChurchFilter = 'all';
+  currentDeptFilter = 'all';
+  pageHistory = []; // 히스토리도 리셋
+
+  // 모든 페이지 비활성화 (대시보드, 리스트, 분석, 관리자)
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  // 로그인 오버레이 다시 표시
+  const pwOverlay = document.getElementById('pw-overlay');
+  if(pwOverlay){
+    pwOverlay.style.display = 'flex';
+  }
+
+  // 로그인 폼 초기화
+  const pwInput = document.getElementById('pw-input');
+  if(pwInput) pwInput.value = '';
+  const pwErr = document.getElementById('pw-error');
+  if(pwErr) pwErr.style.display = 'none';
+
+  // 포커스 이동
+  focusPwInput();
+}
 function goAnalytics(){
   currentPage = 'analytics';
+  pushHistory('analytics');
   hideAllPages();
   document.getElementById('analyticsPage').classList.add('active');
   loadAnalytics();
@@ -1985,6 +2130,7 @@ function goAdmin(){
     return;
   }
   currentPage = 'admin';
+  pushHistory('admin');
   hideAllPages();
   document.getElementById('adminPage').classList.add('active');
   // 첫 진입 시 교회별 현황 탭부터
@@ -1992,6 +2138,7 @@ function goAdmin(){
 }
 function openListPage({mode='all', dept='all', region='all'} = {}){
   currentPage = 'list';
+  pushHistory('list');
   hideAllPages();
   document.getElementById('listPage').classList.add('active');
 
@@ -2017,13 +2164,16 @@ function openListPage({mode='all', dept='all', region='all'} = {}){
     document.getElementById('listPageTitle').textContent = `${dept} 결석자 리스트`;
   } else if(mode === 'region'){
     currentTargetFilter = 'all';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    // 내무부/지파 사용자가 특정 부서의 지역을 드릴한 경우 부서 필터 유지
+    if(dept && dept !== 'all'){
+      currentDeptFilter = dept;
+    } else {
+      currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    }
     currentRegionFilter = region;
     document.getElementById('regionSelect').value = region;
-    document.getElementById('listPageTitle').textContent =
-      userDept === '내무부'
-        ? `${region} 지역 결석자 리스트`
-        : `${userDept} ${region} 지역 결석자 리스트`;
+    const deptLabel = (dept && dept !== 'all') ? `${dept} ` : (userDept !== '내무부' ? `${userDept} ` : '');
+    document.getElementById('listPageTitle').textContent = `${deptLabel}${region} 지역 결석자 리스트`;
   } else if(mode === 'streak8plus'){
     currentTargetFilter = 'all';
     currentStreakFilter = '8plus';
@@ -2248,74 +2398,251 @@ function renderDashboard(){
     </div>
   `;
 
-  // 부서 또는 지역 카드
-  if(userDept === '내무부'){
-    const deptMap = [
-      {dept:'자문회', color:'#7c3aed', bg:'#faf5ff'},
-      {dept:'장년회', color:'#16a34a', bg:'#f0fdf6'},
-      {dept:'부녀회', color:'#ea580c', bg:'#fff7ed'},
-      {dept:'청년회', color:'#2563eb', bg:'#eff6ff'},
-    ];
-    html += `<div class="dept-overview-label">부서별 현황</div><div class="dept-grid">`;
-    deptMap.forEach(({dept, color, bg}) => {
-      const dr = rows.filter(r => r.dept === dept);
-      if(dr.length === 0) return;
-      const dt = dr.filter(r => r.is_target).length;
-      const dd = dr.filter(r => r.is_done).length;
-      const da = dr.filter(r => r.attendance === '참석').length;
-      const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
-      html += `
-        <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="openListPage({mode:'dept',dept:'${dept}'})">
-          <div class="dept-header">
-            <span class="dept-name">${escapeHtml(dept)}</span>
-            <span class="dept-total">${dr.length}명</span>
-          </div>
-          <div class="dept-bar-wrap">
-            <div class="dept-bar-fill" style="width:${dpct}%"></div>
-          </div>
-          <div class="dept-stats">
-            <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
-            <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
-            <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
-            <span class="dept-pct">${dpct}%</span>
-          </div>
+  // 📈 출석률 KPI (데이터 있을 때만 표시)
+  const attAgg = aggregateAttendance(
+    isZipaUser() ? currentChurchFilter : userChurch,
+    userDept === '내무부' ? currentDeptFilter : userDept,
+    'all',  // 지역 필터는 전체 (카드 하단에서 지역별로 다시 봄)
+    rows
+  );
+  if(attAgg.hasData){
+    const rateNum = parseFloat(attAgg.rate);
+    const predictedNum = parseFloat(attAgg.predictedRate);
+    const deltaNum = parseFloat(attAgg.delta);
+    const deltaSign = deltaNum > 0 ? '+' : '';
+    const deltaColor = deltaNum > 0 ? '#16a34a' : '#64748b';
+    html += `
+      <div class="kpi-row" style="margin-top:12px">
+        <div class="kpi-card" style="background:linear-gradient(140deg,#ecfdf5,#d1fae5)">
+          <div class="kpi-icon">⛪</div>
+          <div class="kpi-value">${attAgg.rate}%</div>
+          <div class="kpi-label">현재 출석률</div>
+          <div class="kpi-sub">${attAgg.attend.toLocaleString()} / ${attAgg.total.toLocaleString()}명</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${Math.min(100,rateNum)}%;background:linear-gradient(90deg,#16a34a,#4ade80)"></div></div>
         </div>
-      `;
-    });
-    html += `</div>`;
-  } else {
-    const regions = [...new Set(rows.map(r => r.region_first).filter(Boolean))].sort((a,b) => a.localeCompare(b,'ko'));
-    if(regions.length > 0){
-      html += `<div class="dept-overview-label">지역별 현황</div><div class="dept-grid">`;
-      regions.forEach(region => {
-        const rr = rows.filter(r => r.region_first === region);
-        const rt = rr.filter(r => r.is_target).length;
-        const rd = rr.filter(r => r.is_done).length;
-        const ra = rr.filter(r => r.attendance === '참석').length;
-        const rpct = rr.length ? Math.round(rd / rr.length * 100) : 0;
+        <div class="kpi-card" style="background:linear-gradient(140deg,#eff6ff,#dbeafe)">
+          <div class="kpi-icon">🎯</div>
+          <div class="kpi-value" style="color:${deltaColor}">${attAgg.predictedRate}%</div>
+          <div class="kpi-label">예상 출석률</div>
+          <div class="kpi-sub">결석자 중 예배참석 ${attAgg.extraAttend}명 반영 (<span style="color:${deltaColor};font-weight:700">${deltaSign}${attAgg.delta}%p</span>)</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${Math.min(100,predictedNum)}%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 📊 역할/필터에 따른 카드 섹션 렌더링
+  const isZipa = isZipaUser();
+  const hasChurchFilter = currentChurchFilter && currentChurchFilter !== 'all';
+  const hasDeptFilter = currentDeptFilter && currentDeptFilter !== 'all';
+
+  if(isZipa){
+    // 🛡 지파 관리자 — 필터에 따라 드릴다운
+    if(!hasChurchFilter){
+      // A) 전체 교회 → 5교회 카드 (+ 부서별 카드 하단)
+      html += `<div class="dept-overview-label">⛪ 교회별 현황</div><div class="dept-grid">`;
+      CHURCHES.forEach(ch => {
+        const cr = rows.filter(r => r.church === ch);
+        if(cr.length === 0) return;
+        const ct = cr.filter(r => r.is_target).length;
+        const cd = cr.filter(r => r.is_done).length;
+        const ca = cr.filter(r => r.attendance === '참석').length;
+        const cpct = cr.length ? Math.round(cd / cr.length * 100) : 0;
+        const color = CHURCH_COLORS[ch] || '#0ea5e9';
         html += `
-          <div class="dept-card" style="--dept-color:#0ea5e9;--dept-bg:#f0f9ff" onclick="openListPage({mode:'region',region:'${escapeHtml(region)}'})">
+          <div class="dept-card" style="--dept-color:${color};--dept-bg:#f0f9ff" onclick="drillToChurch('${escapeHtml(ch)}')">
             <div class="dept-header">
-              <span class="dept-name">${escapeHtml(region)}</span>
-              <span class="dept-total">${rr.length}명</span>
+              <span class="dept-name">${escapeHtml(ch)}</span>
+              <span class="dept-total">${cr.length}명</span>
             </div>
             <div class="dept-bar-wrap">
-              <div class="dept-bar-fill" style="width:${rpct}%"></div>
+              <div class="dept-bar-fill" style="width:${cpct}%"></div>
             </div>
             <div class="dept-stats">
-              <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${rt}</span>
-              <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${rd}</span>
-              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${ra}</span>
-              <span class="dept-pct">${rpct}%</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${ct}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${cd}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${ca}</span>
+              <span class="dept-pct">${cpct}%</span>
             </div>
           </div>
         `;
       });
       html += `</div>`;
+
+      // 🏛 부서별 지파 전체 합계 (3번 요청)
+      html += `<div class="dept-overview-label" style="margin-top:16px">🏛 지파 전체 · 부서별 현황</div><div class="dept-grid">`;
+      const deptMap = [
+        {dept:'자문회', color:'#7c3aed'},
+        {dept:'장년회', color:'#16a34a'},
+        {dept:'부녀회', color:'#ea580c'},
+        {dept:'청년회', color:'#2563eb'},
+      ];
+      deptMap.forEach(({dept, color}) => {
+        const dr = rows.filter(r => r.dept === dept);
+        if(dr.length === 0) return;
+        const dt = dr.filter(r => r.is_target).length;
+        const dd = dr.filter(r => r.is_done).length;
+        const da = dr.filter(r => r.attendance === '참석').length;
+        const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
+        html += `
+          <div class="dept-card" style="--dept-color:${color};--dept-bg:#faf5ff" onclick="openListPage({mode:'dept',dept:'${dept}'})">
+            <div class="dept-header">
+              <span class="dept-name">${escapeHtml(dept)}</span>
+              <span class="dept-total">${dr.length}명</span>
+            </div>
+            <div class="dept-bar-wrap">
+              <div class="dept-bar-fill" style="width:${dpct}%"></div>
+            </div>
+            <div class="dept-stats">
+              <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+              <span class="dept-pct">${dpct}%</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    } else if(hasChurchFilter && !hasDeptFilter){
+      // B) 특정 교회 + 전체 부서 → 지역별 현황 우선 (3번 요청) + 부서별도 함께
+      // 먼저 지역별
+      html += renderRegionCards(rows, currentChurchFilter, '전체');
+      // 그 다음 부서별 (해당 교회만)
+      html += `<div class="dept-overview-label" style="margin-top:16px">🏛 ${escapeHtml(currentChurchFilter)} · 부서별 현황</div><div class="dept-grid">`;
+      const deptMap = [
+        {dept:'자문회', color:'#7c3aed', bg:'#faf5ff'},
+        {dept:'장년회', color:'#16a34a', bg:'#f0fdf6'},
+        {dept:'부녀회', color:'#ea580c', bg:'#fff7ed'},
+        {dept:'청년회', color:'#2563eb', bg:'#eff6ff'},
+      ];
+      deptMap.forEach(({dept, color, bg}) => {
+        const dr = rows.filter(r => r.dept === dept);
+        if(dr.length === 0) return;
+        const dt = dr.filter(r => r.is_target).length;
+        const dd = dr.filter(r => r.is_done).length;
+        const da = dr.filter(r => r.attendance === '참석').length;
+        const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
+        html += `
+          <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="drillToChurchDept('${escapeHtml(currentChurchFilter)}','${dept}')">
+            <div class="dept-header">
+              <span class="dept-name">${escapeHtml(dept)}</span>
+              <span class="dept-total">${dr.length}명</span>
+            </div>
+            <div class="dept-bar-wrap">
+              <div class="dept-bar-fill" style="width:${dpct}%"></div>
+            </div>
+            <div class="dept-stats">
+              <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+              <span class="dept-pct">${dpct}%</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    } else {
+      // C) 특정 교회 + 특정 부서 → 지역별 현황
+      html += renderRegionCards(rows, currentChurchFilter, currentDeptFilter);
     }
+  } else if(userDept === '내무부'){
+    // 🏛 내무부 — 전체 부서면 부서별 카드, 특정 부서면 지역별 카드 (9번 요청)
+    if(!hasDeptFilter){
+      const deptMap = [
+        {dept:'자문회', color:'#7c3aed', bg:'#faf5ff'},
+        {dept:'장년회', color:'#16a34a', bg:'#f0fdf6'},
+        {dept:'부녀회', color:'#ea580c', bg:'#fff7ed'},
+        {dept:'청년회', color:'#2563eb', bg:'#eff6ff'},
+      ];
+      html += `<div class="dept-overview-label">🏛 부서별 현황</div><div class="dept-grid">`;
+      deptMap.forEach(({dept, color, bg}) => {
+        const dr = rows.filter(r => r.dept === dept);
+        if(dr.length === 0) return;
+        const dt = dr.filter(r => r.is_target).length;
+        const dd = dr.filter(r => r.is_done).length;
+        const da = dr.filter(r => r.attendance === '참석').length;
+        const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
+        html += `
+          <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="drillToDept('${dept}')">
+            <div class="dept-header">
+              <span class="dept-name">${escapeHtml(dept)}</span>
+              <span class="dept-total">${dr.length}명</span>
+            </div>
+            <div class="dept-bar-wrap">
+              <div class="dept-bar-fill" style="width:${dpct}%"></div>
+            </div>
+            <div class="dept-stats">
+              <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+              <span class="dept-pct">${dpct}%</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    } else {
+      // 내무부 + 특정 부서 → 지역별 (9번)
+      html += renderRegionCards(rows, userChurch, currentDeptFilter);
+    }
+  } else {
+    // 🏛 일반 부서 사용자 — 지역별 현황만
+    html += renderRegionCards(rows, userChurch, userDept);
   }
 
   summaryGrid.innerHTML = html;
+}
+
+/* 🗺 지역별 카드 렌더링 (공통) */
+function renderRegionCards(rows, church, dept){
+  const regions = [...new Set(rows.map(r => r.region_first).filter(Boolean))].sort((a,b) => a.localeCompare(b,'ko'));
+  if(regions.length === 0) return '';
+  let h = `<div class="dept-overview-label">📍 ${escapeHtml(church||'전체')} / ${escapeHtml(dept||'전체')} · 지역별 현황</div><div class="dept-grid">`;
+  regions.forEach(region => {
+    const rr = rows.filter(r => r.region_first === region);
+    const rt = rr.filter(r => r.is_target).length;
+    const rd = rr.filter(r => r.is_done).length;
+    const ra = rr.filter(r => r.attendance === '참석').length;
+    const rpct = rr.length ? Math.round(rd / rr.length * 100) : 0;
+    h += `
+      <div class="dept-card" style="--dept-color:#0ea5e9;--dept-bg:#f0f9ff" onclick="openListPage({mode:'region',region:'${escapeHtml(region)}',dept:'${escapeHtml(dept||'all')}'})">
+        <div class="dept-header">
+          <span class="dept-name">${escapeHtml(region)}</span>
+          <span class="dept-total">${rr.length}명</span>
+        </div>
+        <div class="dept-bar-wrap">
+          <div class="dept-bar-fill" style="width:${rpct}%"></div>
+        </div>
+        <div class="dept-stats">
+          <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${rt}</span>
+          <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${rd}</span>
+          <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${ra}</span>
+          <span class="dept-pct">${rpct}%</span>
+        </div>
+      </div>
+    `;
+  });
+  h += `</div>`;
+  return h;
+}
+
+/* 🎯 드릴다운 헬퍼 (4번, 9번) */
+function drillToChurch(church){
+  currentChurchFilter = church;
+  document.getElementById('topChurchSelect').value = church;
+  renderDashboard();
+}
+function drillToChurchDept(church, dept){
+  currentChurchFilter = church;
+  currentDeptFilter = dept;
+  document.getElementById('topChurchSelect').value = church;
+  document.getElementById('topDeptSelect').value = dept;
+  renderDashboard();
+}
+function drillToDept(dept){
+  currentDeptFilter = dept;
+  document.getElementById('topDeptSelect').value = dept;
+  renderDashboard();
 }
 
 /* 리스트 */
@@ -2533,6 +2860,9 @@ async function loadWeek(weekKey){
 
     // 2.5) 교적 로드 (가족/가족외 분류용)
     try { await loadMemberRegistry(); } catch(_){}
+
+    // 2.6) 출석률 데이터 로드 (대시보드 KPI용)
+    try { await loadAttendanceCache(weekKey); } catch(_){}
 
     // 3) 진행현황 로드
     const progressRows = await sbFetch(`weekly_visit_progress?select=*&week_key=eq.${encodeURIComponent(weekKey)}`);
@@ -2859,16 +3189,33 @@ function renderForZipa(allRows, weekKeys, labelMap, mount){
   // 렌더링
   const labels = weekKeys.map(formatWeekShort);
 
-  // 차트 1
-  const churchDatasets = CHURCHES.map(ch => ({
-    label: ch,
-    data: weekKeys.map(k => allRows.filter(r => r.week_key === k && r.church === ch).length),
-    borderColor: CHURCH_COLORS[ch],
-    backgroundColor: 'transparent',
+  // 🛡 서울야고보지파 전체 합계 라인 (맨 앞에 추가)
+  const zipaTotalData = weekKeys.map(k => allRows.filter(r => r.week_key === k).length);
+  const zipaDataset = {
+    label: '🛡 서울야고보지파 합계',
+    data: zipaTotalData,
+    borderColor: '#0f172a',
+    backgroundColor: 'rgba(15,23,42,0.08)',
     tension: 0.3,
-    borderWidth: 3,
-    pointRadius: 4,
-  }));
+    borderWidth: 3.5,
+    pointRadius: 5,
+    borderDash: [6, 3],
+    fill: false,
+  };
+
+  // 차트 1: 지파 합계 + 5개 교회
+  const churchDatasets = [
+    zipaDataset,
+    ...CHURCHES.map(ch => ({
+      label: ch,
+      data: weekKeys.map(k => allRows.filter(r => r.week_key === k && r.church === ch).length),
+      borderColor: CHURCH_COLORS[ch],
+      backgroundColor: 'transparent',
+      tension: 0.3,
+      borderWidth: 3,
+      pointRadius: 4,
+    })),
+  ];
   const ctx1 = document.getElementById('chartZipaChurches').getContext('2d');
   analyticsCharts.zipaChurches = new Chart(ctx1, {
     type: 'line',
@@ -2876,17 +3223,30 @@ function renderForZipa(allRows, weekKeys, labelMap, mount){
     options: chartBaseOptions('명 (결석자 수)'),
   });
 
-  // 부서별 차트
+  // 부서별 차트: 각 부서에도 지파 합계 라인 추가
   DEPTS.forEach(dept => {
-    const datasets = CHURCHES.map(ch => ({
-      label: ch,
-      data: weekKeys.map(k => allRows.filter(r => r.week_key === k && r.church === ch && r.dept === dept).length),
-      borderColor: CHURCH_COLORS[ch],
-      backgroundColor: 'transparent',
-      tension: 0.3,
-      borderWidth: 2.5,
-      pointRadius: 3,
-    }));
+    const deptZipaData = weekKeys.map(k => allRows.filter(r => r.week_key === k && r.dept === dept).length);
+    const datasets = [
+      {
+        label: `🛡 지파 ${dept} 합계`,
+        data: deptZipaData,
+        borderColor: '#0f172a',
+        backgroundColor: 'rgba(15,23,42,0.06)',
+        tension: 0.3,
+        borderWidth: 3,
+        pointRadius: 4,
+        borderDash: [6, 3],
+      },
+      ...CHURCHES.map(ch => ({
+        label: ch,
+        data: weekKeys.map(k => allRows.filter(r => r.week_key === k && r.church === ch && r.dept === dept).length),
+        borderColor: CHURCH_COLORS[ch],
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        borderWidth: 2.5,
+        pointRadius: 3,
+      })),
+    ];
     const ctx = document.getElementById(`chartZipaDept_${dept}`).getContext('2d');
     analyticsCharts[`zipaDept_${dept}`] = new Chart(ctx, {
       type: 'line',
@@ -3096,33 +3456,16 @@ async function uploadAbsentees(){
     });
     const inserted = Array.isArray(result) && result[0] ? result[0].inserted_count : 0;
 
-    // ── 연속결석 +1 (업로드된 숫자는 이전 주차 기준이므로 이번 주 결석 1회를 더함) ──
-    //     우선 safe 버전(멱등) 호출 → 실패 시 레거시 버전으로 폴백
+    // ⚠️ 연속결석 자동 +1 비활성화
+    //    (CSV에 이미 정확한 연속결석 횟수가 포함되어 있다는 전제로 DB에 그대로 저장)
+    //    필요 시 관리자가 수동으로 apply_consec_increment_safe RPC 호출
     let incApplied = 0;
-    try{
-      const n = await callRpc('apply_consec_increment_safe', { p_week_key: weekKey, p_dept: null });
-      incApplied = (typeof n === 'number') ? n : (Array.isArray(n) ? n[0] : 0);
-      console.info('[info] apply_consec_increment_safe OK:', incApplied);
-    }catch(e1){
-      // 신규 RPC가 아직 DB에 없으면 레거시 호출
-      try{
-        await callRpc('apply_consecutive_absent_increment', { p_week_key: weekKey });
-        console.info('[info] legacy apply_consecutive_absent_increment used');
-      }catch(e2){
-        const msg = String(e2.message || '');
-        if(/Could not find|function|404|PGRST202/i.test(msg)){
-          console.info('[info] 연속결석 +1 RPC 미설치 — 건너뜀');
-        } else {
-          console.warn('연속결석 +1 실패:', msg);
-        }
-      }
-    }
 
     weekLabelMap[weekKey] = weekLabel || weekKey;
     document.getElementById('importTextarea').value = '';
     if(document.getElementById('importFile')) document.getElementById('importFile').value = '';
     await loadWeek(weekKey);
-    showToast(`✅ ${inserted}건 저장 완료 (연속결석 +1 적용됨)`);
+    showToast(`✅ ${inserted}건 저장 완료`);
   }catch(e){
     alert('업로드 실패: ' + e.message);
   }finally{
@@ -3424,7 +3767,7 @@ function switchAdminTab(tab){
     b.classList.toggle('active', b.dataset.adminTab === tab);
   });
   // 모든 패널 숨김
-  ['adminChurchStatus','adminPasswords','adminMembers','adminClassification','adminChurchAnalysis','adminDeptAnalysis','adminDataExport'].forEach(id => {
+  ['adminChurchStatus','adminPasswords','adminMembers','adminAttendance','adminRooms','adminClassification','adminChurchAnalysis','adminDeptAnalysis','adminDataExport'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
@@ -3433,6 +3776,8 @@ function switchAdminTab(tab){
     'church-status':    'adminChurchStatus',
     'passwords':        'adminPasswords',
     'members':          'adminMembers',
+    'attendance':       'adminAttendance',
+    'rooms':            'adminRooms',
     'classification':   'adminClassification',
     'church-analysis':  'adminChurchAnalysis',
     'dept-analysis':    'adminDeptAnalysis',
@@ -3444,6 +3789,8 @@ function switchAdminTab(tab){
   if(tab === 'church-status')       initChurchStatusTab();
   else if(tab === 'passwords')      loadPasswordGrid();
   else if(tab === 'members')        loadMembersOverview();
+  else if(tab === 'attendance')     initAttendanceTab();
+  else if(tab === 'rooms')          loadRoomsOverview();
   else if(tab === 'classification') initClassificationTab();
   else if(tab === 'church-analysis')loadChurchAnalysis();
   else if(tab === 'dept-analysis')  loadDeptAnalysis();
@@ -3653,7 +4000,22 @@ function toggleChurchExpand(church){
 async function loadMemberRegistry(force = false){
   if(_memberRegistry && _memberRegistry.length > 0 && !force) return _memberRegistry;
   try{
-    _memberRegistry = await sbFetch('church_member_registry?select=unique_id,name,phone_last4,church,dept,region_name,zone_name,classification&order=church.asc,name.asc') || [];
+    // 🎯 Supabase PostgREST 기본 limit=1000. 페이지네이션으로 전체 가져오기
+    const CHUNK = 1000;
+    let all = [];
+    let offset = 0;
+    while(true){
+      const chunk = await sbFetch(
+        `church_member_registry?select=unique_id,name,phone_last4,church,dept,region_name,zone_name,classification,register_kind,register_status`
+        + `&order=church.asc,name.asc&limit=${CHUNK}&offset=${offset}`
+      ) || [];
+      all = all.concat(chunk);
+      if(chunk.length < CHUNK) break;  // 더 이상 없음
+      offset += CHUNK;
+      if(offset > 50000) break;  // 안전장치 (5만명)
+    }
+    _memberRegistry = all;
+    console.info(`[info] 교적 로드: ${all.length}명`);
   }catch(e){
     console.warn('[info] church_member_registry 로드 실패 (SQL 미적용 가능):', e.message);
     _memberRegistry = [];
@@ -3725,11 +4087,11 @@ async function loadMembersOverview(){
 }
 
 function downloadMemberTemplate(){
-  const header = ['이름','교회','구분','부서','지역','구역','전화뒷4','고유번호'];
+  const header = ['이름','교회','구분','부서','지역','구역','번호 뒷자리','고유번호','등록구분','등록상태'];
   const examples = [
-    ['홍길동','서울교회','가족','자문회','강북','1팀1','1234','00410125-00328'],
-    ['김영희','서울교회','가족외','장년회','노원','2팀3','5678','00410125-00329'],
-    ['박철수','포천교회','일반','부녀회','강북','','',''],
+    ['홍길동','서울교회','가족','청년회','강북','1-1','1234','00420203-00001','입교','정상'],
+    ['김영희','서울교회','가족외','장년회','노원','2-1','5678','00420203-00002','교회등록','출결제외'],
+    ['박철수','포천교회','일반','부녀회','중랑','1팀5','890','00420203-00003','총회등록','정상'],
   ];
   const content = [csvRow(header), ...examples.map(csvRow)].join('\r\n');
   const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
@@ -3748,7 +4110,7 @@ function downloadMemberCsv(){
     alert('등록된 성도가 없습니다.');
     return;
   }
-  const header = ['이름','교회','구분','부서','지역','구역','전화뒷4','고유번호'];
+  const header = ['이름','교회','구분','부서','지역','구역','번호 뒷자리','고유번호','등록구분','등록상태'];
   const lines = [csvRow(header)];
   _memberRegistry.forEach(m => {
     lines.push(csvRow([
@@ -3760,6 +4122,8 @@ function downloadMemberCsv(){
       m.zone_name || '',
       m.phone_last4 || '',
       m.unique_id || '',
+      m.register_kind || '',
+      m.register_status || '',
     ]));
   });
   const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
@@ -3789,8 +4153,10 @@ async function uploadMemberCsv(){
     dept:           ['부서','dept'],
     region_name:    ['지역','region_name','region'],
     zone_name:      ['구역','zone_name','zone'],
-    phone_last4:    ['전화뒷4','전화번호뒷자리','번호뒷자리','phone_last4','phone'],
+    phone_last4:    ['번호 뒷자리','번호뒷자리','전화뒷4','전화번호뒷자리','phone_last4','phone'],
     unique_id:      ['고유번호','unique_id','id'],
+    register_kind:  ['등록구분','register_kind'],
+    register_status:['등록상태','register_status'],
     notes:          ['메모','notes'],
   };
   const idx = {};
@@ -3805,25 +4171,53 @@ async function uploadMemberCsv(){
 
   const get = (row, key) => (idx[key] >= 0 ? (row[idx[key]] || '').trim() : '');
   const payloadRows = [];
+  const skipped = {noName:0, noChurch:0, noRegKind:0, noRegStatus:0, invalidRegKind:0, invalidRegStatus:0};
+  const VALID_REG_KIND = ['입교','교회등록','총회등록'];
+  const VALID_REG_STATUS = ['정상','출결제외'];
+
   for(let i=1;i<rows.length;i++){
     const r = rows[i];
     if(!r || r.length === 0) continue;
     const name   = get(r,'name');
     const church = get(r,'church');
-    if(!name || !church) continue;
+    if(!name)   { skipped.noName++; continue; }
+    if(!church) { skipped.noChurch++; continue; }
+
+    const regKind   = get(r,'register_kind');
+    const regStatus = get(r,'register_status');
+    if(!regKind)                         { skipped.noRegKind++; continue; }
+    if(!regStatus)                       { skipped.noRegStatus++; continue; }
+    if(!VALID_REG_KIND.includes(regKind))     { skipped.invalidRegKind++; continue; }
+    if(!VALID_REG_STATUS.includes(regStatus)) { skipped.invalidRegStatus++; continue; }
+
     let cls = get(r,'classification');
     if(!['가족','가족외','일반'].includes(cls)) cls = '일반';
     payloadRows.push({
       name,
       church,
       classification: cls,
-      dept:        get(r,'dept'),
-      region_name: get(r,'region_name'),
-      zone_name:   normalizeZoneStr(get(r,'zone_name')),
-      phone_last4: get(r,'phone_last4'),
-      unique_id:   get(r,'unique_id'),
-      notes:       get(r,'notes'),
+      dept:            get(r,'dept'),
+      region_name:     get(r,'region_name'),
+      zone_name:       normalizeZoneStr(get(r,'zone_name')),
+      phone_last4:     get(r,'phone_last4'),
+      unique_id:       get(r,'unique_id'),
+      register_kind:   regKind,
+      register_status: regStatus,
+      notes:           get(r,'notes'),
     });
+  }
+
+  const skipTotal = Object.values(skipped).reduce((a,b)=>a+b,0);
+  if(skipTotal > 0){
+    const msg = [];
+    if(skipped.noName>0)        msg.push(`이름 없음 ${skipped.noName}건`);
+    if(skipped.noChurch>0)      msg.push(`교회 없음 ${skipped.noChurch}건`);
+    if(skipped.noRegKind>0)     msg.push(`등록구분 없음 ${skipped.noRegKind}건`);
+    if(skipped.noRegStatus>0)   msg.push(`등록상태 없음 ${skipped.noRegStatus}건`);
+    if(skipped.invalidRegKind>0) msg.push(`등록구분 이상(입교/교회등록/총회등록 아님) ${skipped.invalidRegKind}건`);
+    if(skipped.invalidRegStatus>0) msg.push(`등록상태 이상(정상/출결제외 아님) ${skipped.invalidRegStatus}건`);
+    console.warn('[업로드 스킵] ' + msg.join(' · '));
+    if(!confirm(`⚠️ 누락/이상 데이터 ${skipTotal}건 발견:\n${msg.join('\n')}\n\n유효한 ${payloadRows.length}건만 업로드 할까요?`)) return;
   }
 
   if(payloadRows.length === 0){
@@ -3885,6 +4279,7 @@ async function initClassificationTab(){
 
 async function loadClassificationMatrix(){
   const weekKey = document.getElementById('classMatrixWeek').value;
+  const churchSel = document.getElementById('classMatrixChurch').value;
   const mount = document.getElementById('classMatrixMount');
   const subEl = document.getElementById('classMatrixWeekSub');
   if(!weekKey){
@@ -3917,31 +4312,47 @@ async function loadClassificationMatrix(){
     const label = (wrow && wrow[0] && wrow[0].week_label) || weekKey;
     subEl.textContent = ` · ${label}`;
 
-    // 4) 스코프별 매트릭스 렌더
-    //    1) 지파 전체  2) 교회별  3) 부서별
     let html = '';
 
-    // --- 지파 전체 ---
-    html += '<div class="class-scope-title">🛡 서울야고보지파 전체</div>';
-    html += renderClassMatrix(enriched);
+    if(churchSel === 'all'){
+      // 🛡 전체 보기: 지파 + 교회별 + 전체 부서별
+      html += '<div class="class-scope-title">🛡 서울야고보지파 전체</div>';
+      html += renderClassMatrix(enriched);
 
-    // --- 교회별 ---
-    html += '<div class="class-scope-title">⛪ 교회별</div>';
-    CHURCHES.forEach(ch => {
-      const sub = enriched.filter(r => r.church === ch);
-      if(sub.length === 0) return;
-      html += `<div style="font-weight:800;margin:8px 0 4px;color:${CHURCH_COLORS[ch]||'#0f172a'}">${escapeHtml(ch)} (${sub.length}명)</div>`;
-      html += renderClassMatrix(sub);
-    });
+      html += '<div class="class-scope-title">⛪ 교회별</div>';
+      CHURCHES.forEach(ch => {
+        const sub = enriched.filter(r => r.church === ch);
+        if(sub.length === 0) return;
+        html += `<div style="font-weight:800;margin:8px 0 4px;color:${CHURCH_COLORS[ch]||'#0f172a'}">${escapeHtml(ch)} (${sub.length}명)</div>`;
+        html += renderClassMatrix(sub);
+      });
 
-    // --- 부서별 (전체 교회 합계 기준) ---
-    html += '<div class="class-scope-title">🏛 부서별 (전체 교회 합계)</div>';
-    DEPTS.forEach(dp => {
-      const sub = enriched.filter(r => r.dept === dp);
-      if(sub.length === 0) return;
-      html += `<div style="font-weight:800;margin:8px 0 4px">${escapeHtml(dp)} (${sub.length}명)</div>`;
-      html += renderClassMatrix(sub);
-    });
+      html += '<div class="class-scope-title">🏛 부서별 (전체 교회 합계)</div>';
+      DEPTS.forEach(dp => {
+        const sub = enriched.filter(r => r.dept === dp);
+        if(sub.length === 0) return;
+        html += `<div style="font-weight:800;margin:8px 0 4px">${escapeHtml(dp)} (${sub.length}명)</div>`;
+        html += renderClassMatrix(sub);
+      });
+    } else {
+      // ⛪ 특정 교회 선택: 그 교회의 전체 + 부서별
+      const churchRows = enriched.filter(r => r.church === churchSel);
+      if(churchRows.length === 0){
+        mount.innerHTML = `<div style="padding:20px;color:#64748b">${escapeHtml(churchSel)}에 해당 주차 결석자가 없습니다.</div>`;
+        return;
+      }
+      const cc = CHURCH_COLORS[churchSel] || '#0f172a';
+      html += `<div class="class-scope-title" style="color:${cc}">⛪ ${escapeHtml(churchSel)} 전체 (${churchRows.length}명)</div>`;
+      html += renderClassMatrix(churchRows);
+
+      html += `<div class="class-scope-title">🏛 ${escapeHtml(churchSel)} · 부서별</div>`;
+      DEPTS.forEach(dp => {
+        const sub = churchRows.filter(r => r.dept === dp);
+        if(sub.length === 0) return;
+        html += `<div style="font-weight:800;margin:8px 0 4px">${escapeHtml(dp)} (${sub.length}명)</div>`;
+        html += renderClassMatrix(sub);
+      });
+    }
 
     mount.innerHTML = html;
   }catch(e){
@@ -4208,6 +4619,396 @@ async function renderAdminDeptRegion(){
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   💬 탭: 텔레그램 방 관리
+   ═══════════════════════════════════════════════════════════════════════════ */
+let _roomsData = [];   // 전체 방 목록 캐시 (필터링 전)
+
+async function loadRoomsOverview(){
+  const mount = document.getElementById('roomsOverview');
+  const countEl = document.getElementById('roomsCount');
+  if(!mount) return;
+  mount.innerHTML = '<div style="padding:20px;color:#64748b">불러오는 중...</div>';
+  try{
+    // 1) 방 범위(scope) 목록
+    const scopes = await sbFetch(
+      'telegram_chat_scope?select=*&order=updated_at.desc&limit=2000'
+    ) || [];
+
+    // 2) 특별관리 대상 (4항목 포함 상세)
+    const specials = await sbFetch(
+      'special_management_targets?select=*&order=monitor_chat_id.asc,created_at.desc&limit=5000'
+    ) || [];
+
+    // 3) 최신 주차의 심방기록 (심방결과 = note 필드)
+    let progressByKey = {};
+    try{
+      if(currentWeekKey){
+        const prog = await sbFetch(
+          `weekly_visit_progress?select=row_id,shepherd,plan_text,note,visit_date_display,is_done,attendance&week_key=eq.${encodeURIComponent(currentWeekKey)}&limit=5000`
+        ) || [];
+        // row_id → progress
+        const progByRowId = {};
+        prog.forEach(p => { progByRowId[p.row_id] = p; });
+        // 결석자 테이블에서 row_id ↔ (dept, name, phone_last4) 매핑
+        const targets = await sbFetch(
+          `weekly_visit_targets?select=row_id,dept,name,phone_last4&week_key=eq.${encodeURIComponent(currentWeekKey)}&limit=5000`
+        ) || [];
+        targets.forEach(t => {
+          const key = `${t.dept}|${t.name}|${t.phone_last4 || ''}`;
+          const p = progByRowId[t.row_id];
+          if(p) progressByKey[key] = p;
+        });
+      }
+    }catch(_){/* 없으면 그냥 스킵 */}
+
+    // 4) chat_id 별로 그룹화
+    const byChat = {};
+    scopes.forEach(s => {
+      byChat[s.chat_id] = {
+        chat_id: s.chat_id,
+        chat_title: s.chat_title || '',
+        church: s.church || '',
+        dept: s.dept || '',
+        region_name: s.region_name || '',
+        zone_name: s.zone_name || '',
+        owner_user_id: s.owner_user_id,
+        owner_name: s.owner_name || '',
+        created_at: s.created_at,
+        updated_at: s.updated_at,
+        specials: [],  // 특별관리 대상 배열
+      };
+    });
+
+    // 특별관리 대상을 각 방에 붙이기 + progress 조회해 심방결과 합치기
+    specials.forEach(s => {
+      if(!s.monitor_chat_id) return;
+      if(!byChat[s.monitor_chat_id]){
+        byChat[s.monitor_chat_id] = {
+          chat_id: s.monitor_chat_id,
+          chat_title: s.monitor_chat_title || '',
+          church: '', dept: s.dept || '', region_name: s.region_name || '', zone_name: s.zone_name || '',
+          owner_user_id: null, owner_name: '',
+          created_at: null, updated_at: null,
+          specials: [],
+        };
+      }
+      const pKey = `${s.dept}|${s.name}|${s.phone_last4 || ''}`;
+      const prog = progressByKey[pKey] || {};
+      byChat[s.monitor_chat_id].specials.push({
+        name: s.name,
+        dept: s.dept,
+        phone_last4: s.phone_last4,
+        region_name: s.region_name || '',
+        zone_name: s.zone_name || '',
+        item1_chat_invited: s.item1_chat_invited,        // 초대완료
+        item2_feedback_done: s.item2_feedback_done,      // 피드백 진행
+        item3_visit_date: s.item3_visit_date || '',      // 심방날짜
+        item4_visit_plan: s.item4_visit_plan || '',      // 심방계획
+        visit_result: prog.note || '',                   // 심방결과 (weekly_visit_progress.note)
+        shepherd: prog.shepherd || '',
+        is_done: prog.is_done || false,
+        attendance: prog.attendance || '',
+      });
+    });
+
+    _roomsData = Object.values(byChat).sort((a,b) => {
+      const ta = a.updated_at || '';
+      const tb = b.updated_at || '';
+      return tb.localeCompare(ta);
+    });
+
+    renderRoomsTable(_roomsData);
+    countEl.textContent = `${_roomsData.length}개 방`;
+  }catch(e){
+    console.error(e);
+    mount.innerHTML = '<div style="padding:20px;color:#dc2626">❌ ' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+function renderRoomsTable(rooms){
+  const mount = document.getElementById('roomsOverview');
+  if(rooms.length === 0){
+    mount.innerHTML = '<div style="padding:20px;color:#64748b">📭 등록된 방이 없습니다. 봇이 방에 초대되고 /setup 이 실행되어야 표시됩니다.</div>';
+    return;
+  }
+  let html = '<table class="export-table" style="font-size:12px"><thead><tr>';
+  ['방 이름','교회/부서/지역/구역','최초 설정자','대상자','초대','피드백','심방날짜','심방계획','심방결과'].forEach(h => html += `<th>${h}</th>`);
+  html += '</tr></thead><tbody>';
+
+  rooms.forEach(r => {
+    const scopeTxt = [r.church, r.dept, r.region_name, r.zone_name].filter(Boolean).join(' / ') || '-';
+    if(r.specials.length === 0){
+      // 특별관리 대상 없는 방
+      html += `<tr style="background:#f8fafc">
+        <td><strong>${escapeHtml(r.chat_title || '(제목없음)')}</strong><br><code style="font-size:10px;color:#94a3b8">${r.chat_id}</code></td>
+        <td>${escapeHtml(scopeTxt)}</td>
+        <td>${escapeHtml(r.owner_name || '-')}</td>
+        <td colspan="6" style="color:#94a3b8;text-align:center">— 특별관리 대상 없음 —</td>
+      </tr>`;
+    } else {
+      // 특별관리 대상자별로 한 행씩
+      r.specials.forEach((s, idx) => {
+        const check = (v) => v === true  ? '✅'
+                            : v === false ? '❌'
+                            : (v ? '✅' : '❌');
+        const nameTxt = `${escapeHtml(s.name)}${s.phone_last4?`(${s.phone_last4})`:''} <span style="color:#94a3b8;font-size:10px">${escapeHtml(s.dept||'')}/${escapeHtml(s.region_name||'')}/${escapeHtml(s.zone_name||'')}</span>`;
+        html += `<tr>`;
+        if(idx === 0){
+          html += `<td rowspan="${r.specials.length}" style="vertical-align:top"><strong>${escapeHtml(r.chat_title || '(제목없음)')}</strong><br><code style="font-size:10px;color:#94a3b8">${r.chat_id}</code></td>`;
+          html += `<td rowspan="${r.specials.length}" style="vertical-align:top">${escapeHtml(scopeTxt)}</td>`;
+          html += `<td rowspan="${r.specials.length}" style="vertical-align:top">${escapeHtml(r.owner_name || '-')}</td>`;
+        }
+        html += `<td>${nameTxt}</td>`;
+        html += `<td style="text-align:center" title="대책방 초대완료">${check(s.item1_chat_invited)}</td>`;
+        html += `<td style="text-align:center" title="금주 피드백 진행">${check(s.item2_feedback_done)}</td>`;
+        html += `<td>${escapeHtml(s.item3_visit_date || '-')}</td>`;
+        html += `<td style="max-width:200px;white-space:pre-wrap;word-break:break-all">${escapeHtml(s.item4_visit_plan || '-')}</td>`;
+        html += `<td style="max-width:220px;white-space:pre-wrap;word-break:break-all">${escapeHtml(s.visit_result || '-')}</td>`;
+        html += `</tr>`;
+      });
+    }
+  });
+  html += '</tbody></table>';
+  mount.innerHTML = html;
+}
+
+function filterRoomsTable(){
+  const q = (document.getElementById('roomSearchInput').value || '').trim().toLowerCase();
+  if(!q){ renderRoomsTable(_roomsData); document.getElementById('roomsCount').textContent = `${_roomsData.length}개 방`; return; }
+  const filtered = _roomsData.filter(r => {
+    const specialsTxt = r.specials.map(s => `${s.name} ${s.dept} ${s.region_name} ${s.zone_name}`).join(' ');
+    const combined = [r.chat_title, r.church, r.dept, r.region_name, r.zone_name, r.owner_name, String(r.chat_id), specialsTxt].join(' ').toLowerCase();
+    return combined.includes(q);
+  });
+  renderRoomsTable(filtered);
+  document.getElementById('roomsCount').textContent = `${filtered.length} / ${_roomsData.length}개 방`;
+}
+
+function downloadRoomsCsv(){
+  if(!_roomsData || _roomsData.length === 0){
+    alert('먼저 방 목록을 로드하세요.');
+    return;
+  }
+  const header = [
+    '방 이름','Chat ID','교회','부서','지역','구역','최초 설정자',
+    '대상자 이름','대상자 부서','대상자 지역','대상자 구역','전화뒷4',
+    '대책방 초대완료','피드백 진행여부','심방날짜','심방계획','심방결과','심방자','완료여부','예배참석',
+    '방 업데이트'
+  ];
+  const lines = [csvRow(header)];
+  _roomsData.forEach(r => {
+    const scopeCols = [
+      r.chat_title || '', r.chat_id, r.church || '', r.dept || '',
+      r.region_name || '', r.zone_name || '', r.owner_name || ''
+    ];
+    if(r.specials.length === 0){
+      lines.push(csvRow([...scopeCols, '', '', '', '', '', '', '', '', '', '', '', '', '', r.updated_at || '']));
+    } else {
+      r.specials.forEach(s => {
+        lines.push(csvRow([
+          ...scopeCols,
+          s.name || '', s.dept || '', s.region_name || '', s.zone_name || '', s.phone_last4 || '',
+          s.item1_chat_invited ? 'O' : 'X',
+          s.item2_feedback_done ? 'O' : 'X',
+          s.item3_visit_date || '',
+          s.item4_visit_plan || '',
+          s.visit_result || '',
+          s.shepherd || '',
+          s.is_done ? 'O' : 'X',
+          s.attendance || '',
+          r.updated_at || '',
+        ]));
+      });
+    }
+  });
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `telegram_rooms_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   📈 탭: 주차별 출석률 업로드 + 대시보드 반영
+   ═══════════════════════════════════════════════════════════════════════════ */
+let _attendanceRows = [];       // 전체 주차 캐시는 무거우므로 현재 주차만
+let _attendanceWeekKey = '';
+
+async function initAttendanceTab(){
+  const sel = document.getElementById('attWeekSelect');
+  // 주차 선택 채우기
+  try{
+    const weekRows = await sbFetch('weekly_target_weeks?select=week_key,week_label&order=week_key.desc&limit=24');
+    sel.innerHTML = (weekRows || []).map(w =>
+      `<option value="${w.week_key}">${escapeHtml(w.week_label || w.week_key)}</option>`
+    ).join('') || '<option value="">주차 없음</option>';
+    if(currentWeekKey) sel.value = currentWeekKey;
+  }catch(e){
+    sel.innerHTML = '<option value="">주차 로드 실패</option>';
+  }
+  sel.onchange = () => loadAttendanceOverview();
+  await loadAttendanceOverview();
+}
+
+async function uploadAttendance(){
+  const weekKey = document.getElementById('attWeekSelect').value;
+  const txt = document.getElementById('attTextarea').value.trim();
+  const statusEl = document.getElementById('attStatus');
+  if(!weekKey){ alert('주차를 선택하세요.'); return; }
+  if(!txt){ alert('데이터를 입력하세요.'); return; }
+
+  showLoading(true);
+  statusEl.textContent = '업로드 중...';
+  try{
+    const result = await callRpc('import_attendance_stats', {
+      p_week_key: weekKey,
+      p_source_name: `attendance_${new Date().toISOString().slice(0,10)}.txt`,
+      p_raw_text: txt,
+    });
+    const r = Array.isArray(result) && result[0] ? result[0] : { inserted_count:0, updated_count:0, skipped_count:0 };
+    statusEl.textContent = `✅ 신규 ${r.inserted_count} · 업데이트 ${r.updated_count} · 건너뜀 ${r.skipped_count}`;
+    statusEl.style.color = '#16a34a';
+    document.getElementById('attTextarea').value = '';
+    await loadAttendanceOverview();
+    // 현재 보고 있는 대시보드에도 반영
+    if(currentWeekKey === weekKey){
+      await loadAttendanceCache(weekKey);
+      renderDashboard();
+    }
+  }catch(e){
+    statusEl.textContent = '❌ ' + e.message;
+    statusEl.style.color = '#dc2626';
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function loadAttendanceOverview(){
+  const weekKey = document.getElementById('attWeekSelect').value;
+  const mount = document.getElementById('attendanceOverview');
+  if(!weekKey){ mount.innerHTML = ''; return; }
+  mount.innerHTML = '<div style="padding:20px;color:#64748b">로드 중...</div>';
+  try{
+    const rows = await sbFetch(
+      `weekly_attendance_stats?select=*&week_key=eq.${encodeURIComponent(weekKey)}&order=church.asc,dept.asc,region_name.asc&limit=5000`
+    ) || [];
+    if(rows.length === 0){
+      mount.innerHTML = '<div style="padding:20px;color:#64748b">📭 해당 주차 출석률 데이터가 없습니다. 위에서 업로드하세요.</div>';
+      return;
+    }
+    // 교회별 집계
+    const byChurch = {};
+    rows.forEach(r => {
+      if(!byChurch[r.church]) byChurch[r.church] = { total:0, attend:0, absent:0, absent_streak:0, rows:0 };
+      byChurch[r.church].total += r.total_roster || 0;
+      byChurch[r.church].attend += r.attend_count || 0;
+      byChurch[r.church].absent += r.absent_count || 0;
+      byChurch[r.church].absent_streak += r.absent_streak || 0;
+      byChurch[r.church].rows++;
+    });
+    // 지파 합계
+    let zipaTotal = 0, zipaAttend = 0;
+    Object.values(byChurch).forEach(c => { zipaTotal += c.total; zipaAttend += c.attend; });
+    const zipaRate = zipaTotal > 0 ? (zipaAttend / zipaTotal * 100).toFixed(2) : '0.00';
+
+    let html = `
+      <div style="padding:12px 0;font-weight:800;font-size:16px">📊 ${escapeHtml(weekKey)} 출석률 요약</div>
+      <div class="class-matrix-wrap"><table class="class-matrix" style="max-width:700px">
+        <thead><tr><th>구분</th><th>출결재적</th><th>출석수</th><th>출석율</th><th>결석자</th><th>연속결석</th></tr></thead>
+        <tbody>
+          <tr style="font-weight:800; background:#faf5ff">
+            <td>🛡 서울야고보지파 전체</td>
+            <td>${zipaTotal.toLocaleString()}</td>
+            <td>${zipaAttend.toLocaleString()}</td>
+            <td style="color:#7c3aed">${zipaRate}%</td>
+            <td>${rows.reduce((s,r)=>s+(r.absent_count||0),0)}</td>
+            <td>${rows.reduce((s,r)=>s+(r.absent_streak||0),0)}</td>
+          </tr>
+    `;
+    Object.entries(byChurch).forEach(([ch, c]) => {
+      const rate = c.total > 0 ? (c.attend / c.total * 100).toFixed(2) : '0.00';
+      html += `<tr>
+        <td class="cell-label" style="color:${CHURCH_COLORS[ch]||'#0f172a'}">${escapeHtml(ch)}</td>
+        <td>${c.total.toLocaleString()}</td>
+        <td>${c.attend.toLocaleString()}</td>
+        <td>${rate}%</td>
+        <td>${c.absent}</td>
+        <td>${c.absent_streak}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    html += `<div style="margin-top:8px;color:#64748b;font-size:12px">총 ${rows.length}개 행 · 상세 데이터는 각 대시보드에서 확인</div>`;
+    mount.innerHTML = html;
+  }catch(e){
+    console.error(e);
+    mount.innerHTML = '<div style="padding:20px;color:#dc2626">❌ ' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+/* 대시보드용 캐시 — 현재 주차의 출석률 데이터 */
+async function loadAttendanceCache(weekKey){
+  if(!weekKey){ _attendanceRows = []; _attendanceWeekKey = ''; return; }
+  if(_attendanceWeekKey === weekKey && _attendanceRows.length > 0) return;
+  try{
+    const rows = await sbFetch(
+      `weekly_attendance_stats?select=*&week_key=eq.${encodeURIComponent(weekKey)}&limit=5000`
+    ) || [];
+    _attendanceRows = rows;
+    _attendanceWeekKey = weekKey;
+  }catch(e){
+    console.warn('출석률 로드 실패:', e.message);
+    _attendanceRows = [];
+    _attendanceWeekKey = '';
+  }
+}
+
+/* 현재 scope (교회/부서/지역)에 맞는 출석률 집계 반환 */
+function aggregateAttendance(churchFilter, deptFilter, regionFilter, absenteesRowsForPredict){
+  let rows = _attendanceRows;
+  if(churchFilter && churchFilter !== 'all') rows = rows.filter(r => r.church === churchFilter);
+  if(deptFilter   && deptFilter   !== 'all') rows = rows.filter(r => r.dept === deptFilter);
+  if(regionFilter && regionFilter !== 'all') rows = rows.filter(r => r.region_name === regionFilter);
+
+  let total = 0, attend = 0, absent = 0, absentStreak = 0;
+  rows.forEach(r => {
+    total += r.total_roster || 0;
+    attend += r.attend_count || 0;
+    absent += r.absent_count || 0;
+    absentStreak += r.absent_streak || 0;
+  });
+  const rate = total > 0 ? (attend / total * 100) : 0;
+
+  // 예상 출석률: 결석자 중 '예배참석' 체크된 사람을 +
+  let extraAttend = 0;
+  if(absenteesRowsForPredict && absenteesRowsForPredict.length > 0){
+    absenteesRowsForPredict.forEach(a => {
+      // scope 범위 내 결석자만 카운트
+      if(churchFilter && churchFilter !== 'all' && a.church !== churchFilter) return;
+      if(deptFilter   && deptFilter   !== 'all' && a.dept !== deptFilter) return;
+      if(regionFilter && regionFilter !== 'all' && a.region_first !== regionFilter && a.region_name !== regionFilter) return;
+      if(a.attendance === '참석') extraAttend++;
+    });
+  }
+  const predictedRate = total > 0 ? ((attend + extraAttend) / total * 100) : 0;
+  const delta = predictedRate - rate;
+
+  return {
+    hasData: rows.length > 0,
+    total, attend, absent, absentStreak,
+    rate: rate.toFixed(2),
+    extraAttend,
+    predictedRate: predictedRate.toFixed(2),
+    delta: delta.toFixed(2),
+  };
+}
+
+
 /* ── 탭 4: 데이터 조회 / CSV ─────────────────────────────────── */
 async function initExportTab(){
   // 월 셀렉트 초기화 (1~12월)
@@ -4276,16 +5077,24 @@ async function loadExportData(){
     const rows = await sbFetch(q);
     _exportRows = rows || [];
 
-    // 요약
+    // 요약: 교회만 추출 (CHURCHES 목록에 있는 것만)
     const total = _exportRows.length;
     const byWeek = {};
     _exportRows.forEach(r => { byWeek[r.week_key] = (byWeek[r.week_key] || 0) + 1; });
     const weekCount = Object.keys(byWeek).length;
     const byChurch = {};
-    _exportRows.forEach(r => { byChurch[r.church] = (byChurch[r.church] || 0) + 1; });
+    _exportRows.forEach(r => {
+      const ch = CHURCHES.includes(r.church) ? r.church : (r.church ? '❓' + r.church : '(교회명 없음)');
+      byChurch[ch] = (byChurch[ch] || 0) + 1;
+    });
     const summaryEl = document.getElementById('exportSummary');
-    const churchSummary = Object.entries(byChurch).map(([c,n]) => `${c} ${n}`).join(' · ');
-    summaryEl.innerHTML = `📋 결과 <strong>${total}건</strong> · ${weekCount}개 주차 · ${churchSummary || '교회 데이터 없음'}`;
+    const churchSummary = CHURCHES
+      .filter(c => byChurch[c])
+      .map(c => `${c} ${byChurch[c]}`)
+      .join(' · ');
+    const invalidCount = Object.keys(byChurch).filter(k => !CHURCHES.includes(k)).reduce((sum, k) => sum + byChurch[k], 0);
+    const invalidNote = invalidCount > 0 ? ` · <span style="color:#dc2626">⚠️ 교회명 이상: ${invalidCount}건</span>` : '';
+    summaryEl.innerHTML = `📋 결과 <strong>${total}건</strong> · ${weekCount}개 주차 · ${churchSummary || '교회 데이터 없음'}${invalidNote}`;
     summaryEl.classList.add('visible');
 
     // 표 렌더
@@ -4296,14 +5105,14 @@ async function loadExportData(){
       return;
     }
     let html = '<table class="export-table"><thead><tr>';
-    ['주차','교회','부서','지파','지역','구역','이름','전화끝4','연속결석'].forEach(h => html += `<th>${h}</th>`);
+    ['주차','지파','교회','부서','지역','구역','이름','전화끝4','연속결석'].forEach(h => html += `<th>${h}</th>`);
     html += '</tr></thead><tbody>';
     _exportRows.forEach(r => {
       html += `<tr>`
         + `<td>${escapeHtml(r.week_key || '')}</td>`
+        + `<td>${escapeHtml(r.tribe || '')}</td>`
         + `<td>${escapeHtml(r.church || '')}</td>`
         + `<td>${escapeHtml(r.dept || '')}</td>`
-        + `<td>${escapeHtml(r.tribe || '')}</td>`
         + `<td>${escapeHtml(r.region_name || '')}</td>`
         + `<td>${escapeHtml(r.zone_name || '')}</td>`
         + `<td><strong>${escapeHtml(r.name || '')}</strong></td>`
@@ -4328,14 +5137,14 @@ function downloadExportCsv(){
     alert('먼저 조회를 실행하세요.');
     return;
   }
-  const header = ['주차','교회','부서','지파','지역','구역','이름','전화끝4','연속결석'];
+  const header = ['주차','지파','교회','부서','지역','구역','이름','전화끝4','연속결석'];
   const lines = [csvRow(header)];
   _exportRows.forEach(r => {
     lines.push(csvRow([
       r.week_key || '',
+      r.tribe || '',
       r.church || '',
       r.dept || '',
-      r.tribe || '',
       r.region_name || '',
       r.zone_name || '',
       r.name || '',
