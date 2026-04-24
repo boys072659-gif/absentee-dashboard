@@ -2433,7 +2433,7 @@ function passesFilters(r){
   if(currentStreakFilter === 'special' && !r.is_special_managed) return false;
   if(currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
   // 🔧 attend_confirm 기반 필터 (이전: attendance)
-  if(currentAttendanceFilter !== 'all' && r.attend_confirm !== currentAttendanceFilter) return false;
+  if(currentAttendanceFilter !== 'all' && r.worship !== currentAttendanceFilter) return false;
   return true;
 }
 function groupBy(rows, keyFn){
@@ -2467,7 +2467,7 @@ function renderDashboard(){
   const target = rows.filter(r => r.is_target).length;
   const done = rows.filter(r => r.is_done).length;
   // 🔧 '예배참석' 제거 → '예배확답=확정' 으로 대체
-  const confirmed = rows.filter(r => r.attend_confirm === '확정').length;
+  const confirmed = rows.filter(r => r.worship === '확정').length;
   const targetDone = rows.filter(r => r.is_target && r.is_done).length;
   const specialManaged = rows.filter(r => r.is_special_managed).length;
 
@@ -2620,7 +2620,7 @@ function renderDashboard(){
         if(cr.length === 0) return;
         const ct = cr.filter(r => r.is_target).length;
         const cd = cr.filter(r => r.is_done).length;
-        const ca = cr.filter(r => r.attend_confirm === '확정').length;
+        const ca = cr.filter(r => r.worship === '확정').length;
         const cpct = cr.length ? Math.round(cd / cr.length * 100) : 0;
         const color = CHURCH_COLORS[ch] || '#0ea5e9';
         html += `
@@ -2635,7 +2635,7 @@ function renderDashboard(){
             <div class="dept-stats">
               <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${ct}</span>
               <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${cd}</span>
-              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${ca}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>확정 ${ca}</span>
               <span class="dept-pct">${cpct}%</span>
             </div>
           </div>
@@ -2656,7 +2656,7 @@ function renderDashboard(){
         if(dr.length === 0) return;
         const dt = dr.filter(r => r.is_target).length;
         const dd = dr.filter(r => r.is_done).length;
-        const da = dr.filter(r => r.attend_confirm === '확정').length;
+        const da = dr.filter(r => r.worship === '확정').length;
         const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
         html += `
           <div class="dept-card" style="--dept-color:${color};--dept-bg:#faf5ff" onclick="openListPage({mode:'dept',dept:'${dept}'})">
@@ -2670,7 +2670,7 @@ function renderDashboard(){
             <div class="dept-stats">
               <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
               <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
-              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>확정 ${da}</span>
               <span class="dept-pct">${dpct}%</span>
             </div>
           </div>
@@ -2694,7 +2694,7 @@ function renderDashboard(){
         if(dr.length === 0) return;
         const dt = dr.filter(r => r.is_target).length;
         const dd = dr.filter(r => r.is_done).length;
-        const da = dr.filter(r => r.attend_confirm === '확정').length;
+        const da = dr.filter(r => r.worship === '확정').length;
         const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
         html += `
           <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="drillToChurchDept('${escapeHtml(currentChurchFilter)}','${dept}')">
@@ -2708,7 +2708,7 @@ function renderDashboard(){
             <div class="dept-stats">
               <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
               <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
-              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>확정 ${da}</span>
               <span class="dept-pct">${dpct}%</span>
             </div>
           </div>
@@ -2734,7 +2734,7 @@ function renderDashboard(){
         if(dr.length === 0) return;
         const dt = dr.filter(r => r.is_target).length;
         const dd = dr.filter(r => r.is_done).length;
-        const da = dr.filter(r => r.attend_confirm === '확정').length;
+        const da = dr.filter(r => r.worship === '확정').length;
         const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
         html += `
           <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="drillToDept('${dept}')">
@@ -2748,7 +2748,7 @@ function renderDashboard(){
             <div class="dept-stats">
               <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${dt}</span>
               <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${dd}</span>
-              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${da}</span>
+              <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>확정 ${da}</span>
               <span class="dept-pct">${dpct}%</span>
             </div>
           </div>
@@ -2776,7 +2776,7 @@ function renderRegionCards(rows, church, dept){
     const rr = rows.filter(r => r.region_first === region);
     const rt = rr.filter(r => r.is_target).length;
     const rd = rr.filter(r => r.is_done).length;
-    const ra = rr.filter(r => r.attend_confirm === '확정').length;
+    const ra = rr.filter(r => r.worship === '확정').length;
     const rpct = rr.length ? Math.round(rd / rr.length * 100) : 0;
     h += `
       <div class="dept-card" style="--dept-color:#0ea5e9;--dept-bg:#f0f9ff" onclick="openListPage({mode:'region',region:'${escapeHtml(region)}',dept:'${escapeHtml(dept||'all')}'})">
@@ -2790,7 +2790,7 @@ function renderRegionCards(rows, church, dept){
         <div class="dept-stats">
           <span class="dept-stat"><span class="stat-dot" style="background:#7c3aed"></span>타겟 ${rt}</span>
           <span class="dept-stat"><span class="stat-dot" style="background:#16a34a"></span>완료 ${rd}</span>
-          <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>참석 ${ra}</span>
+          <span class="dept-stat"><span class="stat-dot" style="background:#2563eb"></span>확정 ${ra}</span>
           <span class="dept-pct">${rpct}%</span>
         </div>
       </div>
@@ -4060,7 +4060,7 @@ function renderChurchStatus(){
     byChurch[ch].total++;
     if(r.is_target) byChurch[ch].target++;
     if(r.is_done)   byChurch[ch].done++;
-    if(r.attend_confirm === '확정') byChurch[ch].attend++;
+    if(r.worship === '확정') byChurch[ch].attend++;
     const n = Number(r.consecutive_absent_count || 0);
     if(n >= 4) byChurch[ch].plus4++;
     if(n >= 8) byChurch[ch].plus8++;
@@ -4072,7 +4072,7 @@ function renderChurchStatus(){
     total: rows.length,
     target: rows.filter(r => r.is_target).length,
     done: rows.filter(r => r.is_done).length,
-    attend: rows.filter(r => r.attend_confirm === '확정').length,
+    attend: rows.filter(r => r.worship === '확정').length,
     plus4: rows.filter(r => Number(r.consecutive_absent_count||0) >= 4).length,
     plus8: rows.filter(r => Number(r.consecutive_absent_count||0) >= 8).length,
   };
@@ -4133,7 +4133,7 @@ function renderChurchDeptDetail(churchRows){
     byDept[d].total++;
     if(r.is_target) byDept[d].target++;
     if(r.is_done) byDept[d].done++;
-    if(r.attend_confirm === '확정') byDept[d].attend++;
+    if(r.worship === '확정') byDept[d].attend++;
     const n = Number(r.consecutive_absent_count || 0);
     if(n >= 4) byDept[d].plus4++;
     if(n >= 8) byDept[d].plus8++;
@@ -5555,7 +5555,7 @@ function aggregateAttendance(churchFilter, deptFilter, regionFilter, absenteesRo
       if(deptFilter   && deptFilter   !== 'all' && a.dept !== deptFilter) return;
       if(regionFilter && regionFilter !== 'all' && a.region_first !== regionFilter && a.region_name !== regionFilter) return;
       // 예배확답이 '확정' 이면 출석 예정으로 간주
-      if(a.attend_confirm === '확정') extraAttend++;
+      if(a.worship === '확정') extraAttend++;
     });
   }
   const predictedRate = total > 0 ? ((attend + extraAttend) / total * 100) : 0;
