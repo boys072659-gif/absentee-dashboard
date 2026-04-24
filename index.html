@@ -1345,7 +1345,7 @@
       심방 결과를 CSV로 일괄 업로드합니다. 엑셀에서 저장한 <code>.csv</code> 그대로 업로드 가능합니다.<br>
       <strong>📋 컬럼 순서 (12개):</strong>
       <span style="background:#f1f5f9;padding:4px 8px;border-radius:6px;font-family:Consolas,monospace;font-size:12px;display:inline-block;margin-top:4px;color:#1e40af">
-        이름 · 부서 · 지역 · 구역 · 심방자 · 심방날짜(YYYY-MM-DD) · 심방계획 · 타겟여부(타겟/미타겟) · 진행여부(완료/미완료) · 예배확답(확정/미정/불참) · 진행사항 · 예배참석(참석/불참)
+        이름 · 부서 · 지역 · 구역 · 심방자 · 심방날짜(YYYY-MM-DD) · 심방계획 · 타겟여부(타겟/미타겟) · 진행여부(완료/미완료) · 예배확답(확정/미정/불참) · 진행사항
       </span><br>
       <span style="color:#6b7280">이름·부서·지역·구역으로 결석자를 찾아 저장합니다. row_id를 몰라도 됩니다.</span>
     </p>
@@ -1395,10 +1395,15 @@
       <span class="filter-label" id="deptOrRegionLabel">부서</span>
       <span id="deptOrRegionButtons"></span>
 
-      <span class="filter-label">예배참석</span>
+      <span class="filter-label">예배확답</span>
       <button class="active" data-filter-group="attendance" onclick="setAttendanceFilter('all')">전체</button>
-      <button data-filter-group="attendance" onclick="setAttendanceFilter('참석')">참석만</button>
+      <button data-filter-group="attendance" onclick="setAttendanceFilter('확정')">확정만</button>
+      <button data-filter-group="attendance" onclick="setAttendanceFilter('미정')">미정만</button>
       <button data-filter-group="attendance" onclick="setAttendanceFilter('불참')">불참만</button>
+
+      <span class="filter-label">정렬</span>
+      <button class="active" data-sort-mode="deptRegion" onclick="setSortMode('deptRegion')">부서·지역</button>
+      <button data-sort-mode="visitDate" onclick="setSortMode('visitDate')">🗓 심방날짜순</button>
     </div>
 
     <div class="empty-state" id="emptyState"></div>
@@ -2377,8 +2382,29 @@ function getVisibleRowsBase(){
   }
   return rows;
 }
+let currentSortMode = 'deptRegion';  // 'deptRegion' | 'visitDate'
+
 function sortRows(rows){
-  return [...rows].sort((a,b)=>{
+  const arr = [...rows];
+  if(currentSortMode === 'visitDate'){
+    // 심방날짜 순 정렬: 날짜 있는 것 먼저(빠른 날짜 → 늦은 날짜), 날짜 없는 것 마지막
+    return arr.sort((a,b)=>{
+      const da = normalizeDateSort(a.visit_date_sort);
+      const db = normalizeDateSort(b.visit_date_sort);
+      // 빈 값("")을 맨 뒤로
+      if(!da && db) return 1;
+      if(da && !db) return -1;
+      if(da !== db) return da.localeCompare(db);
+      // 같은 날짜면 부서·지역·이름 순
+      const deptCmp = String(a.dept||'').localeCompare(String(b.dept||''), 'ko');
+      if(deptCmp !== 0) return deptCmp;
+      const regionCmp = String(a.region_first||'').localeCompare(String(b.region_first||''), 'ko');
+      if(regionCmp !== 0) return regionCmp;
+      return String(a.name||'').localeCompare(String(b.name||''), 'ko');
+    });
+  }
+  // 기본: 부서·지역 순
+  return arr.sort((a,b)=>{
     const deptCmp = String(a.dept||'').localeCompare(String(b.dept||''), 'ko');
     if(deptCmp !== 0) return deptCmp;
     const regionCmp = String(a.region_first||'').localeCompare(String(b.region_first||''), 'ko');
@@ -2389,6 +2415,15 @@ function sortRows(rows){
     return String(a.name||'').localeCompare(String(b.name||''), 'ko');
   });
 }
+
+function setSortMode(mode){
+  currentSortMode = mode;
+  document.querySelectorAll('[data-sort-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-sort-mode') === mode);
+  });
+  renderDashboard();
+  if(typeof renderListPage === 'function' && currentPage === 'list') renderListPage();
+}
 function passesFilters(r){
   if(currentStatusFilter === 'done' && !r.is_done) return false;
   if(currentStatusFilter === 'pending' && r.is_done) return false;
@@ -2397,7 +2432,8 @@ function passesFilters(r){
   if(currentStreakFilter === '8plus' && Number(r.consecutive_absent_count || 0) < 8) return false;
   if(currentStreakFilter === 'special' && !r.is_special_managed) return false;
   if(currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
-  if(currentAttendanceFilter !== 'all' && r.attendance !== currentAttendanceFilter) return false;
+  // 🔧 attend_confirm 기반 필터 (이전: attendance)
+  if(currentAttendanceFilter !== 'all' && r.attend_confirm !== currentAttendanceFilter) return false;
   return true;
 }
 function groupBy(rows, keyFn){
@@ -2430,13 +2466,12 @@ function renderDashboard(){
   const total = rows.length;
   const target = rows.filter(r => r.is_target).length;
   const done = rows.filter(r => r.is_done).length;
-  const attend = rows.filter(r => r.attendance === '참석').length;
+  // 🔧 '예배참석' 제거 → '예배확답=확정' 으로 대체
+  const confirmed = rows.filter(r => r.attend_confirm === '확정').length;
   const targetDone = rows.filter(r => r.is_target && r.is_done).length;
-  const absent8plus = rows.filter(r => Number(r.consecutive_absent_count||0) >= 8).length;
   const specialManaged = rows.filter(r => r.is_special_managed).length;
-  const absent8plusDone = rows.filter(r => Number(r.consecutive_absent_count||0) >= 8 && r.is_done).length;
 
-  // 🔧 분류별 연속결석 세부 통계
+  // 🔧 분류별 연속결석 세부 통계 (기존 "연속결석 8회+" 합계 카드 제거)
   const getClass = r => r._classification || '일반';
   const general4plus  = rows.filter(r => getClass(r) === '일반'   && Number(r.consecutive_absent_count||0) >= 4).length;
   const family8plus   = rows.filter(r => getClass(r) === '가족'   && Number(r.consecutive_absent_count||0) >= 8).length;
@@ -2448,13 +2483,12 @@ function renderDashboard(){
 
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
   const targetPct = total === 0 ? 0 : Math.round((target / total) * 100);
-  const attendPct = total === 0 ? 0 : Math.round((attend / total) * 100);
-  const eightPlusPct = total === 0 ? 0 : Math.round((absent8plus / total) * 100);
+  const confirmPct = total === 0 ? 0 : Math.round((confirmed / total) * 100);
 
   document.getElementById('progressFill').style.width = `${pct}%`;
   document.getElementById('progressLabel').textContent = `⛪ 심방 진행률 ${pct}%  ·  ${done} / ${total}건 완료`;
 
-  // KPI 카드 (4개 상단)
+  // 상단 기본 KPI (4개) - 예배참석 → 예배확답 확정
   let html = `
     <div class="kpi-row">
       <div class="kpi-card kpi-total" onclick="openListPage({mode:'all'})">
@@ -2480,53 +2514,60 @@ function renderDashboard(){
       </div>
       <div class="kpi-card kpi-attend no-click">
         <div class="kpi-icon">⛪</div>
-        <div class="kpi-value">${attend}</div>
-        <div class="kpi-label">예배참석</div>
-        <div class="kpi-sub">${attendPct}% 비율</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${attendPct}%"></div></div>
+        <div class="kpi-value">${confirmed}</div>
+        <div class="kpi-label">예배확답 확정</div>
+        <div class="kpi-sub">${confirmPct}% 비율</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${confirmPct}%"></div></div>
       </div>
     </div>
 
-    <!-- 🔥 연속결석 분류별 집중관리 현황 -->
+    <!-- 🔥 연속결석 분류별 (일반 4회+ / 가족 8회+ / 가족외 8회+) -->
     <div class="kpi-row" style="margin-top:12px">
-      <div class="kpi-card kpi-streak" onclick="openListPage({mode:'streak8plus'})">
-        <div class="kpi-icon">🔥</div>
-        <div class="kpi-value">${absent8plus}</div>
-        <div class="kpi-label">연속결석 8회+</div>
-        <div class="kpi-sub">완료 ${absent8plusDone}건 · 전체 대비 ${eightPlusPct}%</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${eightPlusPct}%"></div></div>
-      </div>
-      <div class="kpi-card kpi-special" onclick="openListPage({mode:'special'})">
-        <div class="kpi-icon">🚨</div>
-        <div class="kpi-value">${specialManaged}</div>
-        <div class="kpi-label">특별관리 대상</div>
-        <div class="kpi-sub">봇 감지 등록됨</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialManaged/total*100) : 0}%"></div></div>
-      </div>
-    </div>
-
-    <!-- 🔥 분류별 연속결석 세부 -->
-    <div class="kpi-row" style="margin-top:12px">
-      <div class="kpi-card" style="background:linear-gradient(140deg,#eff6ff,#dbeafe)">
+      <div class="kpi-card" style="background:linear-gradient(140deg,#eff6ff,#dbeafe);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'일반', streak:4})">
         <div class="kpi-icon">🧑</div>
         <div class="kpi-value">${general4plus}</div>
-        <div class="kpi-label">일반 · 연속 4회+</div>
-        <div class="kpi-sub">특별관리 ${specialGeneral}명 감지</div>
+        <div class="kpi-label">🔥 연속결석 현황</div>
+        <div class="kpi-sub" style="font-weight:700;color:#1e40af">일반 · 4회+</div>
         <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(general4plus/total*100) : 0}%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div></div>
       </div>
-      <div class="kpi-card" style="background:linear-gradient(140deg,#fef3c7,#fde68a)">
+      <div class="kpi-card" style="background:linear-gradient(140deg,#fef3c7,#fde68a);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'가족', streak:8})">
         <div class="kpi-icon">👨‍👩‍👧</div>
         <div class="kpi-value">${family8plus}</div>
-        <div class="kpi-label">가족 · 연속 8회+</div>
-        <div class="kpi-sub">특별관리 ${specialFamily}명 감지</div>
+        <div class="kpi-label">🔥 연속결석 현황</div>
+        <div class="kpi-sub" style="font-weight:700;color:#854d0e">가족 · 8회+</div>
         <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(family8plus/total*100) : 0}%;background:linear-gradient(90deg,#ca8a04,#fbbf24)"></div></div>
       </div>
-      <div class="kpi-card" style="background:linear-gradient(140deg,#ede9fe,#ddd6fe)">
+      <div class="kpi-card" style="background:linear-gradient(140deg,#ede9fe,#ddd6fe);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'가족외', streak:8})">
         <div class="kpi-icon">🏠</div>
         <div class="kpi-value">${nonfam8plus}</div>
-        <div class="kpi-label">가족외 · 연속 8회+</div>
-        <div class="kpi-sub">특별관리 ${specialNonfam}명 감지</div>
+        <div class="kpi-label">🔥 연속결석 현황</div>
+        <div class="kpi-sub" style="font-weight:700;color:#5b21b6">가족외 · 8회+</div>
         <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(nonfam8plus/total*100) : 0}%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+      </div>
+    </div>
+
+    <!-- 🚨 특별관리 대상 분류별 -->
+    <div class="kpi-row" style="margin-top:12px">
+      <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'일반'})">
+        <div class="kpi-icon">🚨</div>
+        <div class="kpi-value">${specialGeneral}</div>
+        <div class="kpi-label">특별관리 대상</div>
+        <div class="kpi-sub" style="font-weight:700;color:#991b1b">일반 · 4회+</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialGeneral/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+      </div>
+      <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'가족'})">
+        <div class="kpi-icon">🚨</div>
+        <div class="kpi-value">${specialFamily}</div>
+        <div class="kpi-label">특별관리 대상</div>
+        <div class="kpi-sub" style="font-weight:700;color:#991b1b">가족 · 8회+</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialFamily/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+      </div>
+      <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'가족외'})">
+        <div class="kpi-icon">🚨</div>
+        <div class="kpi-value">${specialNonfam}</div>
+        <div class="kpi-label">특별관리 대상</div>
+        <div class="kpi-sub" style="font-weight:700;color:#991b1b">가족외 · 8회+</div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialNonfam/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
       </div>
     </div>
   `;
@@ -2579,7 +2620,7 @@ function renderDashboard(){
         if(cr.length === 0) return;
         const ct = cr.filter(r => r.is_target).length;
         const cd = cr.filter(r => r.is_done).length;
-        const ca = cr.filter(r => r.attendance === '참석').length;
+        const ca = cr.filter(r => r.attend_confirm === '확정').length;
         const cpct = cr.length ? Math.round(cd / cr.length * 100) : 0;
         const color = CHURCH_COLORS[ch] || '#0ea5e9';
         html += `
@@ -2615,7 +2656,7 @@ function renderDashboard(){
         if(dr.length === 0) return;
         const dt = dr.filter(r => r.is_target).length;
         const dd = dr.filter(r => r.is_done).length;
-        const da = dr.filter(r => r.attendance === '참석').length;
+        const da = dr.filter(r => r.attend_confirm === '확정').length;
         const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
         html += `
           <div class="dept-card" style="--dept-color:${color};--dept-bg:#faf5ff" onclick="openListPage({mode:'dept',dept:'${dept}'})">
@@ -2653,7 +2694,7 @@ function renderDashboard(){
         if(dr.length === 0) return;
         const dt = dr.filter(r => r.is_target).length;
         const dd = dr.filter(r => r.is_done).length;
-        const da = dr.filter(r => r.attendance === '참석').length;
+        const da = dr.filter(r => r.attend_confirm === '확정').length;
         const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
         html += `
           <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="drillToChurchDept('${escapeHtml(currentChurchFilter)}','${dept}')">
@@ -2693,7 +2734,7 @@ function renderDashboard(){
         if(dr.length === 0) return;
         const dt = dr.filter(r => r.is_target).length;
         const dd = dr.filter(r => r.is_done).length;
-        const da = dr.filter(r => r.attendance === '참석').length;
+        const da = dr.filter(r => r.attend_confirm === '확정').length;
         const dpct = dr.length ? Math.round(dd / dr.length * 100) : 0;
         html += `
           <div class="dept-card" style="--dept-color:${color};--dept-bg:${bg}" onclick="drillToDept('${dept}')">
@@ -2735,7 +2776,7 @@ function renderRegionCards(rows, church, dept){
     const rr = rows.filter(r => r.region_first === region);
     const rt = rr.filter(r => r.is_target).length;
     const rd = rr.filter(r => r.is_done).length;
-    const ra = rr.filter(r => r.attendance === '참석').length;
+    const ra = rr.filter(r => r.attend_confirm === '확정').length;
     const rpct = rr.length ? Math.round(rd / rr.length * 100) : 0;
     h += `
       <div class="dept-card" style="--dept-color:#0ea5e9;--dept-bg:#f0f9ff" onclick="openListPage({mode:'region',region:'${escapeHtml(region)}',dept:'${escapeHtml(dept||'all')}'})">
@@ -2813,13 +2854,6 @@ function createRowHtml(r){
         </select>
       </td>
       <td class="col-note"><textarea ${disabled} class="note-input" id="note_${r.row_id}" oninput="onFieldInput('${r.row_id}','note',this.value)">${escapeHtml(r.note||'')}</textarea></td>
-      <td class="col-attend">
-        <select ${disabled} class="select-input ${selectClass(r.attendance,'attendance')}" id="attendance_${r.row_id}" onchange="onFieldInput('${r.row_id}','attendance',this.value,true)">
-          <option value="" ${r.attendance===''?'selected':''}>선택</option>
-          <option value="참석" ${r.attendance==='참석'?'selected':''}>참석</option>
-          <option value="불참" ${r.attendance==='불참'?'selected':''}>불참</option>
-        </select>
-      </td>
     </tr>
   `;
 }
@@ -2852,7 +2886,6 @@ function createSectionHtml(title, rows){
               <th class="col-done">진행여부</th>
               <th class="col-worship">예배확답</th>
               <th class="col-note">진행사항</th>
-              <th class="col-attend">예배참석</th>
             </tr>
           </thead>
           <tbody>${rows.map(createRowHtml).join('')}</tbody>
@@ -3632,8 +3665,8 @@ function csvCell(v){
 function csvRow(arr){ return arr.map(csvCell).join(','); }
 
 function downloadVisitTemplate(){
-  // 순서: 이름, 부서, 지역, 구역, 심방자, 심방날짜, 심방계획, 타겟여부, 진행여부, 예배확답, 진행사항, 예배참석
-  const header = ['이름','부서','지역','구역','심방자','심방날짜','심방계획','타겟여부','진행여부','예배확답','진행사항','예배참석'];
+  // 순서: 이름, 부서, 지역, 구역, 심방자, 심방날짜, 심방계획, 타겟여부, 진행여부, 예배확답, 진행사항
+  const header = ['이름','부서','지역','구역','심방자','심방날짜','심방계획','타겟여부','진행여부','예배확답','진행사항'];
   const examples = [
     ['박*란','자문회','강북','1팀6','홍길동(집사)','2026-04-27','생일 축하 안부 연락 후 카페 친교','타겟','완료','확정','심방 후 예배 나오기로 약속','참석'],
     ['김*수','장년회','강남','2팀3','이순신(집사)','2026-04-27','가정 심방 예정, 가족 동반 여부 확인','미타겟','미완료','미정','연락 대기 중','불참'],
@@ -4027,7 +4060,7 @@ function renderChurchStatus(){
     byChurch[ch].total++;
     if(r.is_target) byChurch[ch].target++;
     if(r.is_done)   byChurch[ch].done++;
-    if(r.attendance === '참석') byChurch[ch].attend++;
+    if(r.attend_confirm === '확정') byChurch[ch].attend++;
     const n = Number(r.consecutive_absent_count || 0);
     if(n >= 4) byChurch[ch].plus4++;
     if(n >= 8) byChurch[ch].plus8++;
@@ -4039,7 +4072,7 @@ function renderChurchStatus(){
     total: rows.length,
     target: rows.filter(r => r.is_target).length,
     done: rows.filter(r => r.is_done).length,
-    attend: rows.filter(r => r.attendance === '참석').length,
+    attend: rows.filter(r => r.attend_confirm === '확정').length,
     plus4: rows.filter(r => Number(r.consecutive_absent_count||0) >= 4).length,
     plus8: rows.filter(r => Number(r.consecutive_absent_count||0) >= 8).length,
   };
@@ -4053,7 +4086,7 @@ function renderChurchStatus(){
         <div><span>총 결석자</span><strong>${totalSum.total}</strong></div>
         <div><span>🎯 타겟</span><strong>${totalSum.target}</strong></div>
         <div><span>✅ 심방완료</span><strong>${totalSum.done}</strong></div>
-        <div><span>⛪ 예배참석</span><strong>${totalSum.attend}</strong></div>
+        <div><span>⛪ 예배확답 확정</span><strong>${totalSum.attend}</strong></div>
         <div class="cs-hot"><span>🔥 4회+</span><strong>${totalSum.plus4}</strong></div>
         <div class="cs-hot"><span>🔥 8회+</span><strong>${totalSum.plus8}</strong></div>
       </div>
@@ -4100,7 +4133,7 @@ function renderChurchDeptDetail(churchRows){
     byDept[d].total++;
     if(r.is_target) byDept[d].target++;
     if(r.is_done) byDept[d].done++;
-    if(r.attendance === '참석') byDept[d].attend++;
+    if(r.attend_confirm === '확정') byDept[d].attend++;
     const n = Number(r.consecutive_absent_count || 0);
     if(n >= 4) byDept[d].plus4++;
     if(n >= 8) byDept[d].plus8++;
@@ -4175,23 +4208,56 @@ async function loadMemberRegistry(force = false){
 }
 
 function classifyPerson(name, phone4, church){
-  // 교적 캐시에서 (교회, 이름, 전화뒷4) 매칭 → 분류 반환
+  // 교적 캐시에서 매칭 → 분류 반환
   if(!_memberRegistry || _memberRegistry.length === 0) return '일반';
-  // 1차: 정확 매칭 (교회 + 이름 + 전화뒷4)
+
+  const cleanName = String(name || '').trim();
+  const cleanPhone = String(phone4 || '').trim();
+  const cleanChurch = String(church || '').trim();
+
+  // 마스킹된 이름 복구용: '박*준' → 첫글자/끝글자 매칭
+  const isMaskedName = cleanName.includes('*') || cleanName.includes('ㅇ');
+  let maskedFirst = '', maskedLast = '';
+  if(isMaskedName){
+    const parts = cleanName.split(/[*ㅇ]/);
+    maskedFirst = parts[0] || '';
+    maskedLast = parts[parts.length - 1] || '';
+  }
+
+  // 1차: 교회 + 이름 + 전화뒷4 완전 일치
   let hit = _memberRegistry.find(m =>
-    m.church === church && m.name === name
-    && (m.phone_last4 || '') === (phone4 || '')
+    m.church === cleanChurch && m.name === cleanName
+    && (m.phone_last4 || '') === cleanPhone
   );
-  // 2차: 전화뒷4 없는 교적 행도 허용
+
+  // 2차: 교회 + 이름 일치 (전화 무시)
   if(!hit){
     hit = _memberRegistry.find(m =>
-      m.church === church && m.name === name && !m.phone_last4
+      m.church === cleanChurch && m.name === cleanName
     );
   }
-  // 3차: 이름만 일치 (교회 무관) — 최후 수단
-  if(!hit){
-    hit = _memberRegistry.find(m => m.name === name && (m.phone_last4 || '') === (phone4 || ''));
+
+  // 3차: 마스킹된 이름 복구 시도 (같은 교회 + 같은 전화뒷4 + 이름 부분 일치)
+  if(!hit && isMaskedName && cleanPhone){
+    hit = _memberRegistry.find(m =>
+      m.church === cleanChurch
+      && (m.phone_last4 || '') === cleanPhone
+      && String(m.name || '').startsWith(maskedFirst)
+      && String(m.name || '').endsWith(maskedLast)
+      && m.name.length === cleanName.length
+    );
   }
+
+  // 4차: 이름 + 전화뒷4 일치 (교회 상관없이)
+  if(!hit && cleanPhone){
+    hit = _memberRegistry.find(m => m.name === cleanName && (m.phone_last4 || '') === cleanPhone);
+  }
+
+  // 5차: 이름만 일치 (최후 수단, 교회 상관없이)
+  if(!hit){
+    hit = _memberRegistry.find(m => m.name === cleanName);
+  }
+
   return hit ? (hit.classification || '일반') : '일반';
 }
 
