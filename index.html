@@ -307,6 +307,62 @@
     grid-template-columns:repeat(4,1fr);
     gap:12px;
   }
+
+  /* 🆕 v4.7: 접었다 펼치는 섹션 */
+  .collapse-section{
+    background:#fff;
+    border:1.5px solid #e2e8f0;
+    border-radius:14px;
+    overflow:hidden;
+    transition:box-shadow .18s;
+  }
+  .collapse-section:hover{
+    box-shadow:0 4px 16px rgba(0,0,0,.08);
+  }
+  .collapse-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 18px;
+    cursor:pointer;
+    user-select:none;
+    background:linear-gradient(90deg,#f8fafc,#f1f5f9);
+    transition:background .15s;
+  }
+  .collapse-header:hover{
+    background:linear-gradient(90deg,#f1f5f9,#e2e8f0);
+  }
+  .collapse-title{
+    font-weight:700;
+    font-size:15px;
+    color:#0f172a;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .collapse-badge{
+    background:#fb923c;
+    color:#fff;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    line-height:1.4;
+  }
+  .collapse-badge-red{
+    background:#ef4444;
+  }
+  .collapse-icon{
+    color:#64748b;
+    font-size:14px;
+    font-weight:700;
+    transition:transform .2s;
+  }
+  .collapse-body{
+    padding:14px 16px 16px 16px;
+    background:#fff;
+    border-top:1px solid #e2e8f0;
+  }
   .kpi-card{
     border-radius:20px;
     padding:20px 18px;
@@ -1581,22 +1637,52 @@
         <div style="padding:16px;background:#ecfdf5;border-radius:10px;margin:12px">
           <h4 style="margin:0 0 8px 0;font-size:14px">➕ 관리자 추가</h4>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
-            <div style="flex:1;min-width:200px">
-              <label class="control-label" style="font-size:11px">User ID (필수, 텔레그램 숫자 ID)</label>
+            <div style="flex:1;min-width:160px">
+              <label class="control-label" style="font-size:11px">User ID (필수)</label>
               <input id="adminUserId" class="text-input" placeholder="예: 123456789" />
             </div>
-            <div style="flex:2;min-width:240px">
+            <div style="flex:1;min-width:140px">
+              <label class="control-label" style="font-size:11px">권한 레벨 *</label>
+              <select id="adminScopeType" class="text-input" onchange="onAdminScopeTypeChange()">
+                <option value="zipa">🛡 지파관리자 (1명)</option>
+                <option value="church">⛪ 교회관리자 (교회당 1명)</option>
+                <option value="dept">👥 부서관리자 (부서당 1명)</option>
+              </select>
+            </div>
+            <div id="adminScopeChurchWrap" style="flex:1;min-width:140px;display:none">
+              <label class="control-label" style="font-size:11px">교회</label>
+              <select id="adminScopeChurch" class="text-input">
+                <option value="서울교회">서울교회</option>
+                <option value="포천교회">포천교회</option>
+                <option value="구리교회">구리교회</option>
+                <option value="동대문교회">동대문교회</option>
+                <option value="의정부교회">의정부교회</option>
+              </select>
+            </div>
+            <div id="adminScopeDeptWrap" style="flex:1;min-width:140px;display:none">
+              <label class="control-label" style="font-size:11px">부서</label>
+              <select id="adminScopeDept" class="text-input">
+                <option value="자문회">자문회</option>
+                <option value="장년회">장년회</option>
+                <option value="부녀회">부녀회</option>
+                <option value="청년회">청년회</option>
+              </select>
+            </div>
+            <div style="flex:2;min-width:200px">
               <label class="control-label" style="font-size:11px">표시 이름</label>
               <input id="adminDisplay" class="text-input" placeholder="홍길동 목사" />
             </div>
-            <div style="flex:2;min-width:200px">
+            <div style="flex:2;min-width:160px">
               <label class="control-label" style="font-size:11px">메모</label>
               <input id="adminNotes" class="text-input" placeholder="선택사항" />
             </div>
             <button class="btn btn-primary" onclick="addBotAdmin()">✅ 등록</button>
           </div>
           <p style="margin:8px 0 0 0;color:#64748b;font-size:12px">
-            💡 관리자의 User ID 확인 방법: 관리자가 봇과 1:1 개인채팅에서 <code>/chatid</code> 명령 실행 → "내 User ID" 표시됨
+            💡 User ID 확인: 관리자가 봇과 1:1 개인채팅에서 <code>/chatid</code> 입력 → "내 User ID" 표시<br>
+            🛡 <b>지파관리자</b>: 모든 방 승인 가능 (1명)<br>
+            ⛪ <b>교회관리자</b>: 자기 교회 방만 승인 가능 (교회당 1명, 총 5명)<br>
+            👥 <b>부서관리자</b>: 자기 교회 자기 부서 방만 승인 (교회당 4명, 총 20명)
           </p>
         </div>
 
@@ -2384,6 +2470,17 @@ function getVisibleRowsBase(){
 }
 let currentSortMode = 'deptRegion';  // 'deptRegion' | 'visitDate'
 
+// 🆕 v4.7: 현황 카드 접기/펼치기 상태 (localStorage 사용 안 함, 세션 단위)
+let _collapseState = {
+  streak: false,    // 연속결석 카드 (기본 접힘)
+  special: false,   // 특별관리 카드 (기본 접힘)
+};
+
+function toggleCollapse(key){
+  _collapseState[key] = !_collapseState[key];
+  renderDashboard();
+}
+
 function sortRows(rows){
   const arr = [...rows];
   if(currentSortMode === 'visitDate'){
@@ -2488,6 +2585,14 @@ function renderDashboard(){
   document.getElementById('progressFill').style.width = `${pct}%`;
   document.getElementById('progressLabel').textContent = `⛪ 심방 진행률 ${pct}%  ·  ${done} / ${total}건 완료`;
 
+  // 📈 출석률 미리 계산 (KPI 첫 행 바로 다음에 표시하기 위해)
+  const attAgg = aggregateAttendance(
+    isZipaUser() ? currentChurchFilter : userChurch,
+    userDept === '내무부' ? currentDeptFilter : userDept,
+    'all',
+    rows
+  );
+
   // 상단 기본 KPI (4개) - 예배참석 → 예배확답 확정
   let html = `
     <div class="kpi-row">
@@ -2520,65 +2625,9 @@ function renderDashboard(){
         <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${confirmPct}%"></div></div>
       </div>
     </div>
-
-    <!-- 🔥 연속결석 분류별 (일반 4회+ / 가족 8회+ / 가족외 8회+) -->
-    <div class="kpi-row" style="margin-top:12px">
-      <div class="kpi-card" style="background:linear-gradient(140deg,#eff6ff,#dbeafe);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'일반', streak:4})">
-        <div class="kpi-icon">🧑</div>
-        <div class="kpi-value">${general4plus}</div>
-        <div class="kpi-label">🔥 연속결석 현황</div>
-        <div class="kpi-sub" style="font-weight:700;color:#1e40af">일반 · 4회+</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(general4plus/total*100) : 0}%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div></div>
-      </div>
-      <div class="kpi-card" style="background:linear-gradient(140deg,#fef3c7,#fde68a);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'가족', streak:8})">
-        <div class="kpi-icon">👨‍👩‍👧</div>
-        <div class="kpi-value">${family8plus}</div>
-        <div class="kpi-label">🔥 연속결석 현황</div>
-        <div class="kpi-sub" style="font-weight:700;color:#854d0e">가족 · 8회+</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(family8plus/total*100) : 0}%;background:linear-gradient(90deg,#ca8a04,#fbbf24)"></div></div>
-      </div>
-      <div class="kpi-card" style="background:linear-gradient(140deg,#ede9fe,#ddd6fe);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'가족외', streak:8})">
-        <div class="kpi-icon">🏠</div>
-        <div class="kpi-value">${nonfam8plus}</div>
-        <div class="kpi-label">🔥 연속결석 현황</div>
-        <div class="kpi-sub" style="font-weight:700;color:#5b21b6">가족외 · 8회+</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(nonfam8plus/total*100) : 0}%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
-      </div>
-    </div>
-
-    <!-- 🚨 특별관리 대상 분류별 -->
-    <div class="kpi-row" style="margin-top:12px">
-      <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'일반'})">
-        <div class="kpi-icon">🚨</div>
-        <div class="kpi-value">${specialGeneral}</div>
-        <div class="kpi-label">특별관리 대상</div>
-        <div class="kpi-sub" style="font-weight:700;color:#991b1b">일반 · 4회+</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialGeneral/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
-      </div>
-      <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'가족'})">
-        <div class="kpi-icon">🚨</div>
-        <div class="kpi-value">${specialFamily}</div>
-        <div class="kpi-label">특별관리 대상</div>
-        <div class="kpi-sub" style="font-weight:700;color:#991b1b">가족 · 8회+</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialFamily/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
-      </div>
-      <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'가족외'})">
-        <div class="kpi-icon">🚨</div>
-        <div class="kpi-value">${specialNonfam}</div>
-        <div class="kpi-label">특별관리 대상</div>
-        <div class="kpi-sub" style="font-weight:700;color:#991b1b">가족외 · 8회+</div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialNonfam/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
-      </div>
-    </div>
   `;
 
-  // 📈 출석률 KPI (데이터 있을 때만 표시)
-  const attAgg = aggregateAttendance(
-    isZipaUser() ? currentChurchFilter : userChurch,
-    userDept === '내무부' ? currentDeptFilter : userDept,
-    'all',  // 지역 필터는 전체 (카드 하단에서 지역별로 다시 봄)
-    rows
-  );
+  // 📈 출석률 KPI (예배확답 확정 바로 다음 행으로 이동)
   if(attAgg.hasData){
     const rateNum = parseFloat(attAgg.rate);
     const predictedNum = parseFloat(attAgg.predictedRate);
@@ -2605,6 +2654,91 @@ function renderDashboard(){
     `;
   }
 
+  // 🔥 연속결석 분류별 (접었다 펼치는 토글)
+  const streakSum = general4plus + family8plus + nonfam8plus;
+  const streakOpen = !!_collapseState.streak;
+  html += `
+    <div class="collapse-section" style="margin-top:16px">
+      <div class="collapse-header" onclick="toggleCollapse('streak')">
+        <div class="collapse-title">🔥 연속결석 분류별 현황 <span class="collapse-badge">${streakSum}명</span></div>
+        <div class="collapse-icon">${streakOpen ? '▼' : '▶'}</div>
+      </div>
+      <div class="collapse-body" style="display:${streakOpen ? 'block' : 'none'}">
+        <div class="kpi-row">
+          <div class="kpi-card" style="background:linear-gradient(140deg,#eff6ff,#dbeafe);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'일반', streak:4})">
+            <div class="kpi-icon">🧑</div>
+            <div class="kpi-value">${general4plus}</div>
+            <div class="kpi-label">🔥 연속결석</div>
+            <div class="kpi-sub" style="font-weight:700;color:#1e40af">일반 · 4회+</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(general4plus/total*100) : 0}%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div></div>
+          </div>
+          <div class="kpi-card" style="background:linear-gradient(140deg,#fef3c7,#fde68a);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'가족', streak:8})">
+            <div class="kpi-icon">👨‍👩‍👧</div>
+            <div class="kpi-value">${family8plus}</div>
+            <div class="kpi-label">🔥 연속결석</div>
+            <div class="kpi-sub" style="font-weight:700;color:#854d0e">가족 · 8회+</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(family8plus/total*100) : 0}%;background:linear-gradient(90deg,#ca8a04,#fbbf24)"></div></div>
+          </div>
+          <div class="kpi-card" style="background:linear-gradient(140deg,#ede9fe,#ddd6fe);cursor:pointer" onclick="openListPage({mode:'classStreak', cls:'가족외', streak:8})">
+            <div class="kpi-icon">🏠</div>
+            <div class="kpi-value">${nonfam8plus}</div>
+            <div class="kpi-label">🔥 연속결석</div>
+            <div class="kpi-sub" style="font-weight:700;color:#5b21b6">가족외 · 8회+</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(nonfam8plus/total*100) : 0}%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+          </div>
+          <div class="kpi-card" style="background:linear-gradient(140deg,#fed7aa,#fdba74);cursor:pointer;border:2px solid #f97316" onclick="openListPage({mode:'allStreak'})">
+            <div class="kpi-icon">📊</div>
+            <div class="kpi-value">${streakSum}</div>
+            <div class="kpi-label">🔥 연속결석</div>
+            <div class="kpi-sub" style="font-weight:700;color:#9a3412">합계</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(streakSum/total*100) : 0}%;background:linear-gradient(90deg,#ea580c,#fb923c)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🚨 특별관리 분류별 (접었다 펼치는 토글) -->
+    <div class="collapse-section" style="margin-top:12px">
+      <div class="collapse-header" onclick="toggleCollapse('special')">
+        <div class="collapse-title">🚨 특별관리 대상 분류별 현황 <span class="collapse-badge collapse-badge-red">${specialManaged}명</span></div>
+        <div class="collapse-icon">${_collapseState.special ? '▼' : '▶'}</div>
+      </div>
+      <div class="collapse-body" style="display:${_collapseState.special ? 'block' : 'none'}">
+        <div class="kpi-row">
+          <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'일반'})">
+            <div class="kpi-icon">🚨</div>
+            <div class="kpi-value">${specialGeneral}</div>
+            <div class="kpi-label">특별관리</div>
+            <div class="kpi-sub" style="font-weight:700;color:#991b1b">일반 · 4회+</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialGeneral/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+          </div>
+          <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'가족'})">
+            <div class="kpi-icon">🚨</div>
+            <div class="kpi-value">${specialFamily}</div>
+            <div class="kpi-label">특별관리</div>
+            <div class="kpi-sub" style="font-weight:700;color:#991b1b">가족 · 8회+</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialFamily/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+          </div>
+          <div class="kpi-card" style="background:linear-gradient(140deg,#fef2f2,#fecaca);cursor:pointer" onclick="openListPage({mode:'specialClass', cls:'가족외'})">
+            <div class="kpi-icon">🚨</div>
+            <div class="kpi-value">${specialNonfam}</div>
+            <div class="kpi-label">특별관리</div>
+            <div class="kpi-sub" style="font-weight:700;color:#991b1b">가족외 · 8회+</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialNonfam/total*100) : 0}%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+          </div>
+          <div class="kpi-card" style="background:linear-gradient(140deg,#fee2e2,#fca5a5);cursor:pointer;border:2px solid #ef4444" onclick="openListPage({mode:'special'})">
+            <div class="kpi-icon">📊</div>
+            <div class="kpi-value">${specialManaged}</div>
+            <div class="kpi-label">특별관리</div>
+            <div class="kpi-sub" style="font-weight:700;color:#7f1d1d">합계</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${total ? Math.round(specialManaged/total*100) : 0}%;background:linear-gradient(90deg,#b91c1c,#f87171)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 📈 출석률 KPI (데이터 있을 때만 표시)
   // 📊 역할/필터에 따른 카드 섹션 렌더링
   const isZipa = isZipaUser();
   const hasChurchFilter = currentChurchFilter && currentChurchFilter !== 'all';
@@ -4942,21 +5076,32 @@ async function loadBotAdmins(){
       return;
     }
     let html = '<table class="export-table" style="font-size:12px"><thead><tr>';
-    ['User ID','이름','메모','상태','등록일','작업'].forEach(h => html += `<th>${h}</th>`);
+    ['권한','User ID','이름','범위','메모','상태','작업'].forEach(h => html += `<th>${h}</th>`);
     html += '</tr></thead><tbody>';
     rows.forEach(r => {
-      const addedAt = r.added_at ? new Date(r.added_at).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'}) : '-';
-      const stateBadge = r.is_active 
+      const stateBadge = r.is_active
         ? '<span style="color:#16a34a;font-weight:700">● 활성</span>'
         : '<span style="color:#94a3b8">● 비활성</span>';
       const toggleLabel = r.is_active ? '🚫 비활성' : '✅ 활성화';
       const toggleStyle = r.is_active ? 'btn-danger' : 'btn-primary';
+
+      let scopeIcon, scopeLabel, scopeColor;
+      if(r.scope_type === 'zipa'){
+        scopeIcon = '🛡'; scopeLabel = '지파관리자'; scopeColor = '#dc2626';
+      } else if(r.scope_type === 'church'){
+        scopeIcon = '⛪'; scopeLabel = '교회관리자'; scopeColor = '#2563eb';
+      } else {
+        scopeIcon = '👥'; scopeLabel = '부서관리자'; scopeColor = '#7c3aed';
+      }
+      const scopeDetail = [r.scope_church, r.scope_dept].filter(Boolean).join(' / ') || '전체';
+
       html += `<tr ${r.is_active ? '' : 'style="opacity:0.5"'}>
+        <td style="color:${scopeColor};font-weight:700">${scopeIcon} ${scopeLabel}</td>
         <td><code>${r.user_id}</code></td>
         <td>${escapeHtml(r.display_name || '-')}</td>
+        <td style="font-size:11px">${escapeHtml(scopeDetail)}</td>
         <td style="font-size:11px;color:#64748b">${escapeHtml(r.notes || '-')}</td>
         <td>${stateBadge}</td>
-        <td style="font-size:11px;color:#64748b">${addedAt}</td>
         <td>
           <button class="btn ${toggleStyle}" style="padding:4px 8px;font-size:11px" onclick="toggleBotAdmin(${r.user_id}, ${!r.is_active})">${toggleLabel}</button>
           <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteBotAdmin(${r.user_id})">🗑</button>
@@ -4966,7 +5111,23 @@ async function loadBotAdmins(){
     html += '</tbody></table>';
     mount.innerHTML = html;
   }catch(e){
-    mount.innerHTML = '<div style="padding:20px;color:#dc2626">❌ ' + escapeHtml(e.message) + '<br>SQL에 bot_admins 테이블 미적용 가능성 있음</div>';
+    mount.innerHTML = '<div style="padding:20px;color:#dc2626">❌ ' + escapeHtml(e.message) + '<br>최신 SQL (bot_admins scope_type 컬럼) 적용 필요</div>';
+  }
+}
+
+function onAdminScopeTypeChange(){
+  const type = document.getElementById('adminScopeType').value;
+  const churchWrap = document.getElementById('adminScopeChurchWrap');
+  const deptWrap = document.getElementById('adminScopeDeptWrap');
+  if(type === 'zipa'){
+    churchWrap.style.display = 'none';
+    deptWrap.style.display = 'none';
+  } else if(type === 'church'){
+    churchWrap.style.display = '';
+    deptWrap.style.display = 'none';
+  } else { // dept
+    churchWrap.style.display = '';
+    deptWrap.style.display = '';
   }
 }
 
@@ -4974,18 +5135,25 @@ async function addBotAdmin(){
   const uidRaw = document.getElementById('adminUserId').value.trim();
   const display = document.getElementById('adminDisplay').value.trim();
   const notes = document.getElementById('adminNotes').value.trim();
+  const scopeType = document.getElementById('adminScopeType').value;
+  const scopeChurch = document.getElementById('adminScopeChurch').value;
+  const scopeDept = document.getElementById('adminScopeDept').value;
   if(!uidRaw){ alert('User ID는 필수입니다.'); return; }
   const uid = parseInt(uidRaw);
   if(isNaN(uid) || uid <= 0){ alert('User ID는 양의 정수여야 합니다.'); return; }
 
   showLoading(true);
   try{
-    await callRpc('upsert_bot_admin', {
+    const params = {
       p_user_id: uid,
       p_display_name: display || null,
       p_is_active: true,
       p_notes: notes || null,
-    });
+      p_scope_type: scopeType,
+      p_scope_church: scopeType === 'zipa' ? null : scopeChurch,
+      p_scope_dept: scopeType === 'dept' ? scopeDept : null,
+    };
+    await callRpc('upsert_bot_admin', params);
     document.getElementById('adminUserId').value = '';
     document.getElementById('adminDisplay').value = '';
     document.getElementById('adminNotes').value = '';
