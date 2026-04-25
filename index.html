@@ -2314,8 +2314,8 @@ function goAnalytics(){
   loadAnalytics();
 }
 function goAdmin(){
-  if(!isZipaUser()){
-    alert('관리자 페이지는 지파 관리자 로그인만 접근 가능합니다.');
+  if(!isZipaUser() && !isChurchAdmin()){
+    alert('관리자 페이지는 지파 관리자 또는 교회 관리자만 접근 가능합니다.');
     return;
   }
   currentPage = 'admin';
@@ -4672,7 +4672,21 @@ async function initClassificationTab(){
   if(sel.options.length === 0){
     try{
       const weekRows = await sbFetch('weekly_target_weeks?select=week_key,week_label&order=week_key.desc&limit=12');
-      sel.innerHTML = (weekRows || []).map(w =>
+      let validWeeks = weekRows || [];
+
+      // 🆕 v4.7: 결석자 데이터가 있는 주차만 필터링
+      try {
+        const inListCheck = validWeeks.map(w => encodeURIComponent(w.week_key)).join(',');
+        if(inListCheck){
+          const dataCheck = await sbFetch(
+            `weekly_visit_targets?select=week_key&week_key=in.(${inListCheck})&limit=10000`
+          );
+          const haveData = new Set((dataCheck || []).map(r => r.week_key));
+          validWeeks = validWeeks.filter(w => haveData.has(w.week_key));
+        }
+      } catch(_) {}
+
+      sel.innerHTML = validWeeks.map(w =>
         `<option value="${w.week_key}">${escapeHtml(w.week_label || w.week_key)}</option>`
       ).join('') || '<option value="">주차 없음</option>';
     }catch(e){
@@ -5367,7 +5381,7 @@ async function loadRoomsOverview(){
 
     // 2) 특별관리 대상 (4항목 포함 상세)
     const specials = await sbFetch(
-      'special_management_targets?select=*&order=monitor_chat_id.asc,created_at.desc&limit=5000'
+      'special_management_targets?select=*&order=monitor_chat_id.asc,updated_at.desc&limit=5000'
     ) || [];
 
     // 3) 최신 주차의 심방기록 (심방결과 = note 필드)
