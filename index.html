@@ -3142,23 +3142,32 @@ async function loadWeek(weekKey){
     // 1) 주차 결석자 로드
     currentRows = await sbFetch(`weekly_visit_targets?select=*&week_key=eq.${encodeURIComponent(weekKey)}&order=dept.asc,row_order.asc`);
 
- // 2) 특별관리 대상 로드 (view가 없을 경우 대비하여 별도 테이블에서 읽어 매칭)
-  let specialRows = [];
-  try {
-    // 🚨 Supabase 기본 제한(1000)으로 인한 누락을 막기 위해 limit=5000 추가
-    specialRows = await sbFetch(`special_management_targets?select=dept,name,phone_last4&limit=5000`);
-  } catch(e){
-    console.info('[info] special_management_targets 테이블 미존재 — 건너뜀');
+// 2) 특별관리 대상 로드 (형식 보정 및 🚨 아이콘 강제 결합)
+let specialRows = [];
+try {
+  // limit=5000을 추가하여 누락 방지
+  specialRows = await sbFetch(`special_management_targets?select=dept,name,phone_last4&limit=5000`);
+} catch(e) {
+  console.info('[info] 특별관리 로드 실패:', e);
+}
+
+// 매칭 정확도를 높이기 위해 trim(공백 제거) 처리된 Set 생성
+const specialSet = new Set(
+  (specialRows || []).map(s => `${(s.dept||'').trim()}|${(s.name||'').trim()}`)
+);
+
+// 명단에 🚨 아이콘을 붙여 화면에 즉시 반영
+currentRows = currentRows.map(r => {
+  const isSp = specialSet.has(`${(r.dept||'').trim()}|${(r.name||'').trim()}`);
+  if (isSp) {
+    return {
+      ...r,
+      is_special_managed: true,
+      name: `🚨 ` + r.name // 이름 앞에 아이콘 강제 삽입
+    };
   }
-  // 🚨 띄어쓰기나 null값으로 인해 매칭이 실패하는 것을 방지하기 위해 강제 trim() 처리
-  const specialSet = new Set(
-    (specialRows || []).map(s => `${(s.dept||'').trim()}|${(s.name||'').trim()}|${(s.phone_last4||'').trim()}`)
-  );
-  // 행마다 is_special_managed 플래그 붙이기
-  currentRows = currentRows.map(r => ({
-    ...r,
-    is_special_managed: specialSet.has(`${(r.dept||'').trim()}|${(r.name||'').trim()}|${(r.phone_last4||'').trim()}`)
-  }));
+  return { ...r, is_special_managed: false };
+});
 
     // 2.5) 교적 로드 (가족/가족외 분류용)
     try { await loadMemberRegistry(); } catch(_){}
@@ -3245,6 +3254,8 @@ async function upsertRow(rowId){
   const row = currentRows.find(r => r.row_id === rowId);
   if(userDept !== '내무부' && row?.dept !== userDept) return;
   const p = ensureProgress(rowId);
+  
+  // 1. 일반 결석자 진행상황 저장
   await callRpc('upsert_weekly_visit_progress', {
     p_week_key: currentWeekKey,
     p_row_id: rowId,
@@ -3258,6 +3269,28 @@ async function upsertRow(rowId){
     p_visit_date_display: p.visit_date_display || '',
     p_plan_text: p.plan_text || ''
   });
+
+  // 2. [추가됨] 특별관리 대상자일 경우 내용 동시 동기화
+  try {
+    if (p.visit_date_display) {
+      await callRpc('set_special_item3', {
+        p_dept: row.dept,
+        p_name: row.name,
+        p_phone_last4: row.phone_last4 || '',
+        p_value: p.visit_date_display
+      });
+    }
+    if (p.plan_text) {
+      await callRpc('set_special_item4', {
+        p_dept: row.dept,
+        p_name: row.name,
+        p_phone_last4: row.phone_last4 || '',
+        p_value: p.plan_text
+      });
+    }
+  } catch (e) {
+    console.info('특별관리 동기화 스킵 (대상이 아니거나 오류):', e);
+  }
 }
 function scheduleUpsert(rowId, rerender=false){
   clearTimeout(saveTimers[rowId]);
