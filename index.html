@@ -1686,19 +1686,21 @@
           <div>
             <div class="an-card-title">👥 성도 교적 + 가족/가족외 분류</div>
             <div class="an-card-sub">
-              CSV 컬럼: <code>이름, 교회, 구분(가족/가족외/일반), 부서, 지역, 구역, 번호 뒷자리, 고유번호, 등록구분(입교/교회등록/총회등록), 등록상태(정상/출결제외)</code><br>
-              <strong>이름 · 교회 · 등록구분 · 등록상태</strong> 는 필수. 등록상태가 <code>출결제외</code> 인 성도는 출석율 계산에서 자동 제외됩니다. 같은 (교회, 이름, 번호 뒷자리) 조합은 덮어써집니다.
+              📂 <strong>CSV 또는 Excel(.xlsx)</strong> 업로드 지원. 컬럼:<br>
+              <code>이름, 교회, 구분(가족/가족외/일반), 부서, 지역, 구역, 번호 뒷자리, 고유번호, 등록구분, 등록상태</code><br>
+              💡 다른 컬럼이 있어도 무시됩니다. 같은 <strong>(교회, 이름, 번호 뒷자리)</strong> 조합은 자동 덮어쓰기.
+              <strong>이름 · 교회</strong> 는 필수. <code>구분</code> 비어있으면 "일반" 으로 처리.
             </div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
           <div>
-            <label class="control-label">CSV 파일 선택</label>
-            <input type="file" id="memberCsvFile" accept=".csv,.txt" class="pw-select" style="padding:8px">
+            <label class="control-label">CSV 또는 Excel 파일 선택</label>
+            <input type="file" id="memberCsvFile" accept=".csv,.txt,.xlsx,.xls" class="pw-select" style="padding:8px">
           </div>
         </div>
         <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btn-primary" onclick="uploadMemberCsv()">📤 CSV 업로드</button>
+          <button class="btn btn-primary" onclick="uploadMemberCsv()">📤 업로드</button>
           <button class="btn btn-light" onclick="downloadMemberTemplate()">📋 양식 다운로드</button>
           <button class="btn btn-light" onclick="downloadMemberCsv()">💾 현재 교적 CSV로 내려받기</button>
           <button class="btn btn-light" onclick="loadMembersOverview()">🔄 새로고침</button>
@@ -5045,15 +5047,47 @@ function downloadMemberCsv(){
 
 async function uploadMemberCsv(){
   const file = document.getElementById('memberCsvFile')?.files?.[0];
-  if(!file){ alert('CSV 파일을 선택해주세요.'); return; }
+  if(!file){ alert('파일을 선택해주세요.'); return; }
 
-  const text = await file.text();
-  const rows = parseCsv(text);
+  const fileName = (file.name || '').toLowerCase();
+  const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+  let rows = [];
+
+  if(isExcel){
+    // 🆕 v4.7: Excel(.xlsx) 파일 파싱 (SheetJS 라이브러리 동적 로드)
+    if(typeof XLSX === 'undefined'){
+      try{
+        await loadSheetJS();
+      }catch(e){
+        alert('Excel 라이브러리 로드 실패: ' + e.message + '\n인터넷 연결을 확인해주세요.');
+        return;
+      }
+    }
+    try{
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const sheetName = wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      // 시트 → 2차원 배열 (헤더 포함)
+      rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+      // 빈 행 제거
+      rows = rows.filter(r => Array.isArray(r) && r.some(c => String(c||'').trim() !== ''));
+    }catch(e){
+      alert('Excel 파싱 실패: ' + e.message);
+      return;
+    }
+  } else {
+    // CSV 파일
+    const text = await file.text();
+    rows = parseCsv(text);
+  }
+
   if(rows.length < 2){ alert('헤더 포함 2줄 이상 필요합니다.'); return; }
 
-  const header = rows[0];
+  const header = rows[0].map(h => String(h||'').trim());
   const ALIASES = {
-    name:           ['이름','name'],
+    name:           ['이름','name','성명'],
     church:         ['교회','church'],
     classification: ['구분','classification','분류'],
     dept:           ['부서','dept'],
@@ -5063,23 +5097,30 @@ async function uploadMemberCsv(){
     unique_id:      ['고유번호','unique_id','id'],
     register_kind:  ['등록구분','register_kind'],
     register_status:['등록상태','register_status'],
-    notes:          ['메모','notes'],
+    notes:          ['메모','notes','비고'],
   };
+  // 헤더 정규화 (공백 제거 후 alias 매칭)
   const idx = {};
   Object.entries(ALIASES).forEach(([k, aliases]) => {
-    idx[k] = header.findIndex(h => aliases.includes(h));
+    idx[k] = header.findIndex(h => {
+      const norm = String(h||'').replace(/\s/g,'').toLowerCase();
+      return aliases.some(a => norm === String(a).replace(/\s/g,'').toLowerCase());
+    });
   });
-  // 필수 검증
+  // 필수: 이름, 교회 (등록구분/등록상태는 선택 — 비어있으면 디폴트)
   if(idx.name === -1 || idx.church === -1){
-    alert('CSV에 "이름" 또는 "교회" 컬럼이 없습니다.');
+    alert('파일에 "이름" 또는 "교회" 컬럼이 없습니다.\n\n인식된 컬럼: ' + header.join(', '));
     return;
   }
 
-  const get = (row, key) => (idx[key] >= 0 ? (row[idx[key]] || '').trim() : '');
+  const get = (row, key) => {
+    if(idx[key] < 0) return '';
+    const v = row[idx[key]];
+    if(v === null || v === undefined) return '';
+    return String(v).trim();
+  };
   const payloadRows = [];
-  const skipped = {noName:0, noChurch:0, noRegKind:0, noRegStatus:0, invalidRegKind:0, invalidRegStatus:0};
-  const VALID_REG_KIND = ['입교','교회등록','총회등록'];
-  const VALID_REG_STATUS = ['정상','출결제외'];
+  const skipped = {noName:0, noChurch:0};
 
   for(let i=1;i<rows.length;i++){
     const r = rows[i];
@@ -5089,15 +5130,19 @@ async function uploadMemberCsv(){
     if(!name)   { skipped.noName++; continue; }
     if(!church) { skipped.noChurch++; continue; }
 
-    const regKind   = get(r,'register_kind');
-    const regStatus = get(r,'register_status');
-    if(!regKind)                         { skipped.noRegKind++; continue; }
-    if(!regStatus)                       { skipped.noRegStatus++; continue; }
-    if(!VALID_REG_KIND.includes(regKind))     { skipped.invalidRegKind++; continue; }
-    if(!VALID_REG_STATUS.includes(regStatus)) { skipped.invalidRegStatus++; continue; }
-
     let cls = get(r,'classification');
     if(!['가족','가족외','일반'].includes(cls)) cls = '일반';
+
+    // 등록구분/등록상태: 비어있으면 디폴트
+    let regKind = get(r,'register_kind');
+    if(!regKind) regKind = '교회등록';
+    let regStatus = get(r,'register_status');
+    if(!regStatus) regStatus = '정상';
+
+    // 번호 뒷자리: 4자리만 추출
+    let phone = get(r,'phone_last4').replace(/\D/g,'');
+    if(phone.length > 4) phone = phone.slice(-4);
+
     payloadRows.push({
       name,
       church,
@@ -5105,7 +5150,7 @@ async function uploadMemberCsv(){
       dept:            get(r,'dept'),
       region_name:     get(r,'region_name'),
       zone_name:       normalizeZoneStr(get(r,'zone_name')),
-      phone_last4:     get(r,'phone_last4'),
+      phone_last4:     phone,
       unique_id:       get(r,'unique_id'),
       register_kind:   regKind,
       register_status: regStatus,
@@ -5113,17 +5158,13 @@ async function uploadMemberCsv(){
     });
   }
 
-  const skipTotal = Object.values(skipped).reduce((a,b)=>a+b,0);
+  const skipTotal = skipped.noName + skipped.noChurch;
   if(skipTotal > 0){
     const msg = [];
-    if(skipped.noName>0)        msg.push(`이름 없음 ${skipped.noName}건`);
-    if(skipped.noChurch>0)      msg.push(`교회 없음 ${skipped.noChurch}건`);
-    if(skipped.noRegKind>0)     msg.push(`등록구분 없음 ${skipped.noRegKind}건`);
-    if(skipped.noRegStatus>0)   msg.push(`등록상태 없음 ${skipped.noRegStatus}건`);
-    if(skipped.invalidRegKind>0) msg.push(`등록구분 이상(입교/교회등록/총회등록 아님) ${skipped.invalidRegKind}건`);
-    if(skipped.invalidRegStatus>0) msg.push(`등록상태 이상(정상/출결제외 아님) ${skipped.invalidRegStatus}건`);
+    if(skipped.noName>0)   msg.push(`이름 없음 ${skipped.noName}건`);
+    if(skipped.noChurch>0) msg.push(`교회 없음 ${skipped.noChurch}건`);
     console.warn('[업로드 스킵] ' + msg.join(' · '));
-    if(!confirm(`⚠️ 누락/이상 데이터 ${skipTotal}건 발견:\n${msg.join('\n')}\n\n유효한 ${payloadRows.length}건만 업로드 할까요?`)) return;
+    if(!confirm(`⚠️ 누락 데이터 ${skipTotal}건 발견:\n${msg.join('\n')}\n\n유효한 ${payloadRows.length}건만 업로드 할까요?`)) return;
   }
 
   if(payloadRows.length === 0){
@@ -5131,11 +5172,10 @@ async function uploadMemberCsv(){
     return;
   }
 
-  if(!confirm(`${payloadRows.length}명을 등록/업데이트합니다. 진행할까요?`)) return;
+  if(!confirm(`${payloadRows.length}명을 등록/업데이트합니다.\n(같은 교회+이름+전화뒷자리 조합은 자동 덮어쓰기)\n\n진행할까요?`)) return;
 
   showLoading(true);
   try{
-    // Supabase RPC는 한 번에 큰 배열도 OK지만, 안전하게 500건 단위로 쪼갬
     const CHUNK = 500;
     let total = 0;
     for(let i=0;i<payloadRows.length;i+=CHUNK){
@@ -5151,6 +5191,18 @@ async function uploadMemberCsv(){
   }finally{
     showLoading(false);
   }
+}
+
+// 🆕 v4.7: SheetJS 라이브러리 동적 로드 (Excel 파일 처리용)
+async function loadSheetJS(){
+  if(typeof XLSX !== 'undefined') return;
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('SheetJS CDN 로드 실패'));
+    document.head.appendChild(script);
+  });
 }
 
 // 구역 정규화 재사용 (메인 업로드 스크립트와 동일)
