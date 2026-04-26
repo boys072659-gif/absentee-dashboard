@@ -5866,23 +5866,65 @@ async function addAuthorizedChat(){
 }
 
 async function toggleAuthChat(chatId, newActive){
-  const action = newActive ? '활성화' : '차단';
-  if(!confirm(`Chat ID ${chatId} 를 ${action}하시겠습니까?`)) return;
+  const row = _authorizedChats.find(r => r.chat_id === chatId);
+  const chatName = row?.chat_title || row?.notes || `Chat ID ${chatId}`;
+  
+  let confirmMsg, noteHint;
+  if(newActive){
+    // 차단 해제 (재활성화)
+    confirmMsg = `✅ "${chatName}" 방을 다시 활성화하시겠습니까?\n\n이 방의 봇 사용이 즉시 재개됩니다.`;
+    noteHint = null;
+  } else {
+    // 차단
+    confirmMsg = `🚫 "${chatName}" 방을 차단하시겠습니까?\n\n` +
+                 `차단 효과:\n` +
+                 `• 이 방에서 봇이 응답하지 않습니다\n` +
+                 `• 메뉴/명령어 모두 비활성화\n` +
+                 `• 데이터는 그대로 보존 (재활성화 시 즉시 사용 가능)\n` +
+                 `• 영구 삭제는 [🗑] 버튼 사용`;
+    noteHint = '차단 사유 (선택, 메모로 남음):';
+  }
+  
+  if(!confirm(confirmMsg)) return;
+  
+  let note = null;
+  if(noteHint){
+    const reason = prompt(noteHint, '');
+    if(reason !== null && reason.trim()){
+      note = `[차단됨: ${reason.trim()}] ${row?.notes || ''}`.trim();
+    }
+  } else if(!newActive === false){
+    // 활성화 시: 기존 메모에서 [차단됨: ...] 제거
+    if(row?.notes){
+      note = String(row.notes).replace(/\[차단됨:[^\]]*\]\s*/g, '').trim();
+    }
+  }
   
   showLoading(true);
   try{
-    const row = _authorizedChats.find(r => r.chat_id === chatId);
-    await callRpc('upsert_authorized_chat', {
+    // 🆕 v4.7: set_chat_active RPC 사용 (전용 토글 함수)
+    await callRpc('set_chat_active', {
       p_chat_id: chatId,
-      p_chat_title: row ? row.chat_title : null,
-      p_notes: row ? row.notes : null,
       p_is_active: newActive,
-      p_authorized_by: row ? row.authorized_by : null,
+      p_note: note,
     });
     await loadAuthorizedChats();
-    showToast(`✅ ${action} 완료`);
+    showToast(newActive ? `✅ ${chatName} 활성화 완료` : `🚫 ${chatName} 차단 완료`);
   }catch(e){
-    alert('실패: ' + e.message);
+    // 폴백: 신규 RPC 미적용 시 기존 RPC 사용
+    try{
+      await callRpc('upsert_authorized_chat', {
+        p_chat_id: chatId,
+        p_chat_title: row ? row.chat_title : null,
+        p_notes: note !== null ? note : (row ? row.notes : null),
+        p_is_active: newActive,
+        p_authorized_by: row ? row.authorized_by : null,
+      });
+      await loadAuthorizedChats();
+      showToast(newActive ? `✅ ${chatName} 활성화 완료` : `🚫 ${chatName} 차단 완료`);
+    }catch(e2){
+      alert('실패: ' + e2.message);
+    }
   }finally{
     showLoading(false);
   }
