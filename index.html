@@ -5999,7 +5999,7 @@ function renderRoomsTable(rooms){
     return;
   }
   let html = '<table class="export-table" style="font-size:12px"><thead><tr>';
-  ['방 이름','교회/부서/지역/구역','최초 설정자','대상자','초대','피드백','심방날짜','심방계획','심방결과'].forEach(h => html += `<th>${h}</th>`);
+  ['방 이름','교회/부서/지역/구역','최초 설정자','대상자','초대','피드백','심방날짜','심방계획','심방결과','작업'].forEach(h => html += `<th>${h}</th>`);
   html += '</tr></thead><tbody>';
 
   rooms.forEach(r => {
@@ -6010,7 +6010,7 @@ function renderRoomsTable(rooms){
         <td><strong>${escapeHtml(r.chat_title || '(제목없음)')}</strong><br><code style="font-size:10px;color:#94a3b8">${r.chat_id}</code></td>
         <td>${escapeHtml(scopeTxt)}</td>
         <td>${escapeHtml(r.owner_name || '-')}</td>
-        <td colspan="6" style="color:#94a3b8;text-align:center">— 특별관리 대상 없음 —</td>
+        <td colspan="7" style="color:#94a3b8;text-align:center">— 특별관리 대상 없음 —</td>
       </tr>`;
     } else {
       // 특별관리 대상자별로 한 행씩
@@ -6031,12 +6031,52 @@ function renderRoomsTable(rooms){
         html += `<td>${escapeHtml(s.item3_visit_date || '-')}</td>`;
         html += `<td style="max-width:200px;white-space:pre-wrap;word-break:break-all">${escapeHtml(s.item4_visit_plan || '-')}</td>`;
         html += `<td style="max-width:220px;white-space:pre-wrap;word-break:break-all">${escapeHtml(s.visit_result || '-')}</td>`;
+        // 🆕 v4.7: 해제 버튼
+        const sName = String(s.name || '').replace(/'/g, "\\'");
+        const sDept = String(s.dept || '').replace(/'/g, "\\'");
+        const sPhone = String(s.phone_last4 || '');
+        const sChatId = String(r.chat_id || '');
+        html += `<td style="text-align:center;white-space:nowrap">
+          <button class="btn-danger" style="padding:4px 10px;font-size:11px"
+                  onclick="unregisterSpecialFromAdmin('${sName}','${sDept}','${sPhone}','${sChatId}')"
+                  title="이 사람의 특별관리 등록을 해제">
+            🗑 해제
+          </button>
+        </td>`;
         html += `</tr>`;
       });
     }
   });
   html += '</tbody></table>';
   mount.innerHTML = html;
+}
+
+// 🆕 v4.7: 관리자 페이지에서 특별관리 해제
+async function unregisterSpecialFromAdmin(name, dept, phone, chatId){
+  if(!confirm(`정말 ${name} 님의 특별관리 등록을 해제하시겠습니까?\n\n` +
+              `✅ 해제 효과:\n` +
+              `1. special_management_targets 테이블에서 삭제\n` +
+              `2. 해당 그룹방의 감지가 중단됨\n` +
+              `3. 해당 방에서 다른 분을 새로 등록 가능해짐\n\n` +
+              `⚠️ 4항목 진행 기록도 함께 사라집니다.`)){
+    return;
+  }
+  showLoading(true);
+  try {
+    await callRpc('unregister_special_management', {
+      p_dept: dept,
+      p_name: name,
+      p_phone_last4: phone || ''
+    });
+    showToast(`✅ ${name} 님의 특별관리가 해제되었습니다`);
+    // 새로고침
+    await loadRoomsOverview();
+  } catch(e) {
+    console.error(e);
+    showToast('❌ 해제 실패: ' + e.message, true);
+  } finally {
+    showLoading(false);
+  }
 }
 
 function filterRoomsTable(){
