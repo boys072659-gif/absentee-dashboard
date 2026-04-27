@@ -639,6 +639,359 @@
   /* 🆕 v4.7: 특별관리 대상자 상세 섹션 */
   .sp-list-section{ border:1.5px solid #fca5a5 !important; }
 
+  /* 🆕 v5.0: 사유출석자 검색 카드 */
+  .member-search-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+    gap:10px;
+  }
+
+  /* 🆕 v5.0: 로그인 모드 선택 */
+  .login-mode-section{
+    margin:14px 0 6px 0;
+  }
+  .login-mode-label{
+    font-size:13px; font-weight:700; color:#475569;
+    margin-bottom:8px; text-align:left;
+  }
+  .login-mode-options{
+    display:flex; gap:8px;
+  }
+  .login-mode-option{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:14px 8px;
+    border:2px solid #e2e8f0;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .15s;
+    background:#fff;
+  }
+  .login-mode-option:has(input:checked){
+    border-color:#3b82f6;
+    background:linear-gradient(140deg,#eff6ff,#dbeafe);
+  }
+  .login-mode-option input[type="radio"]{
+    display:none;
+  }
+  .login-mode-icon{ font-size:24px; }
+  .login-mode-text{ font-size:13px; font-weight:700; color:#1e293b; }
+  .login-mode-option:has(input:checked) .login-mode-text{ color:#1d4ed8; }
+
+  /* 🆕 v5.0: 사유출석자 대시보드 */
+  .ex-summary-row{ margin-bottom:14px; }
+  .ex-summary-card{
+    padding:18px 20px; border-radius:14px;
+    display:flex; align-items:center; gap:18px;
+  }
+  .ex-sum-label{ font-size:13px; color:#64748b; flex:1; }
+  .ex-sum-num{ font-size:32px; font-weight:800; color:#0f172a; }
+  .ex-sum-sub{ font-size:13px; color:#475569; }
+
+  .ex-kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+  @media (max-width: 900px){ .ex-kpi-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width: 540px){ .ex-kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+
+  .ex-kpi-card{
+    padding:14px; border-radius:12px;
+    border:1.5px solid #e2e8f0;
+    cursor:pointer;
+    transition:transform .15s, box-shadow .15s;
+    text-align:center;
+  }
+  .ex-kpi-card:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.08); }
+  .ex-kpi-icon{ font-size:18px; }
+  .ex-kpi-num{ font-size:28px; font-weight:800; margin:4px 0 2px 0; }
+  .ex-kpi-label{ font-size:12px; color:#475569; font-weight:700; }
+  .ex-kpi-delta{ font-size:11px; margin-top:6px; font-weight:600; }
+
+  .ex-alert{
+    padding:14px 18px; border-radius:12px;
+    background:linear-gradient(140deg,#fef2f2,#fecaca);
+    border:1.5px solid #fca5a5;
+    color:#991b1b;
+    margin-bottom:18px;
+  }
+
+  .ex-section-title{
+    font-size:16px; font-weight:800; color:#0f172a;
+    margin:18px 0 8px 0;
+  }
+
+  .ex-filter-row{
+    display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+    padding:10px; background:#f8fafc; border-radius:10px;
+    margin-bottom:14px;
+  }
+  .ex-filter-label{ font-size:12px; font-weight:700; color:#475569; margin-right:6px; }
+  .ex-filter-btn{
+    padding:5px 12px; font-size:12px; font-weight:600;
+    background:#fff; border:1px solid #cbd5e1; border-radius:99px;
+    cursor:pointer;
+  }
+  .ex-filter-btn.active{
+    background:#0f172a; color:#fff; border-color:#0f172a;
+  }
+
+  .ex-list-container{ }
+  .ex-dept-group{ margin-bottom:18px; }
+  .ex-dept-title{
+    display:flex; gap:8px; align-items:center; margin-bottom:8px;
+  }
+  .ex-dept-name{
+    background:#eff6ff; color:#1e40af;
+    border:1px solid #bfdbfe;
+    padding:5px 12px; border-radius:99px;
+    font-weight:800; font-size:14px;
+  }
+  .ex-dept-count{ font-size:12px; color:#475569; font-weight:600; }
+
+  .ex-card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+    gap:10px;
+  }
+  .ex-card{
+    background:#fff; border:1.5px solid #e2e8f0; border-radius:12px;
+    padding:12px;
+  }
+  .ex-card:hover{ border-color:#94a3b8; box-shadow:0 4px 12px rgba(0,0,0,.06); }
+  .ex-card-head{ margin-bottom:6px; }
+  .ex-card-name-line{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .ex-card-name{ font-size:15px; font-weight:800; color:#0f172a; }
+  .ex-card-group{
+    font-size:11px; padding:2px 8px; border-radius:99px;
+    border:1px solid; font-weight:700;
+  }
+  .ex-card-moved{
+    font-size:10px; padding:2px 6px; border-radius:5px;
+    background:#fef3c7; color:#92400e; font-weight:600;
+  }
+  .ex-card-meta{
+    font-size:12px; color:#64748b; margin-bottom:4px;
+  }
+  .ex-card-reason{
+    font-size:12px; color:#1e293b;
+    padding:6px 10px; background:#f8fafc; border-radius:6px;
+    margin-bottom:8px;
+  }
+  .ex-card-actions{
+    display:flex; gap:6px; align-items:center;
+  }
+  .ex-subtype-select{
+    flex:1; padding:5px 8px; font-size:12px;
+    border:1px solid #cbd5e1; border-radius:6px;
+    background:#fff;
+  }
+
+  /* 🆕 v5.2: 목표 세부유형 dropdown */
+  .ex-target-select{
+    flex:1; padding:5px 8px; font-size:12px;
+    border:1.5px solid #16a34a; border-radius:6px;
+    background:linear-gradient(140deg,#f0fdf4,#fff);
+    font-weight:600;
+    color:#15803d;
+  }
+  .ex-target-current{
+    display:block;
+    margin-top:4px;
+    font-size:11px;
+    color:#15803d;
+    padding:3px 8px;
+    background:#f0fdf4;
+    border-radius:4px;
+  }
+
+  /* 🆕 v5.2: 업로드 모달 탭 */
+  .ex-upload-tabs{
+    display:flex;
+    gap:4px;
+    margin-bottom:14px;
+    border-bottom:2px solid #e2e8f0;
+  }
+  .ex-upload-tab{
+    flex:1;
+    padding:10px 14px;
+    font-size:13px; font-weight:700;
+    background:transparent; border:none;
+    border-bottom:3px solid transparent;
+    margin-bottom:-2px;
+    color:#64748b;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .ex-upload-tab:hover{ color:#0f172a; }
+  .ex-upload-tab.active{
+    color:#16a34a;
+    border-bottom-color:#16a34a;
+    background:#f0fdf4;
+  }
+  .ex-upload-panel{ }
+  .btn-cert{
+    padding:5px 10px; font-size:11px; font-weight:700;
+    background:#16a34a; color:#fff;
+    border:none; border-radius:6px; cursor:pointer;
+  }
+  .btn-cert:hover{ background:#15803d; }
+
+  /* 🆕 v5.0: 카드 정보 보강 (부서태그/심방날짜/심방계획/추이) */
+  .ex-card-dept-tag{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:5px;
+    background:#eff6ff;
+    color:#1e40af;
+    border:1px solid #bfdbfe;
+    font-size:10px;
+    font-weight:800;
+  }
+  .ex-card-visit{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed #e2e8f0;
+  }
+  /* 🆕 v5.0 패치 v2: E단계 강조 */
+  .ex-card-visit-e{
+    background:linear-gradient(140deg,#fef2f2,#fff);
+    border:1.5px solid #fca5a5;
+    border-radius:8px;
+    padding:10px;
+    margin-top:10px;
+  }
+  .ex-visit-warn{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:11px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .ex-visit-row{
+    display:flex; gap:8px; align-items:flex-start;
+    margin-bottom:6px;
+  }
+  .ex-visit-label{
+    flex:0 0 78px;
+    font-size:11px; font-weight:700; color:#475569;
+    padding-top:6px;
+  }
+  .ex-visit-input,
+  .ex-visit-textarea{
+    flex:1; padding:5px 8px; font-size:12px;
+    border:1px solid #cbd5e1; border-radius:6px;
+    background:#fff;
+  }
+  .ex-visit-textarea{
+    min-height:42px; max-height:120px;
+    resize:vertical;
+    font-family:inherit;
+  }
+  .ex-trend-row{
+    display:flex; justify-content:flex-end;
+    margin-top:6px;
+  }
+  .btn-trend{
+    padding:4px 10px; font-size:11px; font-weight:600;
+    background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px;
+    cursor:pointer;
+    color:#475569;
+  }
+  .btn-trend:hover{ background:#e2e8f0; color:#0f172a; }
+
+  /* 추이 모달 테이블 */
+  .ex-trend-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .ex-trend-table th{
+    background:#f1f5f9;
+    padding:8px 10px;
+    text-align:left;
+    font-weight:700;
+    color:#475569;
+    border-bottom:2px solid #cbd5e1;
+  }
+  .ex-trend-table td{
+    padding:8px 10px;
+    border-bottom:1px solid #e2e8f0;
+  }
+  .ex-trend-table tr:last-child td{ border-bottom:none; }
+  .ex-trend-badge{
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:99px;
+    font-weight:700;
+    font-size:12px;
+  }
+
+
+  .member-search-card{
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:10px;
+    padding:12px;
+  }
+  .member-search-card:hover{ border-color:#94a3b8; }
+  .msc-row{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:6px;
+  }
+  .msc-name{ font-size:16px; font-weight:800; color:#0f172a; }
+  .btn-mini{
+    padding:4px 10px; font-size:11px; font-weight:600;
+    background:#f1f5f9; border:1px solid #cbd5e1; border-radius:6px;
+    cursor:pointer;
+  }
+  .btn-mini:hover{ background:#e2e8f0; }
+  .msc-meta, .msc-detail{
+    display:flex; gap:8px; flex-wrap:wrap;
+    font-size:12px; color:#64748b; margin-top:3px;
+  }
+  .msc-detail{ padding-top:6px; border-top:1px dashed #f1f5f9; margin-top:8px; }
+  .msc-cls{
+    padding:1px 6px; border-radius:4px; font-weight:700;
+  }
+  .msc-cls-가족{ background:#fef3c7; color:#92400e; }
+  .msc-cls-가족외{ background:#ede9fe; color:#5b21b6; }
+  .msc-cls-일반{ background:#f1f5f9; color:#64748b; }
+
+  /* 인라인 편집 폼 */
+  .msc-edit-form{ background:#f8fafc; padding:10px; border-radius:8px; }
+  .msc-edit-row{
+    display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .msc-edit-row label{
+    flex:1; min-width:130px;
+    display:flex; flex-direction:column; gap:4px;
+    font-size:11px; font-weight:700; color:#475569;
+  }
+  .msc-edit-row input,
+  .msc-edit-row select{
+    padding:6px 8px; font-size:13px;
+    border:1px solid #cbd5e1; border-radius:6px;
+    background:#fff;
+  }
+  .msc-edit-actions{
+    display:flex; gap:8px; align-items:center;
+    margin-top:6px;
+  }
+  .btn-danger{
+    padding:6px 12px; font-size:12px; font-weight:700;
+    background:#dc2626; color:#fff;
+    border:none; border-radius:6px; cursor:pointer;
+  }
+  .btn-danger:hover{ background:#b91c1c; }
+
+
   /* 헤더의 분류별 카운트 뱃지 */
   .sp-cls-badges{
     display:inline-flex;
@@ -1433,6 +1786,24 @@
       <option value="청년회">청년회</option>
     </select>
     <input autocomplete="off" class="pw-input" id="pw-input" inputmode="numeric" maxlength="20" onkeydown="if(event.key==='Enter') checkPw()" placeholder="••••••••" type="password"/>
+
+    <!-- 🆕 v5.0: 모드 선택 -->
+    <div class="login-mode-section">
+      <div class="login-mode-label">📋 관리할 항목 선택</div>
+      <div class="login-mode-options">
+        <label class="login-mode-option">
+          <input type="radio" name="loginMode" value="absentee" checked>
+          <span class="login-mode-icon">🚨</span>
+          <span class="login-mode-text">결석자 관리</span>
+        </label>
+        <label class="login-mode-option">
+          <input type="radio" name="loginMode" value="excused">
+          <span class="login-mode-icon">📅</span>
+          <span class="login-mode-text">사유출석자 관리</span>
+        </label>
+      </div>
+    </div>
+
     <button class="pw-btn" onclick="checkPw()">확인</button>
     <div class="pw-keypad">
       <button class="pw-key" onclick="appendPwDigit('1')" type="button">1</button>
@@ -1458,9 +1829,9 @@
 </div>
 
 <div class="container">
-  <h1>📅 결석자 타겟 심방 현황</h1>
+  <h1 id="mainPageTitle">📅 결석자 타겟 심방 현황</h1>
 
-  <div class="top-controls">
+  <div class="top-controls" id="absenteeTopControls">
     <div class="controls">
       <div class="control-group">
         <span class="control-label">월 선택</span>
@@ -1624,6 +1995,19 @@
     </div>
   </div>
 
+  <!-- ═══ 🆕 v5.0: 사유출석자 단계향상 현황 페이지 ═══════════════════════ -->
+  <div class="page" id="excusedPage">
+    <div class="list-toolbar">
+      <div class="list-title">📅 사유출석자 단계향상 현황</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-light" onclick="loadExcusedDashboard()">🔄 새로고침</button>
+        <button class="btn btn-light" onclick="openExcusedUploadModal()">📤 명단 업로드</button>
+        <button class="btn btn-light" onclick="logout()">🚪 로그아웃</button>
+      </div>
+    </div>
+    <div id="excusedDashboardMount" style="padding:14px"></div>
+  </div>
+
   <!-- ═══ 🔧 관리자 페이지 (지파 전용) ══════════════════════════════════════ -->
   <div class="page" id="adminPage">
     <div class="list-toolbar">
@@ -1707,6 +2091,25 @@
         </div>
 
         <div id="memberOverview" style="margin-top:16px"></div>
+
+        <!-- 🆕 v4.7: 교적 검색 + 수정 UI -->
+        <div class="an-card" style="margin-top:18px">
+          <div class="an-card-head">
+            <div>
+              <div class="an-card-title">🔎 교적 검색 + 수정</div>
+              <div class="an-card-sub">이름 · 전화 뒷4 · 고유번호로 검색 (마스킹/실명 모두 매칭)</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="memberSearchInput" class="pw-select" 
+                   placeholder="예: 강원빈, 강*빈, 7895, 0042..." 
+                   style="flex:1;min-width:240px;padding:10px"
+                   onkeydown="if(event.key==='Enter') searchMembers()">
+            <button class="btn btn-primary" onclick="searchMembers()">🔎 검색</button>
+            <button class="btn btn-light" onclick="clearMemberSearch()">초기화</button>
+          </div>
+          <div id="memberSearchResult" style="margin-top:12px"></div>
+        </div>
       </div>
     </div>
 
@@ -2160,10 +2563,37 @@ function goBack(){
 }
 let userDept = '내무부';
 let userChurch = '서울교회';
+// 🆕 v5.0: 로그인 시 선택한 모드 — 'absentee' (결석자) 또는 'excused' (사유출석자)
+let userMode = 'absentee';
 const saveTimers = {};
 
 function formatWeekKey(month, week){ return `${DEFAULT_YEAR}-${String(month).padStart(2,'0')}-w${week}`; }
 function formatWeekLabel(month, week){ return `${DEFAULT_YEAR}년 ${month}월 ${week}주차`; }
+
+// 🆕 v5.1: 일요일(주일) 기준 주차 계산
+//   - 임의의 날짜 → 그 날짜 직전(또는 당일) 일요일이 속한 주차 반환
+//   - 4/19(일) → 4월 3주차
+//   - 4/22(수) → 4월 3주차 (직전 일요일이 4/19)
+//   - 4/26(일) → 4월 4주차
+function computeWeekKeyFromSunday(date){
+  const d = new Date(date || new Date());
+  const dayOfWeek = d.getDay();  // 0=일, 1=월, ..., 6=토
+  // 직전 일요일 찾기
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() - dayOfWeek);
+  sunday.setHours(0, 0, 0, 0);
+  const year  = sunday.getFullYear();
+  const month = sunday.getMonth() + 1;
+  const dayN  = sunday.getDate();
+  // 해당 월의 몇 번째 일요일
+  const weekNumber = Math.ceil(dayN / 7);
+  return {
+    week_key: `${year}-${String(month).padStart(2,'0')}-w${weekNumber}`,
+    week_label: `${year}년 ${month}월 ${weekNumber}주차`,
+    sunday: sunday,
+    year, month, week_number: weekNumber,
+  };
+}
 
 function escapeHtml(str=''){
   return String(str)
@@ -2172,6 +2602,65 @@ function escapeHtml(str=''){
     .replaceAll('>','&gt;')
     .replaceAll('"','&quot;')
     .replaceAll("'",'&#39;');
+}
+
+// 🆕 v4.7: 이름 마스킹 헬퍼 — 가운데 글자만 * 처리
+//   "강원빈" → "강*빈"
+//   "홍길동" → "홍*동"
+//   "이슬"  → "이*"  (2글자)
+//   "이정민호" → "이**호" (4글자)
+//   이미 마스킹된 이름은 그대로 반환
+function maskName(name){
+  const s = String(name || '').trim();
+  if(!s) return '';
+  if(s.includes('*') || s.includes('ㅇ')) return s;  // 이미 마스킹됨
+  if(s.length <= 1) return s;
+  if(s.length === 2) return s[0] + '*';
+  // 3+ 글자: 첫 글자 + 가운데 모두 * + 마지막 글자
+  return s[0] + '*'.repeat(s.length - 2) + s[s.length - 1];
+}
+
+// 🆕 v4.7: 두 이름이 같은 사람인지 판정 (마스킹/실명 모두 매칭)
+//   namesMatch("강원빈", "강*빈") → true
+//   namesMatch("강*빈",  "강원빈") → true
+//   namesMatch("강원빈", "강원빈") → true
+//   namesMatch("강원빈", "김원빈") → false
+function namesMatch(a, b){
+  const sa = String(a || '').trim();
+  const sb = String(b || '').trim();
+  if(!sa || !sb) return false;
+  if(sa === sb) return true;
+  if(sa.length !== sb.length) return false;
+  // 첫끝 일치 + 가운데는 * 또는 일치
+  for(let i = 0; i < sa.length; i++){
+    const ca = sa[i], cb = sb[i];
+    if(ca === cb) continue;
+    if(ca === '*' || ca === 'ㅇ' || cb === '*' || cb === 'ㅇ') continue;
+    return false;
+  }
+  return true;
+}
+
+// 🆕 v4.7: 검색어로 사람 매칭 (마스킹/실명 무관) — 부분 검색 지원
+//   nameContains("원빈", "강원빈") → true
+//   nameContains("원빈", "강*빈") → true (마스킹된 *를 와일드카드로)
+//   nameContains("강", "강원빈") → true
+function nameContains(query, target){
+  const q = String(query || '').trim();
+  const t = String(target || '').trim();
+  if(!q || !t) return false;
+  if(t.includes(q)) return true;
+  if(q.includes(t)) return true;
+  // 마스킹 고려: 길이가 같으면 namesMatch 시도
+  if(q.length === t.length && namesMatch(q, t)) return true;
+  // 부분 매칭: 같은 길이의 모든 substring 비교
+  if(q.length < t.length){
+    for(let i = 0; i + q.length <= t.length; i++){
+      const sub = t.substring(i, i + q.length);
+      if(namesMatch(q, sub)) return true;
+    }
+  }
+  return false;
 }
 
 function showLoading(show){
@@ -2206,6 +2695,32 @@ async function sbFetch(path, method='GET', body=null, extraHeaders={}){
 }
 async function callRpc(name, payload){
   return await sbFetch(`rpc/${name}`, 'POST', payload);
+}
+
+// 🆕 v5.0 패치 v3: Supabase PostgREST 1000개 제한 우회 - 페이지네이션 자동 처리
+//   `pathBase` 는 limit/offset 없는 query string (예: 'tbl?select=*&order=name.asc')
+//   1000개씩 자동 분할 호출하여 전체 가져옴
+async function sbFetchAll(pathBase, chunkSize = 1000, maxRows = 100000){
+  const all = [];
+  let offset = 0;
+  // pathBase 에 ? 가 있으면 & 로 추가, 없으면 ?
+  const sep = pathBase.includes('?') ? '&' : '?';
+  while(offset < maxRows){
+    const url = `${pathBase}${sep}limit=${chunkSize}&offset=${offset}`;
+    let chunk;
+    try{
+      chunk = await sbFetch(url) || [];
+    }catch(e){
+      // 첫 호출에서 실패면 throw, 부분 성공이면 그냥 멈춤
+      if(offset === 0) throw e;
+      console.warn('[sbFetchAll] partial fetch failed at offset', offset, e.message);
+      break;
+    }
+    all.push(...chunk);
+    if(chunk.length < chunkSize) break;
+    offset += chunkSize;
+  }
+  return all;
 }
 
 /* 로그인 */
@@ -2309,6 +2824,9 @@ async function checkPw(){
   const val = document.getElementById('pw-input').value;
   userChurch = document.getElementById('loginChurch').value || '서울교회';
   userDept   = document.getElementById('loginDept').value || '내무부';
+  // 🆕 v5.0: 모드 선택 읽기
+  const modeRadio = document.querySelector('input[name="loginMode"]:checked');
+  userMode = modeRadio ? modeRadio.value : 'absentee';
   
   // DB에서 최신 비밀번호 로드 시도
   await loadPasswordsFromDb();
@@ -2317,11 +2835,18 @@ async function checkPw(){
   if(val === correctPw && correctPw){
     document.getElementById('pw-overlay').style.display = 'none';
     applyDeptPermissionUI();
-    // 🎯 로그인 직후 대시보드 페이지 활성화 (로그아웃 후 재로그인 시 현황판 표시 보장)
+    // 🎯 로그인 직후 대시보드 페이지 활성화
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('dashboardPage').classList.add('active');
     currentPage = 'dashboard';
-    loadWeek(currentWeekKey);
+    // 🆕 v5.0: 모드별 분기
+    if(userMode === 'excused'){
+      // 사유출석자 모드 — 별도 페이지 표시
+      showExcusedDashboard();
+    } else {
+      // 결석자 모드 — 기존 흐름
+      loadWeek(currentWeekKey);
+    }
   }else{
     const err=document.getElementById('pw-error');
     const inp=document.getElementById('pw-input');
@@ -2412,6 +2937,1004 @@ function goDashboard(){
   pushHistory('dashboard');
   hideAllPages();
   document.getElementById('dashboardPage').classList.add('active');
+}
+
+function goDashboard(){
+  currentPage = 'dashboard';
+  pushHistory('dashboard');
+  hideAllPages();
+  // 🆕 v5.0: 모드별 분기
+  if(userMode === 'excused'){
+    document.getElementById('excusedPage').classList.add('active');
+  } else {
+    document.getElementById('dashboardPage').classList.add('active');
+  }
+}
+
+// 🆕 v5.0: 사유출석자 모드 진입
+function showExcusedDashboard(){
+  hideAllPages();
+  document.getElementById('excusedPage').classList.add('active');
+  currentPage = 'excused';
+  // 🆕 페이지 제목 변경
+  const title = document.getElementById('mainPageTitle');
+  if(title) title.textContent = '📅 사유출석자 타겟 심방 현황';
+  document.title = '사유출석자 타겟 심방 현황';
+  // 🆕 결석자 관련 상단 컨트롤 + 업로드 패널 숨김
+  const tc = document.getElementById('absenteeTopControls');
+  if(tc) tc.style.display = 'none';
+  const up = document.getElementById('uploadPanel');
+  if(up) up.style.display = 'none';
+  loadExcusedDashboard();
+}
+
+// 🆕 v5.0: 사유출석자 대시보드 데이터 로드 + 렌더
+async function loadExcusedDashboard(){
+  const mount = document.getElementById('excusedDashboardMount');
+  if(!mount) return;
+  mount.innerHTML = '<div style="padding:24px;color:#64748b">불러오는 중...</div>';
+
+  try{
+    // 권한별 교회 필터
+    const isZipa = isZipaUser();
+    const isCAdmin = isChurchAdmin();
+    const churchFilter = isZipa ? null : userChurch;
+
+    // 🆕 v5.0 패치 v3: 페이지네이션으로 1000명 이상도 전체 로드
+    let qsBase = 'excused_attendees_master?select=*&order=current_group.asc,church.asc,dept.asc,name.asc';
+    if(churchFilter) qsBase += `&church=eq.${encodeURIComponent(churchFilter)}`;
+    if(!isZipa && !isCAdmin && userDept && userDept !== '내무부'){
+      qsBase += `&dept=eq.${encodeURIComponent(userDept)}`;
+    }
+    let masters = await sbFetchAll(qsBase);
+    console.info(`[사유출석자] 로드: ${masters.length}명`);
+
+    // 주차 정보 (이번 주 + 전 주)
+    const weekRows = await sbFetch('weekly_target_weeks?select=week_key,week_label&order=week_key.desc&limit=2') || [];
+    const thisWeek = weekRows[0] || null;
+    const lastWeek = weekRows[1] || null;
+
+    // 🆕 v5.0: 이번주 결석자 명단 (인증완료 판정용) — 페이지네이션
+    let absenteeSet = new Set();
+    if(thisWeek){
+      let aqsBase = `weekly_visit_targets?select=name,phone_last4,church,dept&week_key=eq.${encodeURIComponent(thisWeek.week_key)}`;
+      if(churchFilter) aqsBase += `&church=eq.${encodeURIComponent(churchFilter)}`;
+      const absentees = await sbFetchAll(aqsBase);
+      absentees.forEach(a => {
+        const k = `${a.church}|${a.name}|${a.phone_last4 || ''}`;
+        absenteeSet.add(k);
+      });
+    }
+
+    // 🆕 v5.0: 이번주 사유출석 기록 — 페이지네이션
+    let excusedThisWeekSet = new Set();
+    if(thisWeek){
+      let eqsBase = `excused_weekly_records?select=member_uid,group_letter&week_key=eq.${encodeURIComponent(thisWeek.week_key)}`;
+      const records = await sbFetchAll(eqsBase);
+      records.forEach(r => {
+        if(['B','C','D','D-1','E'].includes(r.group_letter)){
+          excusedThisWeekSet.add(r.member_uid);
+        }
+      });
+    }
+
+    // 🆕 v5.0: 마스터 중에서 정확히 분류 — 인증완료(A) vs B/C/D/E
+    // A 자격: ① 이번주 결석자 명단에 없어야 함 + ② 이번주 사유출석 기록에도 BCDE 가 아니어야 함
+    masters = masters.map(m => {
+      const isInAbsentee = absenteeSet.has(m.member_uid);
+      const isInExcusedBCDE = excusedThisWeekSet.has(m.member_uid);
+      let displayGroup = m.current_group || m.initial_group;
+      let aStatus = '';
+      if(isInAbsentee){
+        // 결석자 명단에 있으면 → 결석으로 표시
+        displayGroup = '결석';
+        aStatus = '결석자명단에 있음';
+      } else if(!isInExcusedBCDE && displayGroup !== 'A'){
+        // 결석자 명단에 없고 + 이번주 사유출석 BCDE 도 아님 → A 후보
+        // 단, 자동 A 판정은 신중히 (이번주 데이터 미업로드 케이스도 있을 수 있음)
+        // → 마스터의 current_group 이 A 면 그대로 A, 아니면 그대로 두기
+      }
+      return { ...m, displayGroup, _crossCheck: { isInAbsentee, isInExcusedBCDE } };
+    });
+
+    // 지난주 그룹 카운트 (전주 비교용)
+    let lastWeekCounts = { A:0, B:0, C:0, D:0, 'D-1':0, E:0, '결석':0 };
+    if(lastWeek){
+      let lqs = `excused_weekly_records?select=member_uid,group_letter&week_key=eq.${encodeURIComponent(lastWeek.week_key)}`;
+      const lastRecords = await sbFetchAll(lqs);
+      lastRecords.forEach(r => {
+        if(lastWeekCounts[r.group_letter] !== undefined) lastWeekCounts[r.group_letter]++;
+      });
+    }
+
+    // 이번주 카운트 (displayGroup 기준)
+    const thisCounts = { A:0, B:0, C:0, D:0, 'D-1':0, E:0, '결석':0 };
+    masters.forEach(m => {
+      const g = m.displayGroup;
+      if(thisCounts[g] !== undefined) thisCounts[g]++;
+    });
+    const total = masters.length;
+
+    renderExcusedDashboard(mount, {
+      masters, total,
+      thisWeek, lastWeek,
+      thisCounts, lastWeekCounts,
+    });
+  }catch(e){
+    console.error(e);
+    mount.innerHTML = `<div style="padding:24px;color:#dc2626">❌ 로드 실패: ${escapeHtml(e.message)}<br><br>🛠 DB 스키마 적용이 필요할 수 있습니다.<br><code>excused_schema.sql</code> 을 먼저 적용해주세요.</div>`;
+  }
+}
+
+function renderExcusedDashboard(mount, data){
+  const { masters, total, thisWeek, lastWeek, thisCounts, lastWeekCounts } = data;
+  const weekLabel = thisWeek ? thisWeek.week_label : '(주차 미설정)';
+
+  // 그룹별 색상
+  const groupConfig = {
+    'A':   { color:'#16a34a', bg:'linear-gradient(140deg,#f0fdf4,#bbf7d0)', label:'A 인증완료', icon:'✅' },
+    'B':   { color:'#0284c7', bg:'linear-gradient(140deg,#eff6ff,#bfdbfe)', label:'B 단계',     icon:'🔵' },
+    'C':   { color:'#0891b2', bg:'linear-gradient(140deg,#f0f9ff,#a5f3fc)', label:'C 단계',     icon:'🟦' },
+    'D':   { color:'#ca8a04', bg:'linear-gradient(140deg,#fefce8,#fef08a)', label:'D 단계',     icon:'🟡' },
+    'D-1': { color:'#a16207', bg:'linear-gradient(140deg,#fef3c7,#fde68a)', label:'D-1 (자문회 인시센)', icon:'🟨' },
+    'E':   { color:'#dc2626', bg:'linear-gradient(140deg,#fef2f2,#fecaca)', label:'E 단계 (위험)', icon:'🔴' },
+    '결석': { color:'#7c2d12', bg:'linear-gradient(140deg,#1c1917,#451a03)', label:'결석',       icon:'⚫' },
+  };
+
+  // KPI 카드
+  let html = `
+    <div class="ex-summary-row">
+      <div class="ex-summary-card" style="background:linear-gradient(140deg,#f8fafc,#e2e8f0)">
+        <div class="ex-sum-label">📅 ${escapeHtml(weekLabel)}</div>
+        <div class="ex-sum-num">${total}</div>
+        <div class="ex-sum-sub">총 사유출석자</div>
+      </div>
+    </div>
+    <div class="ex-kpi-grid">
+  `;
+  ['A','B','C','D','D-1','E','결석'].forEach(g => {
+    const cfg = groupConfig[g];
+    const cur = thisCounts[g] || 0;
+    const prev = lastWeekCounts[g] || 0;
+    const delta = cur - prev;
+    const deltaStr = delta === 0 ? '동일' : (delta > 0 ? `+${delta}` : `${delta}`);
+    const deltaColor = delta === 0 ? '#94a3b8' : (delta > 0 ? '#16a34a' : '#dc2626');
+    html += `
+      <div class="ex-kpi-card" style="background:${cfg.bg};border-color:${cfg.color}33"
+           onclick="filterExcusedByGroup('${g}')" data-group="${g}">
+        <div class="ex-kpi-icon">${cfg.icon}</div>
+        <div class="ex-kpi-num" style="color:${cfg.color}">${cur}</div>
+        <div class="ex-kpi-label">${cfg.label}</div>
+        <div class="ex-kpi-delta" style="color:${deltaColor}">전주: ${prev} → ${deltaStr}</div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+
+  // E단계 위험군 강조 알림
+  if(thisCounts['E'] > 0){
+    html += `
+      <div class="ex-alert">
+        🚨 <b>E단계 위험군 ${thisCounts['E']}명</b> — 6월부터 결석으로 분류됩니다. 단계향상 관리가 필요합니다.
+      </div>
+    `;
+  }
+
+  // 사유별 그룹핑 + 부서별 그룹핑
+  html += `<div class="ex-section-title">📋 사유출석자 상세 명단</div>`;
+
+  // 필터 컨트롤
+  html += `
+    <div class="ex-filter-row">
+      <span class="ex-filter-label">필터:</span>
+      <button class="ex-filter-btn active" data-filter-group="all" onclick="filterExcusedByGroup('all')">전체</button>
+      ${['A','B','C','D','D-1','E','결석'].map(g => 
+        `<button class="ex-filter-btn" data-filter-group="${g}" onclick="filterExcusedByGroup('${g}')">${g}</button>`
+      ).join('')}
+    </div>
+  `;
+
+  // 부서별 그룹핑
+  const byDept = {};
+  masters.forEach(m => {
+    const k = m.dept || '기타';
+    if(!byDept[k]) byDept[k] = [];
+    byDept[k].push(m);
+  });
+  const deptKeys = Object.keys(byDept).sort();
+
+  html += '<div id="excusedListContainer" class="ex-list-container">';
+  if(masters.length === 0){
+    html += '<div style="padding:40px;text-align:center;color:#94a3b8">📭 등록된 사유출석자가 없습니다.<br><br>오른쪽 상단 [📤 명단 업로드] 로 시작해주세요.</div>';
+  } else {
+    deptKeys.forEach(dept => {
+      const rows = byDept[dept];
+      html += `
+        <div class="ex-dept-group">
+          <div class="ex-dept-title">
+            <span class="ex-dept-name">${escapeHtml(dept)}</span>
+            <span class="ex-dept-count">${rows.length}명</span>
+          </div>
+          <div class="ex-card-grid">
+      `;
+      rows.forEach(m => {
+        html += renderExcusedCard(m, groupConfig);
+      });
+      html += `</div></div>`;
+    });
+  }
+  html += '</div>';
+
+  mount.innerHTML = html;
+}
+
+function renderExcusedCard(m, groupConfig){
+  const cur = m.displayGroup || m.current_group || m.initial_group;
+  const ini = m.initial_group;
+  const cfg = groupConfig[cur] || groupConfig['B'];
+  const moved = (cur !== ini);
+  const subtype = m.current_subtype || '(미설정)';
+  const reason = m.current_reason || m.initial_reason;
+  const masked = (typeof maskName === 'function') ? maskName(m.name) : m.name;
+  const orgName = (m.region_name || m.zone_name) ? `${m.region_name||''} ${m.zone_name||''}`.trim() : '-';
+  const visitDate = m.target_deadline || m.visit_date || '';   // 심방날짜
+  const visitPlan = m.notes || m.visit_plan || '';              // 심방계획 (notes 활용)
+
+  return `
+    <div class="ex-card" data-current-group="${cur}" data-initial-group="${ini}">
+      <div class="ex-card-head">
+        <div class="ex-card-name-line">
+          <span class="ex-card-dept-tag">${escapeHtml(m.dept || '-')}</span>
+          <span class="ex-card-name">${escapeHtml(masked)}</span>
+          <span class="ex-card-group" style="background:${cfg.color}22;color:${cfg.color};border-color:${cfg.color}66">
+            ${cfg.icon} ${cur}
+          </span>
+          ${moved ? `<span class="ex-card-moved" title="최초 ${ini} → 현재 ${cur}">최초 ${ini}</span>` : ''}
+        </div>
+      </div>
+      <div class="ex-card-meta">
+        📍 <b>소속:</b> ${escapeHtml(orgName)}
+        ${m.certified_count > 0 ? ` · 🏆 인증 ${m.certified_count}회` : ''}
+      </div>
+      <div class="ex-card-reason">
+        <b>사유:</b> ${escapeHtml(reason)}
+        ${m.current_subtype ? ` · <b>세부:</b> ${escapeHtml(m.current_subtype)}` : ''}
+      </div>
+      <div class="ex-card-actions">
+        <select class="ex-subtype-select" title="현재 세부유형" onchange="onExcusedSubtypeChange('${m.member_uid}', this.value)">
+          <option value="">— 현재 세부유형 —</option>
+          <optgroup label="대체예배">
+            <option value="대면대체"     ${m.current_subtype==='대면대체'?'selected':''}>대면대체 (B)</option>
+            <option value="말씀나눔30분" ${m.current_subtype==='말씀나눔30분'?'selected':''}>말씀나눔30분 (D)</option>
+            <option value="친분관리"     ${m.current_subtype==='친분관리'?'selected':''}>친분관리 (E)</option>
+          </optgroup>
+          <optgroup label="온라인예배">
+            <option value="줌화면ON"   ${m.current_subtype==='줌화면ON'?'selected':''}>줌화면ON (C)</option>
+            <option value="줌화면OFF"  ${m.current_subtype==='줌화면OFF'?'selected':''}>줌화면OFF (E)</option>
+            <option value="인시센"     ${m.current_subtype==='인시센'?'selected':''}>인시센 (자문회=D-1, 그외=E)</option>
+            <option value="말씀광장"   ${m.current_subtype==='말씀광장'?'selected':''}>말씀광장 (E)</option>
+            <option value="비메오"     ${m.current_subtype==='비메오'?'selected':''}>비메오 (E)</option>
+          </optgroup>
+        </select>
+        <button class="btn-mini btn-cert" onclick="markExcusedCertified('${m.member_uid}')" title="이번주 출석 인증 → A로 이동">✅ 인증</button>
+      </div>
+      ${(cur === 'E') ? `
+      <!-- 🆕 v5.0 패치 v2: E 단계만 심방날짜 + 단계향상 계획 입력 가능 -->
+      <div class="ex-card-visit ex-card-visit-e">
+        <div class="ex-visit-warn">
+          🚨 <b>E단계 (위험군)</b> — 6월부터 결석 분류. 단계향상 관리 필요!
+        </div>
+        <!-- 🆕 v5.2: 단계 목표 dropdown -->
+        <div class="ex-visit-row">
+          <label class="ex-visit-label">🎯 목표 세부유형</label>
+          <select class="ex-target-select" onchange="onExcusedTargetSubtypeChange('${m.member_uid}', this.value)">
+            <option value="">— 목표 미설정 —</option>
+            <optgroup label="대체예배">
+              <option value="대면대체"     ${m.target_subtype==='대면대체'?'selected':''}>대면대체 (B)</option>
+              <option value="말씀나눔30분" ${m.target_subtype==='말씀나눔30분'?'selected':''}>말씀나눔30분 (D) ⭐</option>
+              <option value="친분관리"     ${m.target_subtype==='친분관리'?'selected':''}>친분관리 (E)</option>
+            </optgroup>
+            <optgroup label="온라인예배">
+              <option value="줌화면ON"   ${m.target_subtype==='줌화면ON'?'selected':''}>줌화면ON (C) ⭐</option>
+              <option value="줌화면OFF"  ${m.target_subtype==='줌화면OFF'?'selected':''}>줌화면OFF (E)</option>
+              <option value="인시센"     ${m.target_subtype==='인시센'?'selected':''}>인시센 (자문회=D-1, 그외=E)</option>
+              <option value="말씀광장"   ${m.target_subtype==='말씀광장'?'selected':''}>말씀광장 (E)</option>
+              <option value="비메오"     ${m.target_subtype==='비메오'?'selected':''}>비메오 (E)</option>
+            </optgroup>
+          </select>
+          ${m.target_subtype ? `<span class="ex-target-current">현재 → 목표: ${escapeHtml(m.current_subtype || '미설정')} → ${escapeHtml(m.target_subtype)}</span>` : ''}
+        </div>
+        <div class="ex-visit-row">
+          <label class="ex-visit-label">📅 심방날짜</label>
+          <input type="text" class="ex-visit-input"
+                 value="${escapeHtml(visitDate)}"
+                 placeholder="예: 4/27, 2026-04-27"
+                 onchange="onExcusedVisitDateChange('${m.member_uid}', this.value)">
+        </div>
+        <div class="ex-visit-row">
+          <label class="ex-visit-label">🎯 단계향상 계획</label>
+          <textarea class="ex-visit-textarea"
+                    placeholder="목표: D단계 이상으로 향상. 어떻게 접근할지 작성..."
+                    onchange="onExcusedVisitPlanChange('${m.member_uid}', this.value)">${escapeHtml(visitPlan)}</textarea>
+        </div>
+        <!-- 🆕 v5.0: 추이 보기 버튼 -->
+        <div class="ex-trend-row">
+          <button class="btn-trend" onclick="showExcusedTrend('${m.member_uid}', '${escapeHtml(masked).replace(/'/g,'&#39;')}')">📈 단계 추이 보기</button>
+        </div>
+      </div>
+      ` : `
+      <!-- E 외 단계: 추이 보기 버튼만 -->
+      <div class="ex-trend-row" style="margin-top:8px">
+        <button class="btn-trend" onclick="showExcusedTrend('${m.member_uid}', '${escapeHtml(masked).replace(/'/g,'&#39;')}')">📈 단계 추이 보기</button>
+      </div>
+      `}
+    </div>
+  `;
+}
+
+// 🆕 v5.0: 심방날짜 변경 → DB 저장
+// 🆕 v5.2: 목표 세부유형 변경 → DB 저장 + 자동 분류
+async function onExcusedTargetSubtypeChange(memberUid, subtype){
+  if(!subtype){
+    // 목표 해제
+    try{
+      await callRpc('set_excused_management', {
+        p_member_uid: memberUid,
+        p_target_subtype: '',
+        p_target_group: '',
+      });
+      showToast('🎯 목표 해제됨');
+    }catch(e){
+      showToast('해제 실패: ' + e.message, true);
+    }
+    return;
+  }
+  try{
+    // 마스터에서 dept 가져와서 목표 단계 계산
+    const rows = await sbFetch(`excused_attendees_master?select=dept&member_uid=eq.${encodeURIComponent(memberUid)}&limit=1`);
+    const dept = (rows && rows[0]?.dept) || '';
+    // 자동 단계 결정 (classify_excused_group 와 같은 로직)
+    let targetGroup = 'B';
+    if(subtype === '대면대체') targetGroup = 'B';
+    else if(subtype === '말씀나눔30분') targetGroup = 'D';
+    else if(subtype === '친분관리') targetGroup = 'E';
+    else if(subtype === '줌화면ON') targetGroup = 'C';
+    else if(subtype === '줌화면OFF') targetGroup = 'E';
+    else if(subtype === '인시센') targetGroup = (dept === '자문회') ? 'D-1' : 'E';
+    else if(subtype === '말씀광장') targetGroup = 'E';
+    else if(subtype === '비메오') targetGroup = 'E';
+
+    await callRpc('set_excused_management', {
+      p_member_uid: memberUid,
+      p_target_subtype: subtype,
+      p_target_group: targetGroup,
+    });
+    showToast(`🎯 목표 설정: ${subtype} (${targetGroup} 단계)`);
+    await loadExcusedDashboard();
+  }catch(e){
+    console.warn('목표 설정 실패:', e);
+    showToast('저장 실패: ' + e.message, true);
+  }
+}
+
+async function onExcusedVisitDateChange(memberUid, value){
+  // 다양한 형식 정규화 → YYYY-MM-DD
+  let normalizedDate = null;
+  const v = String(value || '').trim();
+  if(v){
+    const year = new Date().getFullYear();
+    let m;
+    if((m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))){
+      normalizedDate = `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+    } else if((m = v.match(/^(\d{1,2})[-./](\d{1,2})$/))){
+      normalizedDate = `${year}-${String(m[1]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;
+    } else if((m = v.match(/^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일?$/))){
+      normalizedDate = `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+    } else if((m = v.match(/^(\d{1,2})월\s*(\d{1,2})일?$/))){
+      normalizedDate = `${year}-${String(m[1]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;
+    }
+    if(!normalizedDate){
+      showToast('❌ 날짜 형식 오류 (예: 4/27, 2026-04-27, 4월 27일)', true);
+      return;
+    }
+  }
+  try{
+    await callRpc('set_excused_management', {
+      p_member_uid: memberUid,
+      p_target_deadline: normalizedDate,
+    });
+    showToast('💾 심방날짜 저장됨');
+  }catch(e){
+    console.warn('심방날짜 저장 실패:', e);
+    showToast('저장 실패: ' + e.message, true);
+  }
+}
+
+// 🆕 v5.0: 심방계획 변경 → DB 저장
+async function onExcusedVisitPlanChange(memberUid, value){
+  try{
+    await callRpc('set_excused_management', {
+      p_member_uid: memberUid,
+      p_notes: value || '',
+    });
+    showToast('💾 심방계획 저장됨');
+  }catch(e){
+    console.warn('심방계획 저장 실패:', e);
+    showToast('저장 실패: ' + e.message, true);
+  }
+}
+
+// 🆕 v5.0: 개인별 단계 추이 조회 + 모달
+async function showExcusedTrend(memberUid, displayName){
+  showLoading(true);
+  try{
+    const records = await sbFetch(
+      `excused_weekly_records?select=*&member_uid=eq.${encodeURIComponent(memberUid)}&order=week_key.asc&limit=52`
+    ) || [];
+    const weekRows = await sbFetch(
+      `weekly_target_weeks?select=week_key,week_label&order=week_key.asc&limit=52`
+    ) || [];
+    const labelMap = Object.fromEntries(weekRows.map(w => [w.week_key, w.week_label]));
+
+    // 결석 명단에 있던 주차도 포함 (해당 사람이 결석으로 떨어진 적 있는지)
+    const allWeeks = await sbFetch(
+      `weekly_visit_targets?select=week_key,name,phone_last4,church&name=eq.${encodeURIComponent((displayName||'').replace(/&#39;/g, "'"))}&limit=52`
+    ) || [];
+    const absentWeekSet = new Set();
+    allWeeks.forEach(a => {
+      const k = `${a.church}|${a.name}|${a.phone_last4||''}`;
+      if(k === memberUid) absentWeekSet.add(a.week_key);
+    });
+
+    // 추이 데이터 정리
+    const trend = records.map(r => ({
+      week_key: r.week_key,
+      week_label: labelMap[r.week_key] || r.week_key,
+      group: absentWeekSet.has(r.week_key) ? '결석' : r.group_letter,
+      reason: r.reason,
+      subtype: r.subtype,
+    }));
+
+    showExcusedTrendModal(displayName, trend);
+  }catch(e){
+    alert('추이 로드 실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+function showExcusedTrendModal(name, trend){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:14px;max-width:760px;width:100%;padding:24px;max-height:90vh;overflow:auto';
+
+  // 그룹별 색상 매핑
+  const groupColors = {
+    'A':   '#16a34a',
+    'B':   '#0284c7',
+    'C':   '#0891b2',
+    'D':   '#ca8a04',
+    'D-1': '#a16207',
+    'E':   '#dc2626',
+    '결석': '#7c2d12',
+  };
+  const groupOrder = { 'A':6, 'B':5, 'C':4, 'D-1':3, 'D':3, 'E':2, '결석':1 };
+
+  let bodyHtml = '';
+  if(trend.length === 0){
+    bodyHtml = '<div style="padding:30px;text-align:center;color:#94a3b8">📭 기록된 주차가 없습니다.</div>';
+  } else {
+    // 변화 계산
+    bodyHtml = `<table class="ex-trend-table">
+      <thead><tr><th>주차</th><th>단계</th><th>사유</th><th>세부</th><th>변화</th></tr></thead>
+      <tbody>`;
+    trend.forEach((t, i) => {
+      const color = groupColors[t.group] || '#64748b';
+      let change = '시작';
+      if(i > 0){
+        const prev = trend[i-1];
+        const prevOrder = groupOrder[prev.group] || 0;
+        const curOrder = groupOrder[t.group] || 0;
+        if(curOrder > prevOrder) change = '⬆ 향상';
+        else if(curOrder < prevOrder) change = '⬇ 하락';
+        else change = '→ 유지';
+      }
+      const changeColor = change.includes('향상') ? '#16a34a' 
+                       : change.includes('하락') ? '#dc2626' 
+                       : '#94a3b8';
+      bodyHtml += `<tr>
+        <td>${escapeHtml(t.week_label)}</td>
+        <td><span class="ex-trend-badge" style="background:${color}22;color:${color}">${t.group}</span></td>
+        <td>${escapeHtml(t.reason || '-')}</td>
+        <td>${escapeHtml(t.subtype || '-')}</td>
+        <td style="color:${changeColor};font-weight:700">${change}</td>
+      </tr>`;
+    });
+    bodyHtml += '</tbody></table>';
+  }
+
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3 style="margin:0">📈 ${escapeHtml(name)} 단계 추이</h3>
+      <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">✕</button>
+    </div>
+    ${bodyHtml}
+  `;
+  overlay.setAttribute('data-overlay', '1');
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+// 🆕 v5.0: 그룹별 필터링 (상단 카드/필터 버튼 클릭)
+function filterExcusedByGroup(group){
+  document.querySelectorAll('[data-filter-group]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filterGroup === group);
+  });
+  document.querySelectorAll('.ex-card').forEach(card => {
+    if(group === 'all' || card.dataset.currentGroup === group){
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// 🆕 v5.0: 세부유형 변경 (자동으로 그룹 재분류)
+async function onExcusedSubtypeChange(memberUid, subtype){
+  if(!subtype) return;
+  showLoading(true);
+  try{
+    const res = await callRpc('set_excused_subtype', {
+      p_member_uid: memberUid,
+      p_subtype: subtype,
+    });
+    if(res && res.ok === false){
+      alert('변경 실패: ' + (res.error || ''));
+      return;
+    }
+    showToast(`✅ 세부유형 "${subtype}" → ${res.group} 단계`);
+    await loadExcusedDashboard();
+  }catch(e){
+    alert('변경 실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+// 🆕 v5.0: 인증월료 마킹 (A로 이동)
+async function markExcusedCertified(memberUid){
+  if(!confirm('이번주 출석 인증으로 A 그룹으로 이동시키시겠습니까?')) return;
+  const weekKey = currentWeekKey || '';
+  if(!weekKey){
+    alert('주차가 설정되지 않았습니다.');
+    return;
+  }
+  showLoading(true);
+  try{
+    await callRpc('mark_excused_certified', {
+      p_member_uid: memberUid,
+      p_week_key: weekKey,
+    });
+    showToast('✅ A 그룹 인증 처리됨');
+    await loadExcusedDashboard();
+  }catch(e){
+    alert('실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+// 🆕 v5.0: 사유출석자 명단 업로드 모달
+function openExcusedUploadModal(){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:14px;max-width:780px;width:100%;padding:24px;max-height:90vh;overflow:auto';
+  box.innerHTML = `
+    <h3 style="margin:0 0 12px 0">📤 사유출석자 명단 업로드</h3>
+    
+    <!-- 🆕 v5.2: 업로드 방식 탭 -->
+    <div class="ex-upload-tabs">
+      <button class="ex-upload-tab active" data-tab="excel" onclick="switchExUploadTab('excel')">📁 Excel 파일 (5교회 자동)</button>
+      <button class="ex-upload-tab" data-tab="text" onclick="switchExUploadTab('text')">📝 텍스트 직접 입력</button>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
+      <select id="exUploadWeek" class="pw-select">
+        <option>주차 로드 중...</option>
+      </select>
+    </div>
+
+    <!-- 🆕 v5.2: Excel 업로드 탭 -->
+    <div id="exUploadPanelExcel" class="ex-upload-panel">
+      <p style="color:#475569;font-size:13px;margin:0 0 12px 0;background:#f8fafc;padding:10px;border-radius:8px">
+        📁 <b>"서울야고보지파-사유출석자현황.xlsx"</b> 양식 그대로 업로드<br>
+        ✅ 5개 교회 시트 (서울/포천/구리/동대문/의정부) 자동 처리<br>
+        ✅ 헤더 4줄 자동 스킵 (양식 상단)<br>
+        ✅ 체크된 컬럼으로 자동 분류 (B/C/D/D-1/E/A)<br>
+        ✅ 교적과 매칭하여 부서/지역 자동 보완
+      </p>
+      <div style="margin-bottom:10px">
+        <input type="file" id="exUploadXlsx" accept=".xlsx,.xls" 
+               class="pw-select" style="padding:8px"
+               onchange="updateExcusedXlsxStatus()">
+      </div>
+      <div id="exUploadXlsxStatus" style="margin-top:6px;font-size:12px;color:#475569"></div>
+      <div id="exUploadXlsxProgress" style="margin-top:8px;display:none">
+        <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
+          <div id="exUploadXlsxProgressBar" style="background:#16a34a;height:100%;width:0%;transition:width .3s"></div>
+        </div>
+        <div id="exUploadXlsxProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
+      </div>
+    </div>
+
+    <!-- 텍스트 입력 탭 -->
+    <div id="exUploadPanelText" class="ex-upload-panel" style="display:none">
+      <p style="color:#475569;font-size:13px;margin:0 0 14px 0">
+        <b>10컬럼</b> · 구분자: 탭/다중공백/콤마/파이프 모두 가능:<br>
+        <code style="font-size:11px">이름 · 전화뒷4 · 지파 · 교회 · 부서 · 지역 · 구역 · 출석 · 사유 · 연속결석</code><br><br>
+        💡 <b>사유</b>: 인증안함 / 인증오류 / 온라인예배 / 대체예배
+      </p>
+      <textarea id="exUploadText" rows="14" 
+                style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-family:monospace;font-size:12px"
+                placeholder="허*은	4627	서울야고보지파	서울교회	교역자	센터	상봉	사유 출석	온라인예배	0&#10;..."
+                oninput="updateExcusedUploadCount()"></textarea>
+      <div id="exUploadCount" style="margin-top:6px;font-size:12px;color:#475569;text-align:right">0행</div>
+      <div id="exUploadProgress" style="margin-top:8px;display:none">
+        <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
+          <div id="exUploadProgressBar" style="background:#3b82f6;height:100%;width:0%;transition:width .3s"></div>
+        </div>
+        <div id="exUploadProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
+      <button class="btn btn-primary" id="exUploadSubmitBtn" onclick="submitExcusedUpload()">📤 업로드</button>
+    </div>
+  `;
+  overlay.setAttribute('data-overlay', '1');
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // 주차 dropdown 채우기
+  const weekSel = document.getElementById('exUploadWeek');
+  if(weekSel){
+    // 🆕 v5.1: 직전 일요일 기준으로 추천 주차 계산
+    const auto = computeWeekKeyFromSunday();
+    sbFetch('weekly_target_weeks?select=week_key,week_label&order=week_key.desc&limit=20').then(rows => {
+      // 자동 추천 주차가 DB에 없으면 옵션 추가
+      const existKeys = new Set((rows || []).map(w => w.week_key));
+      const opts = (rows || []).map(w => 
+        `<option value="${w.week_key}|${w.week_label || w.week_key}" ${w.week_key === auto.week_key ? 'selected' : ''}>${w.week_label || w.week_key}${w.week_key === auto.week_key ? ' ⭐ (이번주)' : ''}</option>`
+      );
+      if(!existKeys.has(auto.week_key)){
+        opts.unshift(`<option value="${auto.week_key}|${auto.week_label}" selected>${auto.week_label} ⭐ (이번주 — 신규)</option>`);
+      }
+      weekSel.innerHTML = opts.join('');
+    });
+  }
+  // 🆕 v5.2: Excel 모드를 디폴트로
+  window._exUploadMode = 'excel';
+}
+
+function updateExcusedUploadCount(){
+  const txt = document.getElementById('exUploadText')?.value || '';
+  const lines = txt.split('\n').filter(l => l.trim() !== '' && !l.startsWith('#') && !l.startsWith('이름'));
+  const cnt = document.getElementById('exUploadCount');
+  if(cnt){
+    cnt.textContent = `${lines.length}행`;
+    if(lines.length > 1000){
+      cnt.style.color = '#ea580c';
+      cnt.textContent += ` (큰 데이터 — 자동 분할 처리됨)`;
+    } else if(lines.length > 0){
+      cnt.style.color = '#16a34a';
+    }
+  }
+}
+
+// 🆕 v5.2: 업로드 탭 전환
+function switchExUploadTab(tab){
+  document.querySelectorAll('.ex-upload-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+  document.getElementById('exUploadPanelExcel').style.display = (tab === 'excel') ? '' : 'none';
+  document.getElementById('exUploadPanelText').style.display  = (tab === 'text')  ? '' : 'none';
+  // current mode 저장
+  window._exUploadMode = tab;
+}
+
+// 🆕 v5.2: Excel 파일 선택 시 상태 표시
+function updateExcusedXlsxStatus(){
+  const f = document.getElementById('exUploadXlsx')?.files?.[0];
+  const st = document.getElementById('exUploadXlsxStatus');
+  if(!f){ st.textContent = ''; return; }
+  st.innerHTML = `📁 <b>${escapeHtml(f.name)}</b> (${(f.size/1024).toFixed(1)} KB) — 업로드 준비됨`;
+  st.style.color = '#16a34a';
+}
+
+async function submitExcusedUpload(){
+  const wkSel = document.getElementById('exUploadWeek');
+  if(!wkSel?.value){ alert('주차를 선택해주세요.'); return; }
+  const [weekKey, weekLabel] = wkSel.value.split('|');
+  const mode = window._exUploadMode || 'excel';
+
+  if(mode === 'excel'){
+    await submitExcusedUploadExcel(weekKey, weekLabel);
+  } else {
+    await submitExcusedUploadText(weekKey, weekLabel);
+  }
+}
+
+// 🆕 v5.2: 텍스트 직접 입력 업로드 (기존 로직)
+async function submitExcusedUploadText(weekKey, weekLabel){
+  const txt = document.getElementById('exUploadText')?.value?.trim();
+  if(!txt){ alert('명단을 붙여넣어주세요.'); return; }
+
+  const allLines = txt.split('\n').filter(l => l.trim() !== '');
+  const CHUNK_SIZE = 1000;
+  const chunks = [];
+  for(let i = 0; i < allLines.length; i += CHUNK_SIZE){
+    chunks.push(allLines.slice(i, i + CHUNK_SIZE).join('\n'));
+  }
+
+  const submitBtn = document.getElementById('exUploadSubmitBtn');
+  const progressBox = document.getElementById('exUploadProgress');
+  const progressBar = document.getElementById('exUploadProgressBar');
+  const progressText = document.getElementById('exUploadProgressText');
+  if(submitBtn) submitBtn.disabled = true;
+  if(progressBox) progressBox.style.display = 'block';
+
+  let totalInserted = 0, totalUpdated = 0, totalSkipped = 0;
+
+  try{
+    for(let i = 0; i < chunks.length; i++){
+      const pct = Math.round(((i) / chunks.length) * 100);
+      if(progressBar) progressBar.style.width = pct + '%';
+      if(progressText) progressText.textContent = 
+        `청크 ${i+1}/${chunks.length} 처리 중... (${i*CHUNK_SIZE}/${allLines.length}행)`;
+
+      const res = await callRpc('import_excused_text', {
+        p_week_key: weekKey,
+        p_week_label: weekLabel,
+        p_source_name: `web_upload_chunk_${i+1}`,
+        p_raw_text: chunks[i],
+      });
+      const r = Array.isArray(res) ? res[0] : res;
+      totalInserted += (r.inserted_count || 0);
+      totalUpdated  += (r.updated_count  || 0);
+      totalSkipped  += (r.skipped_count  || 0);
+    }
+
+    if(progressBar) progressBar.style.width = '100%';
+    if(progressText) progressText.textContent = `완료!`;
+
+    showToast(`✅ 업로드 완료: 신규 ${totalInserted}건, 갱신 ${totalUpdated}건, 스킵 ${totalSkipped}건`);
+    document.querySelector('[data-overlay]')?.remove();
+    await loadExcusedDashboard();
+  }catch(e){
+    alert('업로드 실패: ' + e.message + 
+          `\n\n부분 진행됨: 신규 ${totalInserted}건, 갱신 ${totalUpdated}건, 스킵 ${totalSkipped}건`);
+  }finally{
+    if(submitBtn) submitBtn.disabled = false;
+  }
+}
+
+// 🆕 v5.2: Excel 파일 업로드 — 5교회 시트 자동 처리 + 자동 분류
+async function submitExcusedUploadExcel(weekKey, weekLabel){
+  const file = document.getElementById('exUploadXlsx')?.files?.[0];
+  if(!file){ alert('Excel 파일을 선택해주세요.'); return; }
+
+  const submitBtn = document.getElementById('exUploadSubmitBtn');
+  const progressBox = document.getElementById('exUploadXlsxProgress');
+  const progressBar = document.getElementById('exUploadXlsxProgressBar');
+  const progressText = document.getElementById('exUploadXlsxProgressText');
+  if(submitBtn) submitBtn.disabled = true;
+  if(progressBox) progressBox.style.display = 'block';
+  if(progressText) progressText.textContent = '📁 Excel 라이브러리 로드 중...';
+
+  try{
+    // SheetJS 로드
+    if(typeof XLSX === 'undefined'){
+      await loadSheetJS();
+    }
+
+    if(progressText) progressText.textContent = '📁 파일 파싱 중...';
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+
+    // 5개 교회 시트 정의
+    const CHURCH_SHEETS = {
+      '서울':   '서울교회',
+      '포천':   '포천교회',
+      '구리':   '구리교회',
+      '동대문': '동대문교회',
+      '의정부': '의정부교회',
+    };
+
+    // 교적 사전 로드 (부서/지역 보완용)
+    if(progressText) progressText.textContent = '📁 교적 로드 중...';
+    await loadMemberRegistry();
+    const memberMap = new Map();
+    if(_memberRegistry){
+      _memberRegistry.forEach(m => {
+        const k = `${m.church}|${m.name}`;
+        memberMap.set(k, m);
+      });
+    }
+
+    // 모든 시트 파싱 → 통합 텍스트 생성
+    const allLines = [];
+    const stats = { sheets: 0, totalRows: 0, classified: {} };
+
+    for(const [sheetName, churchName] of Object.entries(CHURCH_SHEETS)){
+      if(!wb.Sheets[sheetName]){
+        console.warn(`[xlsx] 시트 없음: ${sheetName}`);
+        continue;
+      }
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+      
+      // 헤더 4줄 스킵 (양식 상단)
+      const dataRows = rows.slice(3);
+      
+      // 시트별 컬럼 위치 (서울에는 지역 컬럼이 있고 다른 시트는 없음)
+      const hasRegion = (sheetName === '서울');
+      
+      stats.sheets++;
+      let sheetRowCount = 0;
+      
+      for(const r of dataRows){
+        if(!r || r.length < 5) continue;
+        // 컬럼 위치
+        let no, dept, region, regKind, name, faithType;
+        let chk_authNo, chk_authErr, chk_zoomOn, chk_zoomOff, chk_insen, chk_msgArea, chk_vimeo, chk_offlineSub, chk_msgShare, chk_friendship, chk_other;
+        let curStage, targetStage;
+        
+        if(hasRegion){
+          // 서울: [번호, 부서, 지역, 등록구분, 이름, 신앙유형, 인증안함, 인증오류, 화면O, 화면X, 인시센, 말씀광장, 비메오, 대면대체, 말씀교류, 친분, 기타, 현단계, 단향단계, 검토]
+          no=r[0]; dept=r[1]; region=r[2]; regKind=r[3]; name=r[4]; faithType=r[5];
+          chk_authNo=r[6]; chk_authErr=r[7]; chk_zoomOn=r[8]; chk_zoomOff=r[9];
+          chk_insen=r[10]; chk_msgArea=r[11]; chk_vimeo=r[12];
+          chk_offlineSub=r[13]; chk_msgShare=r[14]; chk_friendship=r[15]; chk_other=r[16];
+          curStage=r[17]; targetStage=r[18];
+        } else {
+          // 포천/구리/동대문/의정부: [번호, 부서, 등록구분, 이름, 신앙유형, ...] (지역 없음)
+          no=r[0]; dept=r[1]; region=''; regKind=r[2]; name=r[3]; faithType=r[4];
+          chk_authNo=r[5]; chk_authErr=r[6]; chk_zoomOn=r[7]; chk_zoomOff=r[8];
+          chk_insen=r[9]; chk_msgArea=r[10]; chk_vimeo=r[11];
+          chk_offlineSub=r[12]; chk_msgShare=r[13]; chk_friendship=r[14]; chk_other=r[15];
+          curStage=r[16]; targetStage=r[17];
+        }
+        
+        // 이름 + 부서 둘 다 있어야 처리
+        const cleanName = String(name || '').trim();
+        const cleanDept = String(dept || '').trim();
+        if(!cleanName || !cleanDept) continue;
+        if(/^번호|^부서|^등록|^이름|^신앙/.test(cleanName)) continue;  // 헤더 잔여 행
+        
+        // 체크 컬럼 → 사유 + 세부유형 결정
+        const isChecked = (v) => {
+          const s = String(v || '').trim();
+          return s === '1' || s === 'O' || s === '○' || s === 'V' || s === 'v' || s === '✓' || s.toLowerCase() === 'true';
+        };
+        
+        let reason = '';   // 인증안함/인증오류/온라인예배/대체예배
+        let subtype = '';  // 줌화면ON/OFF/인시센/말씀광장/비메오/대면대체/말씀나눔30분/친분관리
+        let derivedGroup = '';
+        
+        if(isChecked(chk_authNo))     { reason = '인증안함'; derivedGroup = 'B'; }
+        else if(isChecked(chk_authErr)) { reason = '인증오류'; derivedGroup = 'B'; }
+        else if(isChecked(chk_zoomOn))  { reason = '온라인예배'; subtype = '줌화면ON'; derivedGroup = 'C'; }
+        else if(isChecked(chk_zoomOff)) { reason = '온라인예배'; subtype = '줌화면OFF'; derivedGroup = 'E'; }
+        else if(isChecked(chk_insen))   { reason = '온라인예배'; subtype = '인시센'; derivedGroup = (cleanDept === '자문회') ? 'D-1' : 'E'; }
+        else if(isChecked(chk_msgArea)) { reason = '온라인예배'; subtype = '말씀광장'; derivedGroup = 'E'; }
+        else if(isChecked(chk_vimeo))   { reason = '온라인예배'; subtype = '비메오'; derivedGroup = 'E'; }
+        else if(isChecked(chk_offlineSub)) { reason = '대체예배'; subtype = '대면대체'; derivedGroup = 'B'; }
+        else if(isChecked(chk_msgShare))   { reason = '대체예배'; subtype = '말씀나눔30분'; derivedGroup = 'D'; }
+        else if(isChecked(chk_friendship)) { reason = '대체예배'; subtype = '친분관리'; derivedGroup = 'E'; }
+        else {
+          // 체크된 컬럼 없음 — "현단계" 컬럼이 있으면 그걸 사용
+          const cur = String(curStage || '').trim().toUpperCase();
+          if(['A','B','C','D','D-1','E'].includes(cur)){
+            derivedGroup = cur;
+            reason = (cur === 'B') ? '인증안함' : '온라인예배';  // 디폴트
+          } else {
+            // 분류 불가 → 스킵
+            continue;
+          }
+        }
+        
+        // 교적과 매칭 — 부서/지역 보완
+        const memberKey = `${churchName}|${cleanName}`;
+        const member = memberMap.get(memberKey);
+        let finalDept = cleanDept;
+        let finalRegion = String(region || '').trim();
+        let phoneLast4 = '';
+        if(member){
+          finalDept = member.dept || finalDept;
+          finalRegion = member.region_name || finalRegion;
+          phoneLast4 = member.phone_last4 || '';
+        }
+        
+        // 통계
+        stats.classified[derivedGroup] = (stats.classified[derivedGroup] || 0) + 1;
+        sheetRowCount++;
+        
+        // 통합 라인 (탭 구분 — 서버 RPC 가 처리)
+        // 컬럼: 이름 · 전화뒷4 · 지파 · 교회 · 부서 · 지역 · 구역 · 출석 · 사유 · 연속결석
+        allLines.push([
+          cleanName,
+          phoneLast4,
+          '서울야고보지파',
+          churchName,
+          finalDept,
+          finalRegion,
+          '',  // 구역 (없음)
+          '사유 출석',
+          reason,
+          '0',  // 연속결석 (Excel에 없음)
+        ].join('\t'));
+      }
+      
+      stats.totalRows += sheetRowCount;
+      console.log(`[xlsx] 시트 "${sheetName}" → ${sheetRowCount}행 처리`);
+    }
+
+    if(allLines.length === 0){
+      alert('Excel 에서 유효한 데이터를 찾을 수 없습니다. 파일 양식을 확인해주세요.');
+      if(submitBtn) submitBtn.disabled = false;
+      return;
+    }
+
+    if(progressText) progressText.textContent = `📊 총 ${allLines.length}명 처리 → 서버 업로드 시작`;
+
+    // RPC 청크 분할 호출 (1000명씩)
+    const CHUNK_SIZE = 1000;
+    const chunks = [];
+    for(let i = 0; i < allLines.length; i += CHUNK_SIZE){
+      chunks.push(allLines.slice(i, i + CHUNK_SIZE).join('\n'));
+    }
+    
+    let totalInserted = 0, totalUpdated = 0, totalSkipped = 0;
+    for(let i = 0; i < chunks.length; i++){
+      const pct = Math.round(((i) / chunks.length) * 100);
+      if(progressBar) progressBar.style.width = pct + '%';
+      if(progressText) progressText.textContent = 
+        `청크 ${i+1}/${chunks.length} 업로드... (${i*CHUNK_SIZE}/${allLines.length}명)`;
+
+      const res = await callRpc('import_excused_text', {
+        p_week_key: weekKey,
+        p_week_label: weekLabel,
+        p_source_name: `xlsx_5church_${i+1}`,
+        p_raw_text: chunks[i],
+      });
+      const r = Array.isArray(res) ? res[0] : res;
+      totalInserted += (r.inserted_count || 0);
+      totalUpdated  += (r.updated_count  || 0);
+      totalSkipped  += (r.skipped_count  || 0);
+    }
+
+    if(progressBar) progressBar.style.width = '100%';
+    if(progressText) progressText.textContent = `완료!`;
+
+    const classifyMsg = Object.entries(stats.classified)
+      .map(([g, n]) => `${g}:${n}`).join(' · ');
+    
+    showToast(`✅ Excel 업로드 완료\n📊 ${stats.sheets}개 교회 · ${stats.totalRows}명\n⭐ 분류: ${classifyMsg}\n🔄 신규 ${totalInserted} · 갱신 ${totalUpdated} · 스킵 ${totalSkipped}`);
+    
+    setTimeout(() => {
+      document.querySelector('[data-overlay]')?.remove();
+      loadExcusedDashboard();
+    }, 1500);
+  }catch(e){
+    console.error(e);
+    alert('Excel 업로드 실패: ' + e.message);
+  }finally{
+    if(submitBtn) submitBtn.disabled = false;
+  }
 }
 
 function logout(){
@@ -2758,25 +4281,24 @@ function getActiveSpecialTargets(){
       return false;
     });
 
-    // displayName 결정: 1) 매칭된 결석자의 실명 2) 마스킹 안된 원본 3) 그대로
+    // 🆕 v4.7: displayName = 항상 마스킹된 형태로 표시
+    // 1순위: inCur.name (이미 정규화됨 = 마스킹 형태)
+    // 2순위: 교적에서 실명 찾아 마스킹
+    // 3순위: 원본 그대로 (대부분 이미 마스킹)
     let displayName = sName;
-    if(inCur && inCur.name && !inCur.name.includes('*')){
-      displayName = inCur.name;
+    let realName = '';  // 매칭용 실명 (비공개)
+    if(inCur){
+      displayName = inCur.name || sName;
+      realName = inCur.name_real || '';
     } else if(typeof _memberRegistry !== 'undefined' && _memberRegistry && _memberRegistry.length > 0){
-      // 교적에서 매칭 시도
-      if(sName.includes('*') || sName.includes('ㅇ')){
-        const parts = sName.split(/[*ㅇ]/);
-        const first = parts[0] || '';
-        const last = parts[parts.length - 1] || '';
-        const len = sName.length;
-        const phone = sPhone;
-        const match = _memberRegistry.find(m =>
-          (!phone || (m.phone_last4 || '') === phone)
-          && String(m.name || '').startsWith(first)
-          && String(m.name || '').endsWith(last)
-          && String(m.name || '').length === len
-        );
-        if(match && match.name){ displayName = match.name; }
+      // 교적에서 매칭 시도 (마스킹/실명 모두)
+      const phone = sPhone;
+      const match = _memberRegistry.find(m =>
+        (!phone || (m.phone_last4 || '') === phone) && namesMatch(sName, m.name)
+      );
+      if(match && match.name){
+        realName = match.name;
+        displayName = maskName(match.name);  // 표시는 마스킹
       }
     }
 
@@ -2801,6 +4323,7 @@ function getActiveSpecialTargets(){
     return {
       ...s,
       displayName,
+      name_real: realName,  // 🆕 매칭용 실명 (UI 표시 X)
       church: inCur?.church || '',
       org_name: inCur?.org_name || '',
       absence_reason: inCur?.absence_reason || '특별관리 대상',
@@ -3566,6 +5089,13 @@ function setAttendanceFilter(v){
 
 /* 로드 */
 async function loadWeek(weekKey){
+  // 🆕 v5.0: 결석자 모드 진입시 제목 복구 + 컨트롤 표시
+  const title = document.getElementById('mainPageTitle');
+  if(title) title.textContent = '📅 결석자 타겟 심방 현황';
+  document.title = '결석자 타겟 심방 현황';
+  const tc = document.getElementById('absenteeTopControls');
+  if(tc) tc.style.display = '';
+
   currentWeekKey = weekKey;
   const m = weekKey.match(/^(\d{4})-(\d{2})-w([1-5])$/);
   if(m){
@@ -3608,36 +5138,38 @@ async function loadWeek(weekKey){
     // 2.5) 교적 로드 (가족/가족외 분류용)
     try { await loadMemberRegistry(); } catch(_){}
 
-    // 🆕 v4.7: 마스킹된 이름 (강*빈, 김*희 등) → 실명 복구
+    // 🆕 v4.7: 이름 매칭 강화 — 양방향
+    // 결석자 명단의 이름이 마스킹이든 실명이든, 교적과 매칭하여:
+    //   - name: 항상 마스킹된 이름으로 통일 (표시용)
+    //   - name_real: 실명 (검색/매칭용, 비공개)
     if(_memberRegistry && _memberRegistry.length > 0){
-      let unmasked = 0;
+      let normalized = 0;
       currentRows = currentRows.map(r => {
-        const nm = String(r.name || '');
-        if(!nm.includes('*') && !nm.includes('ㅇ')) return r;
-        const parts = nm.split(/[*ㅇ]/);
-        const first = parts[0] || '';
-        const last = parts[parts.length - 1] || '';
-        const len = nm.length;
+        const nm = String(r.name || '').trim();
+        if(!nm) return r;
         const ch = r.church || '';
         const phone = r.phone_last4 || '';
-        const match = _memberRegistry.find(m =>
-          m.church === ch
-          && (!phone || (m.phone_last4 || '') === phone)
-          && String(m.name || '').startsWith(first)
-          && String(m.name || '').endsWith(last)
-          && String(m.name || '').length === len
-        ) || _memberRegistry.find(m =>
-          String(m.name || '').length === len
-          && String(m.name || '').startsWith(first)
-          && String(m.name || '').endsWith(last)
-        );
-        if(match && match.name && match.name !== nm){
-          unmasked++;
-          return { ...r, name: match.name, name_original: nm };
+        // 교적에서 매칭되는 사람 찾기 (마스킹/실명 모두 시도)
+        const match = _memberRegistry.find(m => {
+          if(ch && m.church !== ch) return false;
+          if(phone && (m.phone_last4 || '') !== phone) return false;
+          return namesMatch(nm, m.name);
+        }) || _memberRegistry.find(m => {
+          // church/phone 무관 매칭 (fallback)
+          return namesMatch(nm, m.name) && (!phone || (m.phone_last4||'') === phone);
+        });
+        if(match && match.name){
+          const realName = match.name;
+          const maskedName = maskName(realName);
+          if(nm !== maskedName || nm !== realName){
+            normalized++;
+            return { ...r, name: maskedName, name_real: realName };
+          }
         }
+        // 매칭 실패: 그대로 (이미 마스킹된 형태일 가능성 높음)
         return r;
       });
-      if(unmasked > 0) console.log(`[Dashboard] 마스킹 이름 ${unmasked}명 실명 복구`);
+      if(normalized > 0) console.log(`[Dashboard] 이름 정규화 ${normalized}명 (표시: 마스킹, 매칭: 실명 보존)`);
     }
 
     // 2.6) 출석률 데이터 로드 (대시보드 KPI용)
@@ -5045,6 +6577,197 @@ function downloadMemberCsv(){
   URL.revokeObjectURL(url);
 }
 
+// 🆕 v4.7: 교적 검색
+async function searchMembers(){
+  const q = (document.getElementById('memberSearchInput')?.value || '').trim();
+  const mount = document.getElementById('memberSearchResult');
+  if(!mount) return;
+  if(!q){
+    mount.innerHTML = '<div style="padding:12px;color:#94a3b8">검색어를 입력해주세요.</div>';
+    return;
+  }
+  mount.innerHTML = '<div style="padding:12px;color:#64748b">검색 중...</div>';
+  try{
+    // 권한별 교회 필터
+    const isZipa = isZipaUser();
+    const isCAdmin = isChurchAdmin();
+    const churchFilter = (!isZipa && isCAdmin) ? userChurch : null;
+    const rows = await callRpc('search_member_registry', {
+      p_query: q,
+      p_church_filter: churchFilter,
+      p_limit: 200,
+    });
+    const list = Array.isArray(rows) ? rows : [];
+    if(list.length === 0){
+      mount.innerHTML = `<div style="padding:14px;color:#dc2626">📭 "${escapeHtml(q)}" 검색 결과가 없습니다.</div>`;
+      return;
+    }
+    let html = `<div style="margin-bottom:8px;color:#475569">검색 결과 <b>${list.length}</b>건</div>`;
+    html += '<div class="member-search-grid">';
+    list.forEach(m => {
+      const masked = maskName(m.name);
+      html += `
+        <div class="member-search-card" id="msc-${m.id}">
+          <div class="msc-row">
+            <div class="msc-name">${escapeHtml(masked)}</div>
+            <button class="btn-mini" onclick="enterEditMember(${m.id})">✏️ 수정</button>
+          </div>
+          <div class="msc-meta">
+            <span>${escapeHtml(m.church || '')}</span>
+            <span>${escapeHtml(m.dept || '-')}</span>
+            <span>${escapeHtml(m.region_name || '-')}</span>
+            <span>${escapeHtml(m.zone_name || '-')}</span>
+          </div>
+          <div class="msc-detail">
+            <span>📱 ${escapeHtml(m.phone_last4 || '-')}</span>
+            <span>🆔 ${escapeHtml(m.unique_id || '-')}</span>
+            <span class="msc-cls msc-cls-${escapeHtml(m.classification || '일반')}">${escapeHtml(m.classification || '일반')}</span>
+            <span>등록: ${escapeHtml(m.register_kind || '-')}/${escapeHtml(m.register_status || '-')}</span>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    mount.innerHTML = html;
+  }catch(e){
+    mount.innerHTML = `<div style="padding:14px;color:#dc2626">❌ 검색 실패: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function clearMemberSearch(){
+  const inp = document.getElementById('memberSearchInput');
+  if(inp) inp.value = '';
+  const m = document.getElementById('memberSearchResult');
+  if(m) m.innerHTML = '';
+}
+
+// 🆕 v4.7: 인라인 편집 모드 진입
+async function enterEditMember(id){
+  // 다시 검색해서 최신 정보 가져오기
+  let row = null;
+  try{
+    const all = await sbFetch(`church_member_registry?select=*&id=eq.${id}&limit=1`);
+    row = (all && all[0]) || null;
+  }catch(e){}
+  if(!row){ alert('해당 항목을 찾을 수 없습니다.'); return; }
+
+  const card = document.getElementById(`msc-${id}`);
+  if(!card) return;
+  const ch = (v) => escapeHtml(v || '');
+  card.innerHTML = `
+    <div class="msc-edit-form">
+      <div class="msc-edit-row">
+        <label>이름 <input id="ed-name-${id}" value="${ch(row.name)}"></label>
+        <label>교회 <input id="ed-church-${id}" value="${ch(row.church)}"></label>
+      </div>
+      <div class="msc-edit-row">
+        <label>부서 
+          <select id="ed-dept-${id}">
+            ${['','자문회','장년회','부녀회','청년회'].map(d => 
+              `<option value="${ch(d)}" ${(row.dept||'')===d?'selected':''}>${d||'(없음)'}</option>`).join('')}
+          </select>
+        </label>
+        <label>지역 <input id="ed-region-${id}" value="${ch(row.region_name)}"></label>
+        <label>구역 <input id="ed-zone-${id}" value="${ch(row.zone_name)}"></label>
+      </div>
+      <div class="msc-edit-row">
+        <label>전화 뒷4 <input id="ed-phone-${id}" value="${ch(row.phone_last4)}" maxlength="4" pattern="[0-9]*"></label>
+        <label>고유번호 <input id="ed-uniq-${id}" value="${ch(row.unique_id)}"></label>
+      </div>
+      <div class="msc-edit-row">
+        <label>분류
+          <select id="ed-cls-${id}">
+            ${['일반','가족','가족외'].map(c => 
+              `<option value="${c}" ${(row.classification||'일반')===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </label>
+        <label>등록구분
+          <select id="ed-rkind-${id}">
+            ${['교회등록','입교','총회등록'].map(c => 
+              `<option value="${c}" ${(row.register_kind||'교회등록')===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </label>
+        <label>등록상태
+          <select id="ed-rstatus-${id}">
+            ${['정상','출결제외'].map(c => 
+              `<option value="${c}" ${(row.register_status||'정상')===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </label>
+      </div>
+      <div class="msc-edit-row">
+        <label style="flex:1">메모 <input id="ed-notes-${id}" value="${ch(row.notes)}"></label>
+      </div>
+      <div class="msc-edit-actions">
+        <button class="btn btn-primary" onclick="saveMemberEdit(${id})">💾 저장</button>
+        <button class="btn btn-light" onclick="cancelMemberEdit(${id})">취소</button>
+        <button class="btn-danger" style="margin-left:auto" onclick="deleteMemberRow(${id})">🗑 삭제</button>
+      </div>
+    </div>
+  `;
+}
+
+function cancelMemberEdit(id){
+  searchMembers();
+}
+
+async function saveMemberEdit(id){
+  const v = (key) => document.getElementById(`ed-${key}-${id}`)?.value?.trim() || '';
+  const payload = {
+    p_id: id,
+    p_name:            v('name'),
+    p_church:          v('church'),
+    p_dept:            v('dept'),
+    p_region_name:     v('region'),
+    p_zone_name:       v('zone'),
+    p_phone_last4:     v('phone'),
+    p_unique_id:       v('uniq'),
+    p_classification:  v('cls'),
+    p_register_kind:   v('rkind'),
+    p_register_status: v('rstatus'),
+    p_notes:           v('notes'),
+  };
+  if(!payload.p_name){ alert('이름을 입력해주세요.'); return; }
+  if(!payload.p_church){ alert('교회를 입력해주세요.'); return; }
+  showLoading(true);
+  try{
+    const res = await callRpc('update_member_registry', payload);
+    if(res && res.ok === false){
+      if(res.error === 'duplicate_unique_id'){
+        alert(`❌ 같은 고유번호가 이미 다른 사람(id=${res.dup_id})에게 등록되어 있습니다.\n고유번호를 다시 확인해주세요.`);
+      } else {
+        alert(`❌ 저장 실패: ${res.error || '알 수 없음'}`);
+      }
+      return;
+    }
+    showToast('✅ 저장됨');
+    // 교적 캐시 무효화 (다음 대시보드 로드 시 갱신)
+    _memberRegistry = null;
+    _memberRegistryLoadedAt = 0;
+    await searchMembers();  // 검색 결과 새로고침
+  }catch(e){
+    alert('저장 실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
+async function deleteMemberRow(id){
+  if(!confirm('이 성도를 교적에서 영구 삭제하시겠습니까?\n(되돌릴 수 없습니다)')) return;
+  showLoading(true);
+  try{
+    await callRpc('delete_member_registry_row', { p_id: id });
+    showToast('🗑 삭제됨');
+    _memberRegistry = null;
+    _memberRegistryLoadedAt = 0;
+    const card = document.getElementById(`msc-${id}`);
+    if(card) card.remove();
+  }catch(e){
+    alert('삭제 실패: ' + e.message);
+  }finally{
+    showLoading(false);
+  }
+}
+
 async function uploadMemberCsv(){
   const file = document.getElementById('memberCsvFile')?.files?.[0];
   if(!file){ alert('파일을 선택해주세요.'); return; }
@@ -5172,14 +6895,73 @@ async function uploadMemberCsv(){
     return;
   }
 
-  if(!confirm(`${payloadRows.length}명을 등록/업데이트합니다.\n(같은 교회+이름+전화뒷자리 조합은 자동 덮어쓰기)\n\n진행할까요?`)) return;
+  // 🆕 v4.7: Step A — 같은 (이름, 고유번호) 자동 중복 제거 (1개만 남김)
+  const dedupMap = new Map();
+  let dupRemoved = 0;
+  payloadRows.forEach(r => {
+    const k = `${r.name}|${r.unique_id || ''}`;
+    if(dedupMap.has(k)){
+      dupRemoved++;
+      // 정보가 더 풍부한 쪽 우선 (전화번호/구역/지역 등 채워진 게 많은 쪽)
+      const prev = dedupMap.get(k);
+      const prevScore = (prev.phone_last4?1:0) + (prev.region_name?1:0) + (prev.zone_name?1:0) + (prev.dept?1:0);
+      const newScore = (r.phone_last4?1:0) + (r.region_name?1:0) + (r.zone_name?1:0) + (r.dept?1:0);
+      if(newScore > prevScore) dedupMap.set(k, r);
+    } else {
+      dedupMap.set(k, r);
+    }
+  });
+  let cleanedRows = Array.from(dedupMap.values());
+  if(dupRemoved > 0){
+    console.log(`[업로드] 같은 (이름+고유번호) 중복 ${dupRemoved}건 자동 제거됨`);
+  }
+
+  // 🆕 v4.7: Step B — 같은 고유번호 인데 이름이 다른 충돌 검출
+  const idGroups = new Map();
+  cleanedRows.forEach((r, idx) => {
+    const id = r.unique_id || '';
+    if(!id) return;  // 고유번호 없으면 충돌 검사 안 함
+    if(!idGroups.has(id)) idGroups.set(id, []);
+    idGroups.get(id).push({ row: r, idx });
+  });
+  const conflicts = [];
+  idGroups.forEach((group, id) => {
+    if(group.length > 1){
+      conflicts.push({ unique_id: id, candidates: group });
+    }
+  });
+
+  if(conflicts.length > 0){
+    // 충돌 → 모달 띄워서 사용자에게 어느 사람을 선택할지 묻기
+    const choices = await showUniqueIdConflictModal(conflicts);
+    if(choices === null){
+      // 사용자 취소
+      return;
+    }
+    // 선택된 idx 만 남기고 나머지 제거
+    const removeIdxSet = new Set();
+    conflicts.forEach((c, conflictIdx) => {
+      const chosenIdx = choices[conflictIdx];
+      c.candidates.forEach(({idx}, i) => {
+        if(i !== chosenIdx) removeIdxSet.add(idx);
+      });
+    });
+    cleanedRows = cleanedRows.filter((_, i) => !removeIdxSet.has(i));
+  }
+
+  const summary = [];
+  if(dupRemoved > 0) summary.push(`(이름+고유번호) 중복 ${dupRemoved}건 자동 제거됨`);
+  if(conflicts.length > 0) summary.push(`고유번호 충돌 ${conflicts.length}건 사용자 선택 완료`);
+  const summaryMsg = summary.length > 0 ? '\n\n📊 정리 결과:\n' + summary.map(s => '• ' + s).join('\n') : '';
+
+  if(!confirm(`${cleanedRows.length}명을 등록/업데이트합니다.\n(같은 교회+이름+전화뒷자리 조합은 자동 덮어쓰기)${summaryMsg}\n\n진행할까요?`)) return;
 
   showLoading(true);
   try{
     const CHUNK = 500;
     let total = 0;
-    for(let i=0;i<payloadRows.length;i+=CHUNK){
-      const chunk = payloadRows.slice(i, i+CHUNK);
+    for(let i=0;i<cleanedRows.length;i+=CHUNK){
+      const chunk = cleanedRows.slice(i, i+CHUNK);
       const n = await callRpc('upsert_member_registry_batch', { p_rows: chunk });
       total += (typeof n === 'number') ? n : (Array.isArray(n) ? n[0] : 0);
     }
@@ -5202,6 +6984,74 @@ async function loadSheetJS(){
     script.onload = () => resolve();
     script.onerror = () => reject(new Error('SheetJS CDN 로드 실패'));
     document.head.appendChild(script);
+  });
+}
+
+// 🆕 v4.7: 고유번호 충돌 모달
+// conflicts: [{ unique_id, candidates: [{row, idx}, ...] }, ...]
+// returns: [chosenIdx, ...] (각 충돌별로 candidates 내에서 선택된 인덱스), 또는 null (취소)
+async function showUniqueIdConflictModal(conflicts){
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:30px 20px;overflow:auto';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:14px;max-width:780px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)';
+    
+    let html = `
+      <h3 style="margin:0 0 8px 0;color:#dc2626">⚠️ 고유번호 충돌 ${conflicts.length}건 발견</h3>
+      <p style="color:#475569;margin:0 0 18px 0;font-size:14px">
+        같은 고유번호인데 다른 사람으로 보이는 행이 있습니다.<br>
+        고유번호는 1명당 1개만 가능하므로, 어느 사람을 등록할지 <b>각 충돌별로 선택</b>해주세요.
+      </p>
+    `;
+    
+    conflicts.forEach((c, i) => {
+      html += `
+        <div style="border:1.5px solid #fca5a5;border-radius:10px;padding:14px;margin-bottom:14px;background:#fef2f2">
+          <div style="font-weight:700;color:#991b1b;margin-bottom:10px">
+            🆔 고유번호: <code style="background:#fff;padding:2px 8px;border-radius:5px">${escapeHtml(c.unique_id)}</code>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+      `;
+      c.candidates.forEach(({row}, idx) => {
+        html += `
+          <label style="display:flex;align-items:flex-start;gap:8px;padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer">
+            <input type="radio" name="conflict_${i}" value="${idx}" ${idx===0?'checked':''} style="margin-top:3px">
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:15px">${escapeHtml(row.name)} <span style="color:#94a3b8;font-size:12px">(${escapeHtml(row.church)})</span></div>
+              <div style="font-size:12px;color:#64748b;margin-top:3px">
+                부서 ${escapeHtml(row.dept || '-')} · 지역 ${escapeHtml(row.region_name || '-')} · 구역 ${escapeHtml(row.zone_name || '-')}<br>
+                전화 뒷4: ${escapeHtml(row.phone_last4 || '-')} · 분류: ${escapeHtml(row.classification || '일반')}
+              </div>
+            </div>
+          </label>
+        `;
+      });
+      html += `</div></div>`;
+    });
+    
+    html += `
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button id="conflictCancel" class="btn btn-light">취소</button>
+        <button id="conflictOk" class="btn btn-primary">선택 완료 → 업로드 계속</button>
+      </div>
+    `;
+    
+    box.innerHTML = html;
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    
+    const cleanup = () => { try { document.body.removeChild(overlay); } catch(_){} };
+    
+    document.getElementById('conflictCancel').onclick = () => { cleanup(); resolve(null); };
+    document.getElementById('conflictOk').onclick = () => {
+      const choices = conflicts.map((_, i) => {
+        const sel = document.querySelector(`input[name="conflict_${i}"]:checked`);
+        return sel ? parseInt(sel.value, 10) : 0;
+      });
+      cleanup();
+      resolve(choices);
+    };
   });
 }
 
