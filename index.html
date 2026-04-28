@@ -3349,13 +3349,7 @@ function hideAllPages(){
     if(el) el.classList.remove('active');
   });
 }
-function goDashboard(){
-  currentPage = 'dashboard';
-  pushHistory('dashboard');
-  hideAllPages();
-  document.getElementById('dashboardPage').classList.add('active');
-}
-
+// 🆕 v5.6: 통합된 goDashboard — 페이지 이동 시 필터 초기화 + 재렌더링
 function goDashboard(){
   currentPage = 'dashboard';
   pushHistory('dashboard');
@@ -3363,9 +3357,35 @@ function goDashboard(){
   // 🆕 v5.0: 모드별 분기
   if(userMode === 'excused'){
     document.getElementById('excusedPage').classList.add('active');
-  } else {
-    document.getElementById('dashboardPage').classList.add('active');
+    return;
   }
+  document.getElementById('dashboardPage').classList.add('active');
+  // 🆕 v5.6: 현황판으로 돌아갈 때 권한별 디폴트 필터로 리셋
+  resetFiltersToDefault();
+  // 화면 재렌더링
+  if(typeof renderDashboard === 'function') renderDashboard();
+}
+
+// 🆕 v5.6: 권한별 디폴트 필터 — 로그인 시점과 동일한 상태로
+function resetFiltersToDefault(){
+  if(isZipaUser()){
+    currentDeptFilter = 'all';
+    currentChurchFilter = 'all';
+  } else if(isChurchAdmin() || userDept === '내무부'){
+    currentDeptFilter = 'all';
+    currentChurchFilter = userChurch;
+  } else {
+    currentDeptFilter = userDept;
+    currentChurchFilter = userChurch;
+  }
+  currentRegionFilter = 'all';
+  // 상단 dropdown 도 동기화
+  const topChurchSel = document.getElementById('topChurchSelect');
+  const topDeptSel = document.getElementById('topDeptSelect');
+  const regionSel = document.getElementById('regionSelect');
+  if(topChurchSel) topChurchSel.value = currentChurchFilter;
+  if(topDeptSel) topDeptSel.value = currentDeptFilter;
+  if(regionSel) regionSel.value = currentRegionFilter;
 }
 
 // 🆕 v5.0: 사유출석자 모드 진입
@@ -4627,7 +4647,7 @@ function goAdmin(){
   // 첫 진입 시 교회별 현황 탭부터
   switchAdminTab('church-status');
 }
-function openListPage({mode='all', dept='all', region='all'} = {}){
+function openListPage({mode='all', dept='all', region='all', cls='일반', streak=4} = {}){
   currentPage = 'list';
   pushHistory('list');
   hideAllPages();
@@ -4675,8 +4695,6 @@ function openListPage({mode='all', dept='all', region='all'} = {}){
   } else if(mode === 'classStreak'){
     // 🆕 v5.6: 분류별 연속결석 (일반 4회+/가족 8회+/가족외 8회+)
     currentTargetFilter = 'all';
-    const cls = arguments[0]?.cls || '일반';
-    const streak = arguments[0]?.streak || 4;
     if(cls === '일반') currentStreakFilter = 'general4';
     else if(cls === '가족') currentStreakFilter = 'family8';
     else if(cls === '가족외') currentStreakFilter = 'nonfam8';
@@ -5327,8 +5345,9 @@ function renderDashboard(){
       // C) 특정 교회 + 특정 부서 → 지역별 현황
       html += renderRegionCards(rows, currentChurchFilter, currentDeptFilter);
     }
-  } else if(userDept === '내무부'){
-    // 🏛 내무부 — 전체 부서면 부서별 카드, 특정 부서면 지역별 카드 (9번 요청)
+  } else if(userDept === '내무부' || isChurchAdmin()){
+    // 🆕 v5.6: 교회관리자도 내무부와 동일하게 부서별/지역별 카드 표시
+    // 🏛 내무부/교회관리자 — 전체 부서면 부서별 카드, 특정 부서면 지역별 카드 (9번 요청)
     if(!hasDeptFilter){
       const deptMap = [
         {dept:'자문회', color:'#7c3aed', bg:'#faf5ff'},
@@ -5364,11 +5383,11 @@ function renderDashboard(){
       });
       html += `</div>`;
     } else {
-      // 내무부 + 특정 부서 → 지역별 (9번)
+      // 내무부/교회관리자 + 특정 부서 → 지역별 (9번)
       html += renderRegionCards(rows, userChurch, currentDeptFilter);
     }
   } else {
-    // 🏛 일반 부서 사용자 — 지역별 현황만
+    // 🏛 일반 부서 사용자 (자문회/장년회/부녀회/청년회) — 지역별 현황만
     html += renderRegionCards(rows, userChurch, userDept);
   }
 
