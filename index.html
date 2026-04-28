@@ -5857,6 +5857,22 @@ async function loadWeek(weekKey){
       if(normalized > 0) console.log(`[Dashboard] 이름 정규화 ${normalized}명 (표시: 마스킹, 매칭: 실명 보존)`);
     }
 
+    // 🆕 v5.6: 결석자 row에 classification 부여 (가족/가족외/일반)
+    //   교적 매칭 결과로 family_classification 필드 추가
+    //   연속결석 분류 카드 + 명단 필터에 사용됨
+    currentRows = currentRows.map(r => {
+      const cls = (typeof classifyPerson === 'function')
+        ? classifyPerson(r.name_real || r.name, r.phone_last4, r.church)
+        : '일반';
+      // 모든 명칭 통일 (_classification, family_classification, classification)
+      return { ...r, _classification: cls, family_classification: cls, classification: cls };
+    });
+    const clsCounts = currentRows.reduce((acc, r) => {
+      acc[r._classification] = (acc[r._classification] || 0) + 1;
+      return acc;
+    }, {});
+    console.log('[Dashboard] 분류 분포:', clsCounts);
+
     // 2.6) 출석률 데이터 로드 (대시보드 KPI용)
     try { await loadAttendanceCache(weekKey); } catch(_){}
 
@@ -6901,6 +6917,9 @@ function selectBcScope(idx){
     el.classList.toggle('active', i === idx);
   });
   
+  // 🆕 v5.8: 발송 버튼 활성화 체크
+  updateBcSendBtnState();
+  
   // 미리보기 자동 호출
   previewBroadcastTargets();
 }
@@ -6910,11 +6929,18 @@ function updateBcCharCount(){
   const c = document.getElementById('bcCharCount');
   if(!t || !c) return;
   c.textContent = `${t.value.length} / 4000`;
-  if(t.value.length > 0 && _bcSelectedScope){
-    document.getElementById('bcSendBtn').disabled = false;
-  } else {
-    document.getElementById('bcSendBtn').disabled = true;
-  }
+  // 🆕 v5.8: 발송 버튼 활성화 체크 분리
+  updateBcSendBtnState();
+}
+
+// 🆕 v5.8: 발송 버튼 활성화 상태 통합 관리
+function updateBcSendBtnState(){
+  const btn = document.getElementById('bcSendBtn');
+  if(!btn) return;
+  const t = document.getElementById('bcMessage');
+  const hasMessage = t && t.value.trim().length > 0;
+  const hasScope = !!_bcSelectedScope;
+  btn.disabled = !(hasMessage && hasScope);
 }
 
 async function previewBroadcastTargets(){
@@ -6987,7 +7013,11 @@ async function sendBroadcast(){
     alert('메시지를 입력해주세요.');
     return;
   }
-  if(!confirm(`정말 메시지를 발송하시겠습니까?\n\n범위: ${_bcSelectedScope.type === 'all' ? '전체' : (_bcSelectedScope.church || '') + ' ' + (_bcSelectedScope.dept || '')}\n메시지 길이: ${message.length}자\n\n⚠️ 발송 후 취소 불가능합니다.`)){
+  // 🆕 v5.8: confirm 간소화 — 미리보기에서 이미 봤으므로 짧게
+  const scopeLabel = _bcSelectedScope.type === 'all' 
+    ? '전체 그룹방' 
+    : `${_bcSelectedScope.church || ''} ${_bcSelectedScope.dept || ''}`.trim();
+  if(!confirm(`📢 ${scopeLabel} 에 발송하시겠습니까?`)){
     return;
   }
   
