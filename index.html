@@ -1598,6 +1598,12 @@
     display:flex;
     flex-direction:column;
     gap:3px;
+    transition:all .15s;
+  }
+  .cs-summary-grid > div[onclick]:hover{
+    background:rgba(255,255,255,0.18);
+    transform:translateY(-1px);
+    box-shadow:0 3px 10px rgba(0,0,0,.2);
   }
   .cs-summary-grid > div span{
     font-size:11px;
@@ -6631,6 +6637,20 @@ async function loadChurchStatus(){
   }
 }
 
+// 🆕 v5.6: 관리자 페이지 → 결석자 명단 드릴다운
+function goAdminConsecList(mode){
+  // 모드: 'all' | 'target' | 'streak4' | 'streak8'
+  if(mode === 'all'){
+    openListPage({mode:'all'});
+  } else if(mode === 'target'){
+    openListPage({mode:'target'});
+  } else if(mode === 'streak4'){
+    openListPage({mode:'classStreak', cls:'일반', streak:4});
+  } else if(mode === 'streak8'){
+    openListPage({mode:'streak8plus'});
+  }
+}
+
 function renderChurchStatus(){
   const mount = document.getElementById('churchStatusMount');
   let rows = _churchStatusRows;
@@ -6675,16 +6695,17 @@ function renderChurchStatus(){
   const summaryTitle = (!isZipa && isCAdmin)
     ? `🏛 ${userChurch} 결석자 현황`
     : `🛡 서울야고보지파 전체`;
+  // 🆕 v5.6: 4회+/8회+ 클릭 시 명단 페이지로 이동
   html += `
     <div class="cs-summary-card">
       <div class="cs-summary-title">${escapeHtml(summaryTitle)}</div>
       <div class="cs-summary-grid">
-        <div><span>총 결석자</span><strong>${totalSum.total}</strong></div>
-        <div><span>🎯 타겟</span><strong>${totalSum.target}</strong></div>
+        <div onclick="goAdminConsecList('all')" style="cursor:pointer"><span>총 결석자</span><strong>${totalSum.total}</strong></div>
+        <div onclick="goAdminConsecList('target')" style="cursor:pointer"><span>🎯 타겟</span><strong>${totalSum.target}</strong></div>
         <div><span>✅ 심방완료</span><strong>${totalSum.done}</strong></div>
         <div><span>⛪ 예배확답 확정</span><strong>${totalSum.attend}</strong></div>
-        <div class="cs-hot"><span>🔥 4회+</span><strong>${totalSum.plus4}</strong></div>
-        <div class="cs-hot"><span>🔥 8회+</span><strong>${totalSum.plus8}</strong></div>
+        <div class="cs-hot" onclick="goAdminConsecList('streak4')" style="cursor:pointer" title="연속결석 4회 이상 보기"><span>🔥 4회+</span><strong>${totalSum.plus4}</strong></div>
+        <div class="cs-hot" onclick="goAdminConsecList('streak8')" style="cursor:pointer" title="연속결석 8회 이상 보기"><span>🔥 8회+</span><strong>${totalSum.plus8}</strong></div>
       </div>
     </div>
   `;
