@@ -1958,7 +1958,7 @@
         <select class="top-select" id="monthSelect" onchange="onMonthChange()"></select>
       </div>
       <div class="control-group">
-        <span class="control-label">타겟 주차</span>
+        <span class="control-label">결석 주차</span>
         <select class="top-select" id="weekSelect" onchange="onWeekChange()"></select>
       </div>
       <div class="control-group" id="topChurchGroup" style="display:none">
@@ -1993,7 +1993,7 @@
       <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
       <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
       <button class="btn btn-danger" type="button" onclick="logout()" id="logoutBtn">🚪 로그아웃</button>
-      <div class="current-week" id="currentWeekLabel">📅 2026-04-19 (주일 예배 기준)</div>
+      <div class="current-week" id="currentWeekLabel">📅 2026-04-19 주일 결석자</div>
     </div>
   </div>
 
@@ -3033,11 +3033,10 @@ function populateDropdowns(){
 
   const weeks = getWeeksForMonth(currentMonth);
   if(!weeks.includes(currentWeekNumber)) currentWeekNumber = weeks[weeks.length - 1];
-  // 🆕 v5.6: 주차 dropdown 도 ISO 날짜로 표시
+  // 🆕 v5.6: 주차 dropdown 을 ISO 날짜로 표시
   weekSel.innerHTML = weeks.map(w => {
     const iso = formatWeekLabel(currentMonth, w);  // '2026-04-19'
-    const dt = iso.slice(5);  // 'MM-DD'
-    return `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${dt} (${w}주차)</option>`;
+    return `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${iso}</option>`;
   }).join('');
 }
 function populateRegionDropdown(rows){
@@ -3083,7 +3082,7 @@ function syncWeekInputs(){
   if(!weekLabelMap[key]) weekLabelMap[key] = formatWeekLabel(currentMonth, currentWeekNumber);
   document.getElementById('monthSelect').value = String(currentMonth);
   document.getElementById('weekSelect').value = String(currentWeekNumber);
-  document.getElementById('currentWeekLabel').textContent = `📅 ${weekLabelMap[key]} (주일 예배 기준) / 로그인: ${userDept}`;
+  document.getElementById('currentWeekLabel').textContent = `📅 ${weekLabelMap[key]} 주일 결석자 / 로그인: ${userDept}`;
   document.getElementById('importWeekKey').value = key;
   document.getElementById('importWeekLabel').value = weekLabelMap[key];
 }
