@@ -1993,7 +1993,7 @@
       <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
       <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
       <button class="btn btn-danger" type="button" onclick="logout()" id="logoutBtn">🚪 로그아웃</button>
-      <div class="current-week" id="currentWeekLabel">현재 주차: 2026년 4월 3주차</div>
+      <div class="current-week" id="currentWeekLabel">📅 2026-04-19 (주일 예배 기준)</div>
     </div>
   </div>
 
@@ -2073,7 +2073,9 @@
 
       <span class="filter-label">연속결석</span>
       <button class="active" data-filter-group="streak" onclick="setStreakFilter('all')">전체</button>
-      <button data-filter-group="streak" onclick="setStreakFilter('8plus')">8회 이상</button>
+      <button data-filter-group="streak" onclick="setStreakFilter('general4')">🧑 일반 4회+</button>
+      <button data-filter-group="streak" onclick="setStreakFilter('family8')">👨‍👩‍👧 가족 8회+</button>
+      <button data-filter-group="streak" onclick="setStreakFilter('nonfam8')">🏠 가족외 8회+</button>
       <button data-filter-group="streak" onclick="setStreakFilter('special')">🚨 특별관리만</button>
 
       <!-- 부서 필터: 내무부는 전체 부서, 그 외는 자기 부서 지역 버튼으로 교체됨 (JS로 렌더링) -->
@@ -2577,15 +2579,27 @@ const CHURCH_COLORS = {
 function getTargetSunday(now = new Date()){
   const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   const day = kst.getUTCDay();   // 0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토
-  const hour = kst.getUTCHours();
 
+  // 🆕 v5.5: 사용자 운영 흐름 정확히 반영
+  //   "수요일 00시 KST" 가 새 주차 데이터 업로드 시작점
+  //
+  //   화요일 23:59 까지는 "지난 일요일" 데이터 처리 중
+  //   수요일 00:00 부터 "이번 주 일요일" 데이터 처리 시작
+  //
+  //   예시:
+  //     4/22(수) 00시 ~ 4/28(화) 23시 → 4/19 일요일 데이터
+  //     4/29(수) 00시 ~ 5/5(화) 23시  → 4/26 일요일 데이터
   let diff;
   if(day === 0){
-    diff = 0; // 일요일은 해당 주일
-  } else if(day < 2 || (day === 2 && hour < 18)){
-    diff = -day; // 화요일 18시 전까지는 지난 주일
+    // 일요일이면 그 일요일은 새 주차 시작 점이지만,
+    // 아직 수요일 전이라 데이터는 지난 주일 처리 중
+    diff = -7;
+  } else if(day === 1 || day === 2){
+    // 월(1), 화(2) → 지난 주 일요일
+    diff = -(day + 7);
   } else {
-    diff = 7 - day; // 화요일 18시 이후부터는 다음 주일
+    // 수(3), 목(4), 금(5), 토(6) → 이번 주 일요일 (직전)
+    diff = -day;
   }
 
   const sunday = new Date(kst);
@@ -2643,7 +2657,7 @@ let progressMap = new Map();
 
 let currentStatusFilter = 'all';
 let currentTargetFilter = 'all';
-let currentStreakFilter = 'all';   // 'all' | '8plus' | 'special'
+let currentStreakFilter = 'all';   // 'all' | 'general4' | 'family8' | 'nonfam8' | '8plus' | 'special' | 'allStreak'
 let currentDeptFilter = 'all';
 let currentAttendanceFilter = 'all';
 let currentRegionFilter = 'all';
@@ -2709,24 +2723,31 @@ function weekKeyToIsoLabel(weekKey){
   return formatWeekLabel(parseInt(m[2], 10), parseInt(m[3], 10));
 }
 
-// 🆕 v5.1: 일요일(주일) 기준 주차 계산
-//   - 임의의 날짜 → 그 날짜 직전(또는 당일) 일요일이 속한 주차 반환
-//   - 4/19(일) → 2026-04-19
-//   - 4/22(수) → 2026-04-19 (직전 일요일이 4/19)
-//   - 4/26(일) → 2026-04-26
+// 🆕 v5.5: 사유출석자 업로드 모달용 — getTargetSunday() 와 동일 로직
+//   화요일 23:59 까지: 지난 주 일요일
+//   수요일 00:00 이후: 이번 주 일요일
 function computeWeekKeyFromSunday(date){
   const d = new Date(date || new Date());
   const dayOfWeek = d.getDay();  // 0=일, 1=월, ..., 6=토
-  // 직전 일요일 찾기
+  
+  let diff;
+  if(dayOfWeek === 0){
+    diff = -7;  // 일요일 → 지난 주 일요일 (수요일 전이라 데이터는 지난주 처리 중)
+  } else if(dayOfWeek === 1 || dayOfWeek === 2){
+    diff = -(dayOfWeek + 7);  // 월/화 → 지난 주 일요일
+  } else {
+    diff = -dayOfWeek;  // 수/목/금/토 → 이번 주 일요일 (직전)
+  }
+  
   const sunday = new Date(d);
-  sunday.setDate(d.getDate() - dayOfWeek);
+  sunday.setDate(d.getDate() + diff);
   sunday.setHours(0, 0, 0, 0);
   const year  = sunday.getFullYear();
   const month = sunday.getMonth() + 1;
   const dayN  = sunday.getDate();
   // 해당 월의 몇 번째 일요일
   const weekNumber = Math.ceil(dayN / 7);
-  // 🆕 v5.5: ISO 날짜 라벨
+  // ISO 날짜 라벨
   const y = year;
   const m = String(month).padStart(2, '0');
   const d2 = String(dayN).padStart(2, '0');
@@ -3012,7 +3033,12 @@ function populateDropdowns(){
 
   const weeks = getWeeksForMonth(currentMonth);
   if(!weeks.includes(currentWeekNumber)) currentWeekNumber = weeks[weeks.length - 1];
-  weekSel.innerHTML = weeks.map(w => `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${w}주차</option>`).join('');
+  // 🆕 v5.6: 주차 dropdown 도 ISO 날짜로 표시
+  weekSel.innerHTML = weeks.map(w => {
+    const iso = formatWeekLabel(currentMonth, w);  // '2026-04-19'
+    const dt = iso.slice(5);  // 'MM-DD'
+    return `<option value="${w}" ${w===currentWeekNumber?'selected':''}>${dt} (${w}주차)</option>`;
+  }).join('');
 }
 function populateRegionDropdown(rows){
   const sel = document.getElementById('regionSelect');
@@ -3057,7 +3083,7 @@ function syncWeekInputs(){
   if(!weekLabelMap[key]) weekLabelMap[key] = formatWeekLabel(currentMonth, currentWeekNumber);
   document.getElementById('monthSelect').value = String(currentMonth);
   document.getElementById('weekSelect').value = String(currentWeekNumber);
-  document.getElementById('currentWeekLabel').textContent = `현재 주차: ${weekLabelMap[key]} / 로그인: ${userDept}`;
+  document.getElementById('currentWeekLabel').textContent = `📅 ${weekLabelMap[key]} (주일 예배 기준) / 로그인: ${userDept}`;
   document.getElementById('importWeekKey').value = key;
   document.getElementById('importWeekLabel').value = weekLabelMap[key];
 }
@@ -4398,6 +4424,26 @@ function openListPage({mode='all', dept='all', region='all'} = {}){
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent = '🔥 연속결석 8회 이상 리스트';
+  } else if(mode === 'classStreak'){
+    // 🆕 v5.6: 분류별 연속결석 (일반 4회+/가족 8회+/가족외 8회+)
+    currentTargetFilter = 'all';
+    const cls = arguments[0]?.cls || '일반';
+    const streak = arguments[0]?.streak || 4;
+    if(cls === '일반') currentStreakFilter = 'general4';
+    else if(cls === '가족') currentStreakFilter = 'family8';
+    else if(cls === '가족외') currentStreakFilter = 'nonfam8';
+    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentRegionFilter = 'all';
+    document.getElementById('regionSelect').value = currentRegionFilter;
+    document.getElementById('listPageTitle').textContent = `🔥 ${cls} · ${streak}회+ 연속결석`;
+  } else if(mode === 'allStreak'){
+    // 🆕 v5.6: 연속결석 합계 (일반 4회+ ∪ 가족 8회+ ∪ 가족외 8회+)
+    currentTargetFilter = 'all';
+    currentStreakFilter = 'allStreak';
+    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentRegionFilter = 'all';
+    document.getElementById('regionSelect').value = currentRegionFilter;
+    document.getElementById('listPageTitle').textContent = '🔥 연속결석 합계 리스트 (일반4+/가족8+/가족외8+)';
   } else if(mode === 'special'){
     currentTargetFilter = 'all';
     currentStreakFilter = 'special';
@@ -4561,6 +4607,32 @@ function passesFilters(r){
   if(currentTargetFilter === 'non-target' && r.is_target) return false;
   if(currentStreakFilter === '8plus' && Number(r.consecutive_absent_count || 0) < 8) return false;
   if(currentStreakFilter === 'special' && !r.is_special_managed) return false;
+  // 🆕 v5.6: 분류별 연속결석 필터
+  if(currentStreakFilter === 'general4'){
+    // 일반 (가족외+가족 아님) · 4회+
+    const cnt = Number(r.consecutive_absent_count || 0);
+    if(cnt < 4) return false;
+    if(r.family_classification === '가족') return false;
+    if(r.family_classification === '가족외') return false;
+  }
+  if(currentStreakFilter === 'family8'){
+    // 가족 · 8회+
+    if(r.family_classification !== '가족') return false;
+    if(Number(r.consecutive_absent_count || 0) < 8) return false;
+  }
+  if(currentStreakFilter === 'nonfam8'){
+    // 가족외 · 8회+
+    if(r.family_classification !== '가족외') return false;
+    if(Number(r.consecutive_absent_count || 0) < 8) return false;
+  }
+  if(currentStreakFilter === 'allStreak'){
+    // 합계: general4 + family8 + nonfam8
+    const cnt = Number(r.consecutive_absent_count || 0);
+    const isGeneral4 = (cnt >= 4 && r.family_classification !== '가족' && r.family_classification !== '가족외');
+    const isFamily8 = (r.family_classification === '가족' && cnt >= 8);
+    const isNonfam8 = (r.family_classification === '가족외' && cnt >= 8);
+    if(!isGeneral4 && !isFamily8 && !isNonfam8) return false;
+  }
   if(currentDeptFilter !== 'all' && r.dept !== currentDeptFilter) return false;
   // 🔧 attend_confirm 기반 필터 (이전: attendance)
   if(currentAttendanceFilter !== 'all' && r.worship !== currentAttendanceFilter) return false;
