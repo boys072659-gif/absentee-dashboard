@@ -4966,67 +4966,33 @@ function openExcusedUploadModal(){
 
     <!-- 🆕 탭 -->
     <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #e2e8f0">
-      <button class="ex-up-tab ex-up-tab-active" data-ex-tab="xlsx"
-              onclick="switchExcusedUploadTab('xlsx')"
-              style="padding:10px 16px;border:none;background:none;cursor:pointer;font-weight:700;border-bottom:3px solid #16a34a;color:#16a34a;margin-bottom:-2px">
-        📁 다중-시트 엑셀 (분석용)
-      </button>
-      <button class="ex-up-tab" data-ex-tab="simple"
+      <button class="ex-up-tab ex-up-tab-active" data-ex-tab="simple"
               onclick="switchExcusedUploadTab('simple')"
+              style="padding:10px 16px;border:none;background:none;cursor:pointer;font-weight:700;border-bottom:3px solid #2563eb;color:#2563eb;margin-bottom:-2px">
+        ① 간단 양식 (1차 — 명단)
+      </button>
+      <button class="ex-up-tab" data-ex-tab="xlsx"
+              onclick="switchExcusedUploadTab('xlsx')"
               style="padding:10px 16px;border:none;background:none;cursor:pointer;font-weight:700;color:#64748b;margin-bottom:-2px">
-        📝 간단 양식 (텍스트/CSV)
+        ② 분석용 엑셀 (2차 — 세부항목)
       </button>
     </div>
 
-    <!-- 🆕 탭 1: 다중-시트 엑셀 (기존) -->
-    <div id="exUpTabXlsx">
-      <p style="color:#475569;font-size:13px;margin:0 0 14px 0;background:#f0fdf4;padding:12px;border-radius:8px;border-left:4px solid #16a34a">
-        📁 <b>분석용 양식</b> Excel 파일을 그대로 업로드<br>
-        ✅ 5개 교회 시트 (서울/포천/구리/동대문/의정부) 자동 처리<br>
-        ✅ 헤더 4줄 자동 스킵<br>
-        ✅ 체크된 컬럼으로 자동 분류 (B/C/D/D-1/E)<br>
-        ✅ 교적과 부서+지역+구역+전화뒷4 매칭하여 정보 보완<br>
-        ✅ <b>'추이' 시트가 있으면 추이 데이터도 함께 저장</b><br>
-        ✅ <b>'통계' 시트도 분석에 반영</b><br>
-        ✅ 1000명 이상 자동 분할 처리
-      </p>
-      <div style="margin-bottom:10px">
-        <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
-        <select id="exUploadWeek" class="pw-select">
-          <option>주차 로드 중...</option>
-        </select>
-      </div>
-      <div style="margin-bottom:10px">
-        <label style="font-weight:700;display:block;margin-bottom:6px">Excel 파일 선택</label>
-        <input type="file" id="exUploadXlsx" accept=".xlsx,.xls" 
-               class="pw-select" style="padding:8px"
-               onchange="updateExcusedXlsxStatus()">
-      </div>
-      <div id="exUploadXlsxStatus" style="margin-top:6px;font-size:12px;color:#475569"></div>
-      <div id="exUploadXlsxProgress" style="margin-top:8px;display:none">
-        <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
-          <div id="exUploadXlsxProgressBar" style="background:#16a34a;height:100%;width:0%;transition:width .3s"></div>
-        </div>
-        <div id="exUploadXlsxProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
-      </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
-        <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
-        <button class="btn btn-primary" id="exUploadSubmitBtn" onclick="submitExcusedUpload()">📤 업로드</button>
-      </div>
-    </div>
-
-    <!-- 🆕 탭 2: 간단 양식 -->
-    <div id="exUpTabSimple" style="display:none">
+    <!-- 🆕 탭 1 (먼저): 간단 양식 — 1차 -->
+    <div id="exUpTabSimple">
       <p style="color:#475569;font-size:13px;margin:0 0 14px 0;background:#eff6ff;padding:12px;border-radius:8px;border-left:4px solid #2563eb">
-        📝 <b>간단 양식</b> — 텍스트 직접 붙여넣기 또는 CSV 업로드<br>
+        📝 <b>1차 — 간단 양식 명단</b><br>
         ✅ 컬럼: <code>이름 / 전화번호 / 지파 / 교회 / 부서 / 지역 / 구역 / 출석 / 사유 / 연속결석횟수</code><br>
-        ✅ 탭(\\t) 또는 콤마(,)로 구분<br>
-        ✅ 첫 줄은 헤더 — 자동 스킵<br>
-        ✅ 교적과 자동 매칭하여 정보 보완<br>
-        ✅ 단계 분류는 사유 기반:<br>
-        &nbsp;&nbsp;&nbsp;• "온라인예배" → C (기본) / 자문회는 D-1<br>
-        &nbsp;&nbsp;&nbsp;• "대체예배" → B<br>
-        &nbsp;&nbsp;&nbsp;• "친분/말씀나눔" → D
+        ✅ 탭(\\t) 또는 콤마(,)로 구분, 첫 줄은 헤더 — 자동 스킵<br>
+        <br>
+        🎯 <b>매칭 키 (필수): 부서 + 지역 + 전화번호</b><br>
+        &nbsp;&nbsp;&nbsp;→ 교적의 마스킹 안 된 <b>실명</b>을 알아냅니다<br>
+        &nbsp;&nbsp;&nbsp;→ 이렇게 알아낸 실명이 다음 2차 엑셀과 매칭됩니다<br>
+        <br>
+        ⚙️ 단계 분류 (사유 기반):<br>
+        &nbsp;&nbsp;&nbsp;• "온라인예배" → C (자문회는 D-1)<br>
+        &nbsp;&nbsp;&nbsp;• "대체예배" / "인증안함" → B<br>
+        &nbsp;&nbsp;&nbsp;• "말씀나눔" → D · "친분/인시센/비메오" → E
       </p>
       <div style="margin-bottom:10px">
         <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
@@ -5054,7 +5020,49 @@ function openExcusedUploadModal(){
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
         <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
-        <button class="btn btn-primary" id="exUploadSimpleBtn" onclick="submitExcusedSimpleUpload()">📤 업로드</button>
+        <button class="btn btn-primary" id="exUploadSimpleBtn" onclick="submitExcusedSimpleUpload()">📤 1차 업로드</button>
+      </div>
+    </div>
+
+    <!-- 🆕 탭 2 (나중): 다중-시트 엑셀 — 2차 -->
+    <div id="exUpTabXlsx" style="display:none">
+      <p style="color:#475569;font-size:13px;margin:0 0 14px 0;background:#f0fdf4;padding:12px;border-radius:8px;border-left:4px solid #16a34a">
+        📁 <b>2차 — 분석용 엑셀</b><br>
+        ✅ 5개 교회 시트 (서울/포천/구리/동대문/의정부) 자동 처리<br>
+        ✅ 헤더 4줄 자동 스킵, 체크된 컬럼으로 자동 분류 (B/C/D/D-1/E)<br>
+        <br>
+        🎯 <b>매칭 키: 교회 + 부서 + 이름</b> (1차 마스터 우선, 교적 폴백)<br>
+        &nbsp;&nbsp;&nbsp;→ 1차에서 알아낸 <b>실명</b>으로 매칭<br>
+        &nbsp;&nbsp;&nbsp;→ 사유출석 <b>세부항목</b> (B/C/D/D-1/E + reason + subtype) 기록<br>
+        <br>
+        ✅ <b>'추이' 시트가 있으면 추이 데이터도 함께 저장</b><br>
+        ✅ <b>'통계' 시트도 분석에 반영</b><br>
+        ✅ 1000명 이상 자동 분할 처리<br>
+        <br>
+        ⚠️ <b>먼저 1차 간단 양식</b>으로 명단을 올린 다음 2차 엑셀을 올리세요. (1차가 없으면 교적으로만 매칭됨)
+      </p>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
+        <select id="exUploadWeek" class="pw-select">
+          <option>주차 로드 중...</option>
+        </select>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">Excel 파일 선택</label>
+        <input type="file" id="exUploadXlsx" accept=".xlsx,.xls" 
+               class="pw-select" style="padding:8px"
+               onchange="updateExcusedXlsxStatus()">
+      </div>
+      <div id="exUploadXlsxStatus" style="margin-top:6px;font-size:12px;color:#475569"></div>
+      <div id="exUploadXlsxProgress" style="margin-top:8px;display:none">
+        <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
+          <div id="exUploadXlsxProgressBar" style="background:#16a34a;height:100%;width:0%;transition:width .3s"></div>
+        </div>
+        <div id="exUploadXlsxProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
+        <button class="btn btn-primary" id="exUploadSubmitBtn" onclick="submitExcusedUpload()">📤 2차 업로드</button>
       </div>
     </div>
   `;
@@ -5141,23 +5149,41 @@ async function submitExcusedSimpleUpload(){
     // 헤더 스킵
     const dataLines = lines.slice(1);
 
-    // 매칭 인덱스
-    const memberByCDP = new Map();   // church|dept|phone
-    const memberByCDN = new Map();   // church|dept|name (마스킹 매칭용)
-    const memberByCN = new Map();    // church|name
+    // 🆕 v6.0: 1차 업로드 매칭 키 — 부서 + 지역 + 전화번호 (필수 3가지)
+    //   사용자 요구: "부서와 지역 전화번호 → 마스킹 안된 실명을 알아냄"
+    //   교적은 마스킹 안 된 실명으로 저장되어 있음
+    //   매칭 우선순위:
+    //     1) church + dept + region + phone        (가장 정확 — 동명이인도 구분)
+    //     2) church + dept + region + name(매칭)   (전화 다를 때 fallback)
+    //     3) church + dept + phone                 (지역 미일치 시 fallback)
+    //     4) church + dept + name(매칭)            (전화 미일치 시 fallback)
+    const memberByCDRP = new Map();    // church|dept|region|phone -> member
+    const memberByCDR  = new Map();    // church|dept|region -> [member]
+    const memberByCDP  = new Map();    // church|dept|phone -> member
+    const memberByCD   = new Map();    // church|dept -> [member]
+
     if(_memberRegistry){
       _memberRegistry.forEach(m => {
         const c = m.church || ''; const d = m.dept || '';
-        const p = m.phone_last4 || ''; const n = m.name || '';
-        if(c && d && p) memberByCDP.set(`${c}|${d}|${p}`, m);
-        if(c && d && n) memberByCDN.set(`${c}|${d}|${n}`, m);
-        if(c && n)      memberByCN.set(`${c}|${n}`, m);
+        const r = m.region_name || ''; const p = m.phone_last4 || '';
+        if(!c || !d) return;
+        if(r && p)  memberByCDRP.set(`${c}|${d}|${r}|${p}`, m);
+        if(r){
+          const k = `${c}|${d}|${r}`;
+          if(!memberByCDR.has(k)) memberByCDR.set(k, []);
+          memberByCDR.get(k).push(m);
+        }
+        if(p)  memberByCDP.set(`${c}|${d}|${p}`, m);
+        const k2 = `${c}|${d}`;
+        if(!memberByCD.has(k2)) memberByCD.set(k2, []);
+        memberByCD.get(k2).push(m);
       });
     }
 
     const allLines = [];
     let matched = 0, unmatched = 0;
     const groupCounts = {};
+    const matchedMembers = [];   // 🆕 매칭된 실명 목록 (UI 표시용)
 
     for(const ln of dataLines){
       const parts = ln.split(sep).map(s => s.trim());
@@ -5184,26 +5210,74 @@ async function submitExcusedSimpleUpload(){
 
       groupCounts[derivedGroup] = (groupCounts[derivedGroup] || 0) + 1;
 
-      // 교적 매칭
+      // 🆕 교적 매칭 — 부서 + 지역 + 전화번호 위주
       const phoneClean = String(phone || '').replace(/\D/g,'').slice(-4);
       let matchedMem = null;
-      if(phoneClean) matchedMem = memberByCDP.get(`${church}|${dept}|${phoneClean}`) || null;
-      if(!matchedMem) matchedMem = memberByCDN.get(`${church}|${dept}|${name}`) || null;
-      if(!matchedMem) matchedMem = memberByCN.get(`${church}|${name}`) || null;
-      if(matchedMem) matched++; else unmatched++;
+      let matchKey = '';
 
+      // ① 가장 정확 — 부서 + 지역 + 전화 (동명이인까지 구분)
+      if(phoneClean && region){
+        matchedMem = memberByCDRP.get(`${church}|${dept}|${region}|${phoneClean}`) || null;
+        if(matchedMem) matchKey = '부서+지역+전화';
+      }
+
+      // ② 부서 + 지역 + 마스킹 이름 매칭 (전화 일치 안 할 때)
+      if(!matchedMem && region){
+        const list = memberByCDR.get(`${church}|${dept}|${region}`) || [];
+        const hits = list.filter(m => namesMatch(m.name || '', name));
+        if(hits.length === 1){
+          matchedMem = hits[0]; matchKey = '부서+지역+이름';
+        } else if(hits.length > 1 && phoneClean){
+          // 같은 부서+지역+이름 중복 → 전화로 한정
+          const phoneHit = hits.find(m => (m.phone_last4 || '') === phoneClean);
+          if(phoneHit){ matchedMem = phoneHit; matchKey = '부서+지역+이름+전화'; }
+        }
+      }
+
+      // ③ 부서 + 전화 (지역이 잘못 적힌 경우)
+      if(!matchedMem && phoneClean){
+        matchedMem = memberByCDP.get(`${church}|${dept}|${phoneClean}`) || null;
+        if(matchedMem) matchKey = '부서+전화';
+      }
+
+      // ④ 부서 + 이름 매칭 (전화도 없을 때 — 동명이인이 1명일 때만)
+      if(!matchedMem){
+        const list = memberByCD.get(`${church}|${dept}`) || [];
+        const hits = list.filter(m => namesMatch(m.name || '', name));
+        if(hits.length === 1){
+          matchedMem = hits[0]; matchKey = '부서+이름';
+        }
+      }
+
+      if(matchedMem){
+        matched++;
+        matchedMembers.push({
+          masked: name,
+          real: matchedMem.name,
+          dept: matchedMem.dept,
+          region: matchedMem.region_name,
+          phone: matchedMem.phone_last4,
+          church: matchedMem.church,
+          matchKey,
+        });
+      } else {
+        unmatched++;
+      }
+
+      // 🆕 매칭되면 교적의 실명·정보로 보완. 안 매칭되면 입력 그대로
+      const finalDept   = matchedMem?.dept        || dept;
       const finalRegion = matchedMem?.region_name || region || '';
-      const finalZone   = matchedMem?.zone_name || zone || '';
+      const finalZone   = matchedMem?.zone_name   || zone   || '';
       const finalPhone  = matchedMem?.phone_last4 || phoneClean || '';
-      const realName    = matchedMem?.name || name;
+      const realName    = matchedMem?.name        || name;
 
-      // member_uid 생성: church + dept + name + phone (가능하면 매칭된 것)
-      const member_uid = `${church}|${dept}|${realName}|${finalPhone}`;
+      // member_uid 생성: church + dept + 실명 + phone
+      const member_uid = `${church}|${finalDept}|${realName}|${finalPhone}`;
 
       allLines.push({
         member_uid: member_uid,
         church: church,
-        dept: dept,
+        dept: finalDept,
         region_name: finalRegion,
         zone_name: finalZone,
         phone_last4: finalPhone,
@@ -5218,6 +5292,17 @@ async function submitExcusedSimpleUpload(){
         week_key: weekKey,
       });
     }
+
+    // 🆕 매칭 결과를 localStorage 에 보관 (2차 엑셀 업로드 때 활용)
+    try {
+      localStorage.setItem('excused_simple_matched', JSON.stringify({
+        week_key: weekKey,
+        uploaded_at: new Date().toISOString(),
+        matched_count: matched,
+        unmatched_count: unmatched,
+        members: matchedMembers,
+      }));
+    } catch(_){}
 
     // 진행 상황
     if(progressText) progressText.textContent = `📁 ${allLines.length}건 파싱 완료. 업로드 중...`;
@@ -5261,16 +5346,24 @@ async function submitExcusedSimpleUpload(){
     if(progressBar) progressBar.style.width = '100%';
     if(progressText){
       const classifyMsg = Object.entries(groupCounts).sort().map(([g,n]) => `${g}:${n}`).join(' · ');
-      progressText.textContent = `✅ 완료! 신규 ${totalInserted} · 갱신 ${totalUpdated} · 스킵 ${totalSkipped} · 분류 (${classifyMsg}) · 매칭 ${matched}/${matched+unmatched}`;
+      let resultMsg = `✅ 1차 업로드 완료!\n`;
+      resultMsg += `  • 신규 ${totalInserted} · 갱신 ${totalUpdated} · 스킵 ${totalSkipped}\n`;
+      resultMsg += `  • 단계 분류: ${classifyMsg}\n`;
+      resultMsg += `  • 🎯 교적 매칭(부서+지역+전화): ${matched}/${matched+unmatched}명\n`;
+      if(matched > 0){
+        resultMsg += `\n💡 ${matched}명의 마스킹 안 된 실명이 확보되었습니다.\n   다음 [② 분석용 엑셀] 탭으로 사유출석 세부항목을 올려주세요.`;
+      }
+      progressText.textContent = resultMsg;
       progressText.style.color = '#16a34a';
+      progressText.style.whiteSpace = 'pre-line';
     }
-
+    
     setTimeout(() => {
       const overlay = document.querySelector('[data-overlay="1"]');
       if(overlay) overlay.remove();
       // 대시보드 새로고침
       if(typeof loadExcusedDashboard === 'function') loadExcusedDashboard();
-    }, 2000);
+    }, 3500);  // 결과를 충분히 읽을 시간
 
   } catch(e) {
     console.error(e);
@@ -5441,35 +5534,80 @@ async function submitExcusedUpload(){
       '의정부': '의정부교회',
     };
 
-    // 교적 사전 로드
+    // 🆕 v6.0: 2차 엑셀 매칭 — 사용자 의도:
+    //   "교회 부서 이름만 매칭해서 사유출석 세부항목을 기록"
+    //
+    //   1차 매칭 대상 = excused_attendees_master (1차 업로드로 저장된 실명+부서)
+    //   2차 매칭 대상 = 교적 (church_member_registry) — 폴백
+    //
+    //   매칭 키 (우선순위):
+    //     ① 1차 마스터: church + dept + name (정확 일치)
+    //     ② 1차 마스터: church + dept + namesMatch (마스킹 매칭)
+    //     ③ 교적: church + dept + name (폴백 — 1차 업로드 없는 경우)
+    //     ④ 교적: church + dept + namesMatch (폴백)
+
+    // ① 1차 마스터(excused_attendees_master) 로드
+    if(progressText) progressText.textContent = '📁 1차 사유출석 마스터 로드 중...';
+    let excusedMasters = [];
+    try {
+      excusedMasters = await sbFetch(
+        'excused_attendees_master?select=member_uid,name,phone_last4,church,dept,region_name,zone_name&limit=20000'
+      ) || [];
+      console.log(`[xlsx] 1차 마스터: ${excusedMasters.length}명 로드`);
+    } catch(e) {
+      console.warn('[xlsx] 1차 마스터 로드 실패 (무시 가능):', e);
+    }
+
+    // ② 교적 로드 (폴백용)
     if(progressText) progressText.textContent = '📁 교적 로드 중...';
     await loadMemberRegistry();
-    
-    // 매칭용 인덱스 생성 (여러 키)
-    const memberByCDRZP   = new Map();  // church|dept|region|zone|phone
-    const memberByCDRP    = new Map();  // church|dept|region|phone
-    const memberByCDZP    = new Map();  // church|dept|zone|phone
-    const memberByCDRZ    = new Map();  // church|dept|region|zone (no phone)
-    const memberByCN      = new Map();  // church|name
-    
+
+    // 🆕 매칭 인덱스 — 교회+부서별로 그룹화 (이름 매칭이 빠르도록)
+    //   masterByCD: 1차 마스터의 church|dept -> [member]
+    //   regByCD: 교적의 church|dept -> [member]
+    const masterByCD = new Map();
+    excusedMasters.forEach(m => {
+      const c = m.church || ''; const d = m.dept || '';
+      if(!c || !d) return;
+      const k = `${c}|${d}`;
+      if(!masterByCD.has(k)) masterByCD.set(k, []);
+      masterByCD.get(k).push(m);
+    });
+
+    const regByCD = new Map();
     if(_memberRegistry){
       _memberRegistry.forEach(m => {
-        const c = m.church || '';
-        const d = m.dept || '';
-        const r = m.region_name || '';
-        const z = m.zone_name || '';
-        const p = m.phone_last4 || '';
-        const n = m.name || '';
-        if(c && d && r && z && p) memberByCDRZP.set(`${c}|${d}|${r}|${z}|${p}`, m);
-        if(c && d && r && p)      memberByCDRP.set(`${c}|${d}|${r}|${p}`, m);
-        if(c && d && z && p)      memberByCDZP.set(`${c}|${d}|${z}|${p}`, m);
-        if(c && d && r && z)      memberByCDRZ.set(`${c}|${d}|${r}|${z}`, m);
-        if(c && n)                memberByCN.set(`${c}|${n}`, m);
+        const c = m.church || ''; const d = m.dept || '';
+        if(!c || !d) return;
+        const k = `${c}|${d}`;
+        if(!regByCD.has(k)) regByCD.set(k, []);
+        regByCD.get(k).push(m);
       });
     }
 
+    // 매칭 함수: 교회+부서+이름 → (마스터 우선, 교적 폴백)
+    const findByCDName = (church, dept, name) => {
+      const cd = `${church}|${dept}`;
+      // ① 마스터 정확 일치
+      const masterList = masterByCD.get(cd) || [];
+      let hit = masterList.find(m => (m.name || '') === name);
+      if(hit) return { mem: hit, source: 'master:exact' };
+      // ② 마스터 namesMatch (마스킹/실명 양방향)
+      hit = masterList.find(m => namesMatch(m.name || '', name));
+      if(hit) return { mem: hit, source: 'master:names' };
+      // ③ 교적 정확 일치 (폴백)
+      const regList = regByCD.get(cd) || [];
+      hit = regList.find(m => (m.name || '') === name);
+      if(hit) return { mem: hit, source: 'registry:exact' };
+      // ④ 교적 namesMatch
+      hit = regList.find(m => namesMatch(m.name || '', name));
+      if(hit) return { mem: hit, source: 'registry:names' };
+      return null;
+    };
+
     const allLines = [];
-    const stats = { sheets: 0, totalRows: 0, classified: {}, matched: 0, unmatched: 0 };
+    const stats = { sheets: 0, totalRows: 0, classified: {}, matched: 0, unmatched: 0,
+                    matchSource: { 'master:exact':0, 'master:names':0, 'registry:exact':0, 'registry:names':0 } };
 
     for(const [sheetName, churchName] of Object.entries(CHURCH_SHEETS)){
       if(!wb.Sheets[sheetName]){
@@ -5491,7 +5629,6 @@ async function submitExcusedUpload(){
       //  화면O(C), 화면X(E), 인시센, 말씀광장, 비메오,  ← 비대면사출 카테고리
       //  대면대체(B), 말씀나눔30분(D), 친분(E)  ← 대체예배 카테고리
       //  현단계, 단향단계]
-      // (※ "일대일(심방,내부복)" 은 헤더 카테고리일 뿐 실제 컬럼 X)
       
       for(const r of dataRows){
         if(!r || r.length < 6) continue;
@@ -5549,33 +5686,36 @@ async function submitExcusedUpload(){
           }
         }
         
-        // 교적 매칭으로 부서/지역/구역/전화 보완 (다단계)
-        let finalDept = dept;
+        // 🆕 v6.0: 교회 + 부서 + 이름 으로 매칭 (1차 마스터 우선, 교적 폴백)
+        const matchResult = findByCDName(churchName, dept, name);
+        let finalDept   = dept;
         let finalRegion = region;
-        let finalZone = '';
-        let phoneLast4 = '';
-        let displayName = name;  // 기본은 Excel 이름 그대로
-        let matched = false;
-        
-        // Try 1: church+name (가장 정확하게 매칭되면 모든 정보 신뢰)
-        let m = memberByCN.get(`${churchName}|${name}`);
-        if(m){
-          finalDept = m.dept || finalDept;
+        let finalZone   = '';
+        let phoneLast4  = '';
+        let displayName = name;   // 기본은 엑셀 이름 그대로
+        let matched     = false;
+
+        if(matchResult && matchResult.mem){
+          const m = matchResult.mem;
+          finalDept   = m.dept        || finalDept;
           finalRegion = m.region_name || finalRegion;
-          finalZone = m.zone_name || '';
-          phoneLast4 = m.phone_last4 || '';
-          // 이름은 그대로 (사용자 요구: "연락처뒷번호 없으면 매핑해서 바꾸지 말아줘")
-          // 단, phone_last4 가 있으면 마스킹 적용 가능
-          if(phoneLast4 && typeof maskName === 'function'){
-            displayName = maskName(m.name);
+          finalZone   = m.zone_name   || '';
+          phoneLast4  = m.phone_last4 || '';
+          // 매칭된 이름이 마스킹 안된 실명이고 엑셀의 이름이 마스킹이라면 → 실명으로 갱신
+          // 매칭된 이름이 마스킹이고 엑셀이 실명이라면 → 엑셀 실명 유지
+          // 둘 다 실명이면 → 매칭된 것 사용
+          const masterName = m.name || '';
+          const masterIsMasked = masterName.includes('*') || masterName.includes('ㅇ');
+          const excelIsMasked  = name.includes('*') || name.includes('ㅇ');
+          if(!masterIsMasked && excelIsMasked){
+            displayName = masterName;          // 1차에서 알아낸 실명 사용
+          } else if(!excelIsMasked){
+            displayName = name;                // 엑셀이 실명
+          } else {
+            displayName = masterName || name;  // 둘 다 마스킹이면 마스터 우선
           }
           matched = true;
-        }
-        // Try 2: 정보 보완만 (이름 변경 X)
-        else {
-          // church+dept+region+zone (전화 없을 때) — 이름 변경 X
-          // 새 양식엔 zone 없으니 스킵
-          // 그냥 Excel 정보 그대로 사용
+          stats.matchSource[matchResult.source] = (stats.matchSource[matchResult.source] || 0) + 1;
         }
         
         if(matched) stats.matched++;
@@ -5585,7 +5725,7 @@ async function submitExcusedUpload(){
         sheetRowCount++;
         
         allLines.push([
-          displayName,      // 이름 (교적 매칭 시 마스킹, 미매칭 시 Excel 그대로)
+          displayName,      // 이름 (1차 매칭 시 1차의 실명, 미매칭 시 엑셀 그대로)
           phoneLast4,
           '서울야고보지파',
           churchName,
@@ -5642,8 +5782,24 @@ async function submitExcusedUpload(){
     const classifyMsg = Object.entries(stats.classified)
       .sort()
       .map(([g, n]) => `${g}:${n}`).join(' · ');
+
+    // 🆕 v6.0: 매칭 출처 표시 — 사용자가 1차/교적 어디서 매칭됐는지 알 수 있게
+    const ms = stats.matchSource || {};
+    const fromMaster = (ms['master:exact'] || 0) + (ms['master:names'] || 0);
+    const fromRegistry = (ms['registry:exact'] || 0) + (ms['registry:names'] || 0);
     
-    showToast(`✅ Excel 업로드 완료\n📊 ${stats.sheets}개 교회 · ${stats.totalRows}명\n⭐ 분류: ${classifyMsg}\n🎯 매칭: ${stats.matched}/${stats.totalRows}\n🔄 신규 ${totalInserted} · 갱신 ${totalUpdated} · 스킵 ${totalSkipped}`);
+    let resultLines = [
+      `✅ 2차 엑셀 업로드 완료`,
+      `📊 ${stats.sheets}개 교회 · ${stats.totalRows}명`,
+      `⭐ 분류: ${classifyMsg}`,
+      `🎯 매칭: ${stats.matched}/${stats.totalRows}`,
+    ];
+    if(fromMaster > 0 || fromRegistry > 0){
+      resultLines.push(`   ↳ 1차 마스터(실명): ${fromMaster}명 · 교적: ${fromRegistry}명`);
+    }
+    resultLines.push(`🔄 신규 ${totalInserted} · 갱신 ${totalUpdated} · 스킵 ${totalSkipped}`);
+
+    showToast(resultLines.join('\n'));
     
     setTimeout(() => {
       document.querySelector('[data-overlay]')?.remove();
