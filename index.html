@@ -1500,6 +1500,36 @@
     background:#f1f5f9;
     box-shadow:0 0 0 3px rgba(15,23,42,.1);
   }
+  /* 🆕 카테고리별 색상 */
+  .bc-scope-card.bc-cat-dept{
+    background:#faf5ff;
+    border-color:#ddd6fe;
+  }
+  .bc-scope-card.bc-cat-dept:hover{
+    border-color:#7c3aed;
+    background:#f3e8ff;
+  }
+  .bc-scope-card.bc-cat-dept.active{
+    border-color:#7c3aed;
+    background:#ede9fe;
+    box-shadow:0 0 0 3px rgba(124,58,237,.18);
+  }
+  .bc-scope-card.bc-cat-special{
+    background:#fef2f2;
+    border-color:#fecaca;
+  }
+  .bc-scope-card.bc-cat-special:hover{
+    border-color:#dc2626;
+    background:#fee2e2;
+  }
+  .bc-scope-card.bc-cat-special.active{
+    border-color:#dc2626;
+    background:#fecaca;
+    box-shadow:0 0 0 3px rgba(220,38,38,.2);
+  }
+  .bc-cat-header{
+    grid-column:1/-1;
+  }
   .bc-scope-card .bc-scope-icon{
     font-size:24px;
     margin-bottom:4px;
@@ -2043,6 +2073,159 @@
       -webkit-overflow-scrolling:touch;
     }
   }
+
+  /* ═══ 🆕 모바일 스와이프 인디케이터 ═══ */
+  .swipe-indicator{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:10px 0 14px;
+    padding:10px 14px;
+    background:linear-gradient(135deg,#eef2ff,#e0e7ff);
+    border:1px solid #c7d2fe;
+    border-radius:12px;
+    font-size:13px;
+    color:#3730a3;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .swipe-indicator .swipe-title{
+    font-weight:800;
+    font-size:14px;
+    flex:1;
+    text-align:center;
+  }
+  .swipe-indicator .swipe-arrow{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:#fff;
+    border:1.5px solid #c7d2fe;
+    color:#4338ca;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:all .15s;
+  }
+  .swipe-indicator .swipe-arrow:hover{
+    background:#4338ca;
+    color:#fff;
+    transform:scale(1.05);
+  }
+  .swipe-indicator .swipe-arrow:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+  }
+  .swipe-indicator .swipe-dots{
+    display:flex;
+    gap:5px;
+    justify-content:center;
+    margin-top:4px;
+  }
+  .swipe-indicator .swipe-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#c7d2fe;
+    transition:all .15s;
+  }
+  .swipe-indicator .swipe-dot.active{
+    background:#4338ca;
+    width:18px;
+    border-radius:4px;
+  }
+  .swipe-center{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    flex:1;
+  }
+  .swipe-hint{
+    font-size:11px;
+    color:#6366f1;
+    margin-top:2px;
+    opacity:.85;
+  }
+  /* summaryGrid를 swipe container로 만들 수 있게 */
+  #summaryGrid.swipe-area{
+    touch-action:pan-y;
+  }
+
+  /* 🆕 부드러운 슬라이드 전환 애니메이션 */
+  @keyframes swipe-in-from-right {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes swipe-in-from-left {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  #summaryGrid.swipe-anim-next > *:not(.swipe-indicator){
+    animation: swipe-in-from-right 0.28s ease-out;
+  }
+  #summaryGrid.swipe-anim-prev > *:not(.swipe-indicator){
+    animation: swipe-in-from-left 0.28s ease-out;
+  }
+  /* 결석자지역별세부용 행 호버 */
+  .rd-region-head:hover{
+    filter: brightness(0.97);
+  }
+  .rd-row:hover{
+    background:#f8fafc;
+  }
+
+  /* ═══ 🆕 이름 클릭 시 실명 토글 ═══ */
+  .clickable-name{
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+    border-bottom:1px dashed transparent;
+    transition:all .15s;
+    padding:1px 3px;
+    border-radius:4px;
+  }
+  .clickable-name:hover{
+    background:rgba(124,58,237,.10);
+    border-bottom-color:#7c3aed;
+  }
+  .clickable-name.revealed{
+    background:rgba(124,58,237,.18);
+    color:#5b21b6 !important;
+    font-weight:700;
+  }
+  .clickable-name.no-real{
+    cursor:default;
+    border-bottom:none;
+  }
+  .clickable-name.no-real:hover{
+    background:none;
+  }
+  .name-tooltip{
+    position:absolute;
+    background:#0f172a;
+    color:#fff;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:700;
+    z-index:99999;
+    pointer-events:none;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+    white-space:nowrap;
+  }
+  .name-tooltip::after{
+    content:'';
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent;
+    border-top-color:#0f172a;
+  }
 </style>
 </head>
 <body>
@@ -2286,11 +2469,24 @@
       <div class="list-title">📅 사유출석자 단계향상 현황</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button class="btn btn-light" onclick="loadExcusedDashboard()">🔄 새로고침</button>
+        <button class="btn btn-primary" onclick="openExcusedAnalytics()" style="background:#7c3aed">📊 분석</button>
         <button class="btn btn-light" onclick="openExcusedUploadModal()">📤 명단 업로드</button>
         <button class="btn btn-light" onclick="logout()">🚪 로그아웃</button>
       </div>
     </div>
     <div id="excusedDashboardMount" style="padding:14px"></div>
+  </div>
+
+  <!-- 🆕 v6.0: 사유출석자 분석 페이지 (통계 + 추이 + 비율) -->
+  <div class="page" id="excusedAnalyticsPage">
+    <div class="list-toolbar">
+      <div class="list-title">📊 사유출석자 분석 (통계·추이·비율)</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-light" onclick="closeExcusedAnalytics()">↶ 사유출석자로</button>
+        <button class="btn btn-light" onclick="loadExcusedAnalytics()">🔄 새로고침</button>
+      </div>
+    </div>
+    <div id="excusedAnalyticsMount" style="padding:14px"></div>
   </div>
 
   <!-- ═══ 🔧 관리자 페이지 (지파 전용) ══════════════════════════════════════ -->
@@ -3162,6 +3358,10 @@ function isZipaUser(){
 function isChurchAdmin(){
   return !isZipaUser() && userDept === '교회관리자';
 }
+// 🆕 교회관리자 + 내무부 = 교회 전체 부서를 다룰 권한이 있는 사용자
+function isChurchScopeAdmin(){
+  return isChurchAdmin() || userDept === '내무부';
+}
 
 function applyDeptPermissionUI(){
   // 명단 업로드 버튼: 지파 제외 모든 부서에게 보임
@@ -3184,7 +3384,7 @@ function applyDeptPermissionUI(){
   if(isZipaUser()){
     currentDeptFilter = 'all';
     currentChurchFilter = 'all';
-  } else if(isChurchAdmin() || userDept === '내무부'){
+  } else if(isChurchScopeAdmin()){
     // 🔧 교회관리자/내무부: 자기 교회 전체 부서 관리
     currentDeptFilter = 'all';
     currentChurchFilter = userChurch;
@@ -3371,7 +3571,7 @@ function resetFiltersToDefault(){
   if(isZipaUser()){
     currentDeptFilter = 'all';
     currentChurchFilter = 'all';
-  } else if(isChurchAdmin() || userDept === '내무부'){
+  } else if(isChurchScopeAdmin()){
     currentDeptFilter = 'all';
     currentChurchFilter = userChurch;
   } else {
@@ -3797,7 +3997,7 @@ function renderExcusedTable(rows, groupConfig){
     html += `
       <tr data-current-group="${cur}" data-uid="${escapeHtml(m.member_uid || '')}">
         <td><span class="ex-tbl-dept">${escapeHtml(m.dept || '-')}</span></td>
-        <td><strong>${escapeHtml(masked)}</strong>${moved ? `<br><span class="ex-tbl-moved">최초 ${ini}</span>` : ''}</td>
+        <td><strong>${makeNameTag(masked, m.dept || '', m.phone_last4 || '', m.church || '')}</strong>${moved ? `<br><span class="ex-tbl-moved">최초 ${ini}</span>` : ''}</td>
         <td>${escapeHtml(m.region_name || '-')}</td>
         <td>${escapeHtml(m.zone_name || '-')}</td>
         <td>
@@ -3926,7 +4126,7 @@ function renderExcusedCard(m, groupConfig){
       <div class="ex-card-head">
         <div class="ex-card-name-line">
           <span class="ex-card-dept-tag">${escapeHtml(m.dept || '-')}</span>
-          <span class="ex-card-name">${escapeHtml(masked)}</span>
+          <span class="ex-card-name">${makeNameTag(masked, m.dept || '', m.phone_last4 || '', m.church || '')}</span>
           <span class="ex-card-group" style="background:${cfg.color}22;color:${cfg.color};border-color:${cfg.color}66">
             ${cfg.icon} ${cur}
           </span>
@@ -4207,6 +4407,484 @@ function showExcusedTrendModal(name, trend){
   document.body.appendChild(overlay);
 }
 
+// 🆕 v6.0: 사유출석자 분석 페이지 — 통계+추이+비율 한 페이지
+function openExcusedAnalytics(){
+  hideAllPages();
+  document.getElementById('excusedAnalyticsPage').classList.add('active');
+  currentPage = 'excusedAnalytics';
+  loadExcusedAnalytics();
+}
+function closeExcusedAnalytics(){
+  hideAllPages();
+  document.getElementById('excusedPage').classList.add('active');
+  currentPage = 'excused';
+  // 데이터 새로고침
+  if(typeof loadExcusedDashboard === 'function') loadExcusedDashboard();
+}
+
+async function loadExcusedAnalytics(){
+  const mount = document.getElementById('excusedAnalyticsMount');
+  if(!mount) return;
+  mount.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8">📊 분석 데이터 로드 중...</div>';
+  showLoading(true);
+  try {
+    // 1) 활성 주차들 (최근 ~12주)
+    const weeks = await sbFetch('weekly_target_weeks?select=week_key,week_label&order=week_key.desc&limit=12') || [];
+    if(!weeks.length){
+      mount.innerHTML = '<div style="padding:40px;text-align:center;color:#94a3b8">📭 등록된 주차가 없습니다.</div>';
+      return;
+    }
+    weeks.reverse(); // 시간 순서 (오래된 → 최신)
+
+    // 2) 주차별 사유출석 그룹 카운트 (excused_weekly_records)
+    //    excused_weekly_records 에 (member_uid, week_key, group_letter) 구조 있다고 가정
+    const weekKeys = weeks.map(w => w.week_key);
+    const wkInList = weekKeys.map(k => `"${k}"`).join(',');
+    let allRecords = [];
+    if(weekKeys.length){
+      let off = 0;
+      while(true){
+        const batch = await sbFetch(
+          `excused_weekly_records?select=week_key,group_letter,church,dept&week_key=in.(${wkInList})&order=week_key.asc&limit=1000&offset=${off}`
+        ) || [];
+        allRecords = allRecords.concat(batch);
+        if(batch.length < 1000) break;
+        off += 1000;
+        if(off > 20000) break; // 안전장치
+      }
+    }
+
+    // 3) 교적 (재적) — 교회별 카운트
+    await loadMemberRegistry();
+    const churchCounts = {};   // {church: 재적}
+    const churchDeptCounts = {}; // {church: {dept: 재적}}
+    if(_memberRegistry){
+      _memberRegistry.forEach(m => {
+        const c = m.church || ''; const d = m.dept || '';
+        if(!c) return;
+        churchCounts[c] = (churchCounts[c] || 0) + 1;
+        if(!churchDeptCounts[c]) churchDeptCounts[c] = {};
+        churchDeptCounts[c][d] = (churchDeptCounts[c][d] || 0) + 1;
+      });
+    }
+
+    // 4) 추이 데이터 가공 — 주차별 그룹별 카운트
+    const trendByWeek = {};  // {week_key: {B:n, C:n, D:n, 'D-1':n, E:n}}
+    const trendChurch = {};  // {church: {week_key: {...}}}
+    weeks.forEach(w => { trendByWeek[w.week_key] = {B:0, C:0, D:0, 'D-1':0, E:0, total:0}; });
+    allRecords.forEach(r => {
+      const wk = r.week_key; const g = r.group_letter; const ch = r.church || '';
+      if(!trendByWeek[wk]) trendByWeek[wk] = {B:0, C:0, D:0, 'D-1':0, E:0, total:0};
+      if(['B','C','D','D-1','E'].includes(g)) trendByWeek[wk][g]++;
+      trendByWeek[wk].total++;
+      if(ch){
+        if(!trendChurch[ch]) trendChurch[ch] = {};
+        if(!trendChurch[ch][wk]) trendChurch[ch][wk] = {B:0,C:0,D:0,'D-1':0,E:0,total:0};
+        if(['B','C','D','D-1','E'].includes(g)) trendChurch[ch][wk][g]++;
+        trendChurch[ch][wk].total++;
+      }
+    });
+
+    // 🆕 v6.0: localStorage 의 추이 시트 데이터 병합 — 명단 업로드 안된 4월도 보이게
+    let externalTrend = null;
+    try {
+      const stored = localStorage.getItem('excused_trend_data');
+      if(stored){
+        externalTrend = JSON.parse(stored);
+      }
+    } catch(_) { externalTrend = null; }
+
+    // 🆕 v6.0: localStorage 비어있으면 DB 의 excused_trend_snapshot 에서 로드
+    //   (다른 사용자가 업로드한 데이터, 또는 브라우저 캐시 비웠을 때)
+    if(!externalTrend){
+      try {
+        const dbZipa = await callRpc('get_excused_trend_snapshot', { p_scope: 'zipa', p_limit: 30 }) || [];
+        const dbSeoul = await callRpc('get_excused_trend_snapshot', { p_scope: 'church:서울교회', p_limit: 30 }) || [];
+        if((dbZipa && dbZipa.length) || (dbSeoul && dbSeoul.length)){
+          const mapRow = (r) => ({
+            date: r.snapshot_date,
+            reg: r.reg_count || 0,
+            B: r.cnt_b || 0, C: r.cnt_c || 0, D: r.cnt_d || 0, 'D-1': r.cnt_d1 || 0, E: r.cnt_e || 0,
+            total: r.total_excused || 0,
+          });
+          // ISO 날짜 오름차순 정렬 (오래된 순)
+          const sortByIso = (a, b) => {
+            const ai = a.snapshot_iso || a.snapshot_date;
+            const bi = b.snapshot_iso || b.snapshot_date;
+            return String(ai).localeCompare(String(bi));
+          };
+          externalTrend = {
+            uploaded_at: dbZipa[0]?.uploaded_at || dbSeoul[0]?.uploaded_at || new Date().toISOString(),
+            source: 'db',
+            zipa: (dbZipa || []).slice().sort(sortByIso).map(mapRow),
+            church_seoul: (dbSeoul || []).slice().sort(sortByIso).map(mapRow),
+          };
+        }
+      } catch(rpcErr) {
+        // RPC 미존재 시 조용히 무시
+        console.info('[ana] DB 추이 스냅샷 로드 실패 (RPC 미존재 가능)');
+      }
+    }
+
+    // 5) 가장 최근 주차 (통계 시트 포지션)
+    const latestWeek = weeks[weeks.length - 1];
+    const latestKey = latestWeek.week_key;
+    const latestData = trendByWeek[latestKey] || {B:0,C:0,D:0,'D-1':0,E:0,total:0};
+
+    // 6) 교회별 부서별 통계 (가장 최근 주차)
+    const churchDeptStats = {}; // {church: {dept: {B,C,D,D-1,E,total}}}
+    allRecords.forEach(r => {
+      if(r.week_key !== latestKey) return;
+      const ch = r.church || '?'; const dp = r.dept || '?'; const g = r.group_letter;
+      if(!churchDeptStats[ch]) churchDeptStats[ch] = {};
+      if(!churchDeptStats[ch][dp]) churchDeptStats[ch][dp] = {B:0,C:0,D:0,'D-1':0,E:0,total:0};
+      if(['B','C','D','D-1','E'].includes(g)) churchDeptStats[ch][dp][g]++;
+      churchDeptStats[ch][dp].total++;
+    });
+
+    renderExcusedAnalytics(mount, {
+      weeks, trendByWeek, trendChurch, churchCounts, churchDeptCounts,
+      churchDeptStats, latestKey, latestWeek, latestData,
+      externalTrend,  // 🆕 추이 시트 데이터 (4월 등 명단 없는 주차)
+    });
+
+  } catch(e){
+    console.error(e);
+    mount.innerHTML = `<div style="padding:40px;text-align:center;color:#dc2626">❌ 분석 데이터 로드 실패: ${escapeHtml(e.message || e)}</div>`;
+  } finally {
+    showLoading(false);
+  }
+}
+
+function renderExcusedAnalytics(mount, data){
+  const { weeks, trendByWeek, trendChurch, churchCounts, churchDeptCounts,
+          churchDeptStats, latestKey, latestWeek, latestData, externalTrend } = data;
+
+  const groupColors = {
+    'B':'#0284c7', 'C':'#0891b2', 'D':'#ca8a04', 'D-1':'#a16207', 'E':'#dc2626',
+  };
+  const groupLabels = {
+    'B':'B (대체대면 등)', 'C':'C (줌 화면켬)', 'D':'D (말씀나눔)',
+    'D-1':'D-1 (자문회 인시센)', 'E':'E (기준미달 ⚠️)',
+  };
+
+  // 지파 전체 재적
+  const totalChurchReg = Object.values(churchCounts).reduce((a,b)=>a+b, 0);
+  const totalLatest = latestData.total;
+  const totalE = latestData.E;
+  const totalBCD = latestData.B + latestData.C + latestData.D + latestData['D-1'];
+
+  // === 1) 헤더 KPI ===
+  let html = `
+    <!-- 1. 지파 전체 KPI -->
+    <div style="background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border-radius:14px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:13px;opacity:.85;margin-bottom:4px">📅 ${escapeHtml(latestWeek.week_label || latestKey)} · 지파 전체 사유출석 분석</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px">
+        <div>
+          <div style="font-size:11px;opacity:.85">총 재적</div>
+          <div style="font-size:24px;font-weight:800">${totalChurchReg.toLocaleString()}명</div>
+        </div>
+        <div>
+          <div style="font-size:11px;opacity:.85">사유출석</div>
+          <div style="font-size:24px;font-weight:800">${totalLatest.toLocaleString()}명</div>
+          <div style="font-size:11px;opacity:.85">${totalChurchReg ? (totalLatest/totalChurchReg*100).toFixed(2) : 0}% 차지</div>
+        </div>
+        <div>
+          <div style="font-size:11px;opacity:.85">B/C/D/D-1</div>
+          <div style="font-size:24px;font-weight:800">${totalBCD.toLocaleString()}명</div>
+          <div style="font-size:11px;opacity:.85">${totalLatest ? (totalBCD/totalLatest*100).toFixed(1) : 0}% (사출 중)</div>
+        </div>
+        <div style="background:rgba(220,38,38,.3);padding:6px 10px;border-radius:8px">
+          <div style="font-size:11px;opacity:.85">⚠️ E (기준미달)</div>
+          <div style="font-size:24px;font-weight:800">${totalE.toLocaleString()}명</div>
+          <div style="font-size:11px;opacity:.85">${totalLatest ? (totalE/totalLatest*100).toFixed(1) : 0}% (사출 중)</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // === 2) 단계별 분포 (최신주차) ===
+  html += `<div class="ana-section" style="margin-bottom:18px">
+    <h3 style="margin:0 0 10px 0;font-size:15px">📊 단계별 분포 (${escapeHtml(latestWeek.week_label || latestKey)})</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">`;
+  ['B','C','D','D-1','E'].forEach(g => {
+    const cnt = latestData[g];
+    const pct = totalLatest ? (cnt/totalLatest*100).toFixed(1) : 0;
+    const pctReg = totalChurchReg ? (cnt/totalChurchReg*100).toFixed(2) : 0;
+    html += `
+      <div style="background:#fff;border:2px solid ${groupColors[g]};border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px">${groupLabels[g]}</div>
+        <div style="font-size:26px;font-weight:800;color:${groupColors[g]}">${cnt}</div>
+        <div style="font-size:11px;color:#64748b">사출 중 ${pct}% · 재적 대비 ${pctReg}%</div>
+      </div>
+    `;
+  });
+  html += `</div></div>`;
+
+  // === 3) 교회·부서별 통계 테이블 ===
+  html += `<div class="ana-section" style="margin-bottom:18px">
+    <h3 style="margin:0 0 10px 0;font-size:15px">🏛 교회·부서별 통계 (${escapeHtml(latestWeek.week_label || latestKey)})</h3>
+    <div style="overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #e2e8f0">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead style="background:#f8fafc;font-weight:700">
+        <tr>
+          <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">교회</th>
+          <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">부서</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">재적</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">사출</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">사출율</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors.B}">B</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors.C}">C</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors.D}">D</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors['D-1']}">D-1</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;background:#fef2f2;color:${groupColors.E}">E ⚠️</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;background:#fef2f2;color:${groupColors.E}">E율</th>
+        </tr>
+      </thead>
+      <tbody>`;
+  
+  const CHURCH_ORDER = ['서울교회','포천교회','구리교회','동대문교회','의정부교회'];
+  const DEPT_ORDER = ['교역자','자문회','장년회','부녀회','청년회'];
+  CHURCH_ORDER.forEach(ch => {
+    const stats = churchDeptStats[ch] || {};
+    const regAll = churchCounts[ch] || 0;
+    let chTotal = 0, chB=0, chC=0, chD=0, chD1=0, chE=0;
+    Object.values(stats).forEach(s => { chTotal+=s.total; chB+=s.B; chC+=s.C; chD+=s.D; chD1+=s['D-1']; chE+=s.E; });
+    // 교회 합계 행
+    const chPct = regAll ? (chTotal/regAll*100).toFixed(2) : 0;
+    const chEPct = chTotal ? (chE/chTotal*100).toFixed(1) : 0;
+    html += `
+      <tr style="background:#f1f5f9;font-weight:700">
+        <td colspan="2" style="padding:6px 8px;border-bottom:1px solid #e2e8f0">⛪ ${escapeHtml(ch)}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${regAll}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${chTotal}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${chPct}%</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${chB}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${chC}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${chD}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${chD1}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0;background:#fef2f2">${chE}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0;background:#fef2f2">${chEPct}%</td>
+      </tr>
+    `;
+    DEPT_ORDER.forEach(dp => {
+      const s = stats[dp]; if(!s) return;
+      const reg = (churchDeptCounts[ch] || {})[dp] || 0;
+      const pct = reg ? (s.total/reg*100).toFixed(2) : 0;
+      const ePct = s.total ? (s.E/s.total*100).toFixed(1) : 0;
+      html += `
+        <tr>
+          <td style="padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#94a3b8;font-size:11px">↳</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #f1f5f9">${escapeHtml(dp)}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${reg}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${s.total}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${pct}%</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${s.B}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${s.C}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${s.D}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${s['D-1']}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9;background:#fef2f2">${s.E}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9;background:#fef2f2;font-weight:${s.E > 0 ? 700 : 400};color:${s.E > 0 ? '#dc2626' : '#94a3b8'}">${ePct}%</td>
+        </tr>
+      `;
+    });
+  });
+  html += `</tbody></table></div></div>`;
+
+  // === 4) 추이 — 주차별 그룹 카운트 ===
+  html += `<div class="ana-section" style="margin-bottom:18px">
+    <h3 style="margin:0 0 10px 0;font-size:15px">📈 주차별 추이 (지파 전체)</h3>
+    <div style="overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead style="background:#f8fafc;font-weight:700">
+        <tr>
+          <th style="padding:8px;text-align:left;border-bottom:1px solid #e2e8f0">주차</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">총사출</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors.B}">B</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors.C}">C</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors.D}">D</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;color:${groupColors['D-1']}">D-1</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0;background:#fef2f2;color:${groupColors.E}">E ⚠️</th>
+          <th style="padding:8px;text-align:right;border-bottom:1px solid #e2e8f0">E율</th>
+        </tr>
+      </thead>
+      <tbody>`;
+  weeks.forEach(w => {
+    const d = trendByWeek[w.week_key] || {B:0,C:0,D:0,'D-1':0,E:0,total:0};
+    const ePct = d.total ? (d.E/d.total*100).toFixed(1) : 0;
+    const isLatest = w.week_key === latestKey;
+    html += `
+      <tr style="${isLatest ? 'background:#fef9c3' : ''}">
+        <td style="padding:6px 8px;border-bottom:1px solid #f1f5f9">${escapeHtml(w.week_label || w.week_key)}${isLatest ? ' ⭐' : ''}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9;font-weight:700">${d.total}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${d.B}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${d.C}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${d.D}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${d['D-1']}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9;background:#fef2f2;font-weight:700;color:${groupColors.E}">${d.E}</td>
+        <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${ePct}%</td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table></div></div>`;
+
+  // 🆕 v6.0: 엑셀 추이 시트 데이터 (명단 업로드 안된 4월 등) — 그대로 표시
+  if(externalTrend && externalTrend.zipa && externalTrend.zipa.length > 0){
+    const uploadDate = externalTrend.uploaded_at ? new Date(externalTrend.uploaded_at).toLocaleString('ko-KR') : '미상';
+    const sourceLabel = externalTrend.source === 'db' ? 'DB 스냅샷' : '엑셀 추이 시트';
+    html += `<div class="ana-section" style="margin-bottom:18px">
+      <h3 style="margin:0 0 10px 0;font-size:15px">📜 ${escapeHtml(sourceLabel)} (지파 전체) <span style="font-size:11px;color:#94a3b8;font-weight:400">· 업로드: ${escapeHtml(uploadDate)}</span></h3>
+      <p style="font-size:12px;color:#64748b;margin:0 0 8px 0">⚠️ 이 표는 업로드한 엑셀의 '추이' 시트 그대로입니다. 4월처럼 명단을 업로드하지 않은 주차도 여기 보입니다.</p>
+      <div style="overflow-x:auto;background:#fffbeb;border-radius:10px;border:1px solid #fde68a;padding:12px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead style="background:#fef3c7;font-weight:700">
+          <tr>
+            <th style="padding:8px;text-align:left;border-bottom:1px solid #fde68a">날짜</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a">재적</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a">총사출</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a;color:${groupColors.B}">B</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a;color:${groupColors.C}">C</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a;color:${groupColors.D}">D</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a;color:${groupColors['D-1']}">D-1</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a;background:#fef2f2;color:${groupColors.E}">E ⚠️</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a">사출율</th>
+            <th style="padding:8px;text-align:right;border-bottom:1px solid #fde68a">E율</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    externalTrend.zipa.forEach(t => {
+      const exRate = t.reg ? (t.total/t.reg*100).toFixed(2) : 0;
+      const eRate = t.total ? (t.E/t.total*100).toFixed(1) : 0;
+      html += `
+        <tr>
+          <td style="padding:6px 8px;border-bottom:1px solid #fef3c7;font-weight:700">${escapeHtml(t.date)}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.reg.toLocaleString()}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7;font-weight:700">${t.total}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.B}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.C}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.D}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t['D-1']}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7;background:#fef2f2;font-weight:700;color:${groupColors.E}">${t.E}</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${exRate}%</td>
+          <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #fef3c7">${eRate}%</td>
+        </tr>
+      `;
+    });
+    html += `</tbody></table></div>`;
+    if(externalTrend.church_seoul && externalTrend.church_seoul.length > 0){
+      html += `<div style="margin-top:12px;background:#fff;border-radius:10px;border:1px solid #fde68a;padding:12px">
+        <h4 style="margin:0 0 8px 0;font-size:13px">⛪ 서울교회 추이</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead style="background:#fef3c7;font-weight:700">
+            <tr>
+              <th style="padding:6px 8px;text-align:left;border-bottom:1px solid #fde68a">날짜</th>
+              <th style="padding:6px 8px;text-align:right;border-bottom:1px solid #fde68a">총사출</th>
+              <th style="padding:6px 8px;text-align:right;border-bottom:1px solid #fde68a">B</th>
+              <th style="padding:6px 8px;text-align:right;border-bottom:1px solid #fde68a">C</th>
+              <th style="padding:6px 8px;text-align:right;border-bottom:1px solid #fde68a">D</th>
+              <th style="padding:6px 8px;text-align:right;border-bottom:1px solid #fde68a">D-1</th>
+              <th style="padding:6px 8px;text-align:right;border-bottom:1px solid #fde68a;color:${groupColors.E}">E</th>
+            </tr>
+          </thead>
+          <tbody>`;
+      externalTrend.church_seoul.forEach(t => {
+        html += `<tr>
+          <td style="padding:4px 8px;border-bottom:1px solid #fef3c7">${escapeHtml(t.date)}</td>
+          <td style="padding:4px 8px;text-align:right;border-bottom:1px solid #fef3c7;font-weight:700">${t.total}</td>
+          <td style="padding:4px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.B}</td>
+          <td style="padding:4px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.C}</td>
+          <td style="padding:4px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t.D}</td>
+          <td style="padding:4px 8px;text-align:right;border-bottom:1px solid #fef3c7">${t['D-1']}</td>
+          <td style="padding:4px 8px;text-align:right;border-bottom:1px solid #fef3c7;background:#fef2f2;color:${groupColors.E};font-weight:700">${t.E}</td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>`;
+    }
+    html += `</div>`;
+  }
+
+  // === 5) 사유출석자가 전체 항목 중 차지하는 비율 ===
+  const ratio = totalChurchReg ? (totalLatest/totalChurchReg*100) : 0;
+  const eRatio = totalChurchReg ? (totalE/totalChurchReg*100) : 0;
+  html += `<div class="ana-section" style="margin-bottom:18px">
+    <h3 style="margin:0 0 10px 0;font-size:15px">🥧 사유출석 비율 분석 (지파 전체 재적 대비)</h3>
+    <div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:12px">
+        <div style="text-align:center">
+          <div style="font-size:11px;color:#64748b;margin-bottom:4px">사유출석 / 재적</div>
+          <div style="font-size:32px;font-weight:800;color:#7c3aed">${ratio.toFixed(2)}%</div>
+          <div style="font-size:11px;color:#64748b">${totalLatest} / ${totalChurchReg}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:#64748b;margin-bottom:4px">⚠️ E단계 / 재적</div>
+          <div style="font-size:32px;font-weight:800;color:#dc2626">${eRatio.toFixed(2)}%</div>
+          <div style="font-size:11px;color:#64748b">${totalE} / ${totalChurchReg}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:#64748b;margin-bottom:4px">정상 출석 (사출 제외)</div>
+          <div style="font-size:32px;font-weight:800;color:#16a34a">${(100-ratio).toFixed(2)}%</div>
+          <div style="font-size:11px;color:#64748b">${(totalChurchReg - totalLatest).toLocaleString()} / ${totalChurchReg}</div>
+        </div>
+      </div>
+      <!-- 막대 차트 -->
+      <div style="display:flex;height:32px;border-radius:6px;overflow:hidden;background:#f1f5f9;margin-top:10px">
+        <div style="background:#16a34a;flex:${100-ratio};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">정상출석 ${(100-ratio).toFixed(1)}%</div>
+        <div style="background:#0284c7;flex:${totalLatest ? (latestData.B/totalChurchReg*100) : 0};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px"></div>
+        <div style="background:#0891b2;flex:${totalLatest ? (latestData.C/totalChurchReg*100) : 0};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px"></div>
+        <div style="background:#ca8a04;flex:${totalLatest ? (latestData.D/totalChurchReg*100) : 0};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px"></div>
+        <div style="background:#a16207;flex:${totalLatest ? (latestData['D-1']/totalChurchReg*100) : 0};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px"></div>
+        <div style="background:#dc2626;flex:${totalLatest ? (latestData.E/totalChurchReg*100) : 0};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700">${(latestData.E/totalChurchReg*100).toFixed(1)}%</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;flex-wrap:wrap;font-size:11px">
+        <span><span style="display:inline-block;width:12px;height:12px;background:#16a34a;vertical-align:middle;border-radius:2px"></span> 정상</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#0284c7;vertical-align:middle;border-radius:2px"></span> B</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#0891b2;vertical-align:middle;border-radius:2px"></span> C</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#ca8a04;vertical-align:middle;border-radius:2px"></span> D</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#a16207;vertical-align:middle;border-radius:2px"></span> D-1</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#dc2626;vertical-align:middle;border-radius:2px"></span> E ⚠️</span>
+      </div>
+    </div>
+  </div>`;
+
+  // === 6) 교회별 추이 ===
+  if(Object.keys(trendChurch).length > 0){
+    html += `<div class="ana-section">
+      <h3 style="margin:0 0 10px 0;font-size:15px">🏛 교회별 추이 (총사출/E단계)</h3>
+      <div style="overflow-x:auto;background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead style="background:#f8fafc;font-weight:700">
+          <tr>
+            <th style="padding:6px 8px;text-align:left;border-bottom:1px solid #e2e8f0;position:sticky;left:0;background:#f8fafc">교회</th>
+    `;
+    weeks.forEach(w => {
+      html += `<th style="padding:6px 8px;text-align:right;border-bottom:1px solid #e2e8f0">${escapeHtml(w.week_label || w.week_key)}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+    CHURCH_ORDER.forEach(ch => {
+      // 총사출 행
+      html += `<tr><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;font-weight:700;position:sticky;left:0;background:#fff">${escapeHtml(ch)} (총)</td>`;
+      weeks.forEach(w => {
+        const d = (trendChurch[ch] || {})[w.week_key] || {total:0};
+        html += `<td style="padding:4px 8px;text-align:right;border-bottom:1px solid #f1f5f9">${d.total}</td>`;
+      });
+      html += `</tr>`;
+      // E 행
+      html += `<tr><td style="padding:4px 8px 4px 18px;border-bottom:1px solid #f1f5f9;color:#dc2626;position:sticky;left:0;background:#fff">↳ E</td>`;
+      weeks.forEach(w => {
+        const d = (trendChurch[ch] || {})[w.week_key] || {E:0,total:0};
+        const ePct = d.total ? (d.E/d.total*100).toFixed(0) : 0;
+        html += `<td style="padding:4px 8px;text-align:right;border-bottom:1px solid #f1f5f9;background:#fef2f2;color:#dc2626">${d.E}<span style="color:#94a3b8;font-size:10px">(${ePct}%)</span></td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table></div>`;
+    html += `<p style="font-size:11px;color:#94a3b8;margin-top:8px">⚠️ E = 출석인정 기준미달 (인시센·말씀광장·비메오·친분·줌화면X). 자문회의 인시센은 D-1로 분류.</p>`;
+    html += `</div>`;
+  }
+
+  mount.innerHTML = html;
+}
+
 // 🆕 v5.0: 그룹별 필터링 (상단 카드/필터 버튼 클릭)
 function filterExcusedByGroup(group){
   document.querySelectorAll('[data-filter-group]').forEach(btn => {
@@ -4277,6 +4955,7 @@ async function markExcusedCertified(memberUid){
 }
 
 // 🆕 v5.4: 사유출석자 명단 업로드 모달 (새 양식 — 5교회 시트 자동 처리)
+// 🆕 v6.0: 두 가지 양식 지원 - (A) 다중-시트 엑셀, (B) 간단 텍스트/CSV
 function openExcusedUploadModal(){
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
@@ -4284,45 +4963,109 @@ function openExcusedUploadModal(){
   box.style.cssText = 'background:#fff;border-radius:14px;max-width:780px;width:100%;padding:24px;max-height:90vh;overflow:auto';
   box.innerHTML = `
     <h3 style="margin:0 0 12px 0">📤 사유출석자 명단 업로드</h3>
-    <p style="color:#475569;font-size:13px;margin:0 0 14px 0;background:#f0fdf4;padding:12px;border-radius:8px;border-left:4px solid #16a34a">
-      📁 <b>새 양식</b> Excel 파일을 그대로 업로드<br>
-      ✅ 5개 교회 시트 (서울/포천/구리/동대문/의정부) 자동 처리<br>
-      ✅ 헤더 4줄 자동 스킵<br>
-      ✅ 체크된 컬럼으로 자동 분류 (B/C/D/D-1/E)<br>
-      ✅ 교적과 부서+지역+구역+전화뒷4 매칭하여 정보 보완<br>
-      ✅ 1000명 이상 자동 분할 처리
-    </p>
-    <div style="margin-bottom:10px">
-      <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
-      <select id="exUploadWeek" class="pw-select">
-        <option>주차 로드 중...</option>
-      </select>
+
+    <!-- 🆕 탭 -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #e2e8f0">
+      <button class="ex-up-tab ex-up-tab-active" data-ex-tab="xlsx"
+              onclick="switchExcusedUploadTab('xlsx')"
+              style="padding:10px 16px;border:none;background:none;cursor:pointer;font-weight:700;border-bottom:3px solid #16a34a;color:#16a34a;margin-bottom:-2px">
+        📁 다중-시트 엑셀 (분석용)
+      </button>
+      <button class="ex-up-tab" data-ex-tab="simple"
+              onclick="switchExcusedUploadTab('simple')"
+              style="padding:10px 16px;border:none;background:none;cursor:pointer;font-weight:700;color:#64748b;margin-bottom:-2px">
+        📝 간단 양식 (텍스트/CSV)
+      </button>
     </div>
-    <div style="margin-bottom:10px">
-      <label style="font-weight:700;display:block;margin-bottom:6px">Excel 파일 선택</label>
-      <input type="file" id="exUploadXlsx" accept=".xlsx,.xls" 
-             class="pw-select" style="padding:8px"
-             onchange="updateExcusedXlsxStatus()">
-    </div>
-    <div id="exUploadXlsxStatus" style="margin-top:6px;font-size:12px;color:#475569"></div>
-    <div id="exUploadXlsxProgress" style="margin-top:8px;display:none">
-      <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
-        <div id="exUploadXlsxProgressBar" style="background:#16a34a;height:100%;width:0%;transition:width .3s"></div>
+
+    <!-- 🆕 탭 1: 다중-시트 엑셀 (기존) -->
+    <div id="exUpTabXlsx">
+      <p style="color:#475569;font-size:13px;margin:0 0 14px 0;background:#f0fdf4;padding:12px;border-radius:8px;border-left:4px solid #16a34a">
+        📁 <b>분석용 양식</b> Excel 파일을 그대로 업로드<br>
+        ✅ 5개 교회 시트 (서울/포천/구리/동대문/의정부) 자동 처리<br>
+        ✅ 헤더 4줄 자동 스킵<br>
+        ✅ 체크된 컬럼으로 자동 분류 (B/C/D/D-1/E)<br>
+        ✅ 교적과 부서+지역+구역+전화뒷4 매칭하여 정보 보완<br>
+        ✅ <b>'추이' 시트가 있으면 추이 데이터도 함께 저장</b><br>
+        ✅ <b>'통계' 시트도 분석에 반영</b><br>
+        ✅ 1000명 이상 자동 분할 처리
+      </p>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
+        <select id="exUploadWeek" class="pw-select">
+          <option>주차 로드 중...</option>
+        </select>
       </div>
-      <div id="exUploadXlsxProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">Excel 파일 선택</label>
+        <input type="file" id="exUploadXlsx" accept=".xlsx,.xls" 
+               class="pw-select" style="padding:8px"
+               onchange="updateExcusedXlsxStatus()">
+      </div>
+      <div id="exUploadXlsxStatus" style="margin-top:6px;font-size:12px;color:#475569"></div>
+      <div id="exUploadXlsxProgress" style="margin-top:8px;display:none">
+        <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
+          <div id="exUploadXlsxProgressBar" style="background:#16a34a;height:100%;width:0%;transition:width .3s"></div>
+        </div>
+        <div id="exUploadXlsxProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
+        <button class="btn btn-primary" id="exUploadSubmitBtn" onclick="submitExcusedUpload()">📤 업로드</button>
+      </div>
     </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
-      <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
-      <button class="btn btn-primary" id="exUploadSubmitBtn" onclick="submitExcusedUpload()">📤 업로드</button>
+
+    <!-- 🆕 탭 2: 간단 양식 -->
+    <div id="exUpTabSimple" style="display:none">
+      <p style="color:#475569;font-size:13px;margin:0 0 14px 0;background:#eff6ff;padding:12px;border-radius:8px;border-left:4px solid #2563eb">
+        📝 <b>간단 양식</b> — 텍스트 직접 붙여넣기 또는 CSV 업로드<br>
+        ✅ 컬럼: <code>이름 / 전화번호 / 지파 / 교회 / 부서 / 지역 / 구역 / 출석 / 사유 / 연속결석횟수</code><br>
+        ✅ 탭(\\t) 또는 콤마(,)로 구분<br>
+        ✅ 첫 줄은 헤더 — 자동 스킵<br>
+        ✅ 교적과 자동 매칭하여 정보 보완<br>
+        ✅ 단계 분류는 사유 기반:<br>
+        &nbsp;&nbsp;&nbsp;• "온라인예배" → C (기본) / 자문회는 D-1<br>
+        &nbsp;&nbsp;&nbsp;• "대체예배" → B<br>
+        &nbsp;&nbsp;&nbsp;• "친분/말씀나눔" → D
+      </p>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">주차 선택</label>
+        <select id="exUploadWeekSimple" class="pw-select">
+          <option>주차 로드 중...</option>
+        </select>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">방법 1 — 텍스트 붙여넣기</label>
+        <textarea id="exUploadSimpleText" rows="10"
+                  placeholder="이름	전화번호	지파	교회	부서	지역	구역	출석	사유	연속결석횟수&#10;허*은	4627	서울야고보지파	서울교회	교역자	센터	상봉	사유 출석	온라인예배	0&#10;..."
+                  style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:monospace;font-size:12px"></textarea>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-weight:700;display:block;margin-bottom:6px">방법 2 — CSV/TSV 파일</label>
+        <input type="file" id="exUploadSimpleFile" accept=".csv,.tsv,.txt" 
+               class="pw-select" style="padding:8px">
+      </div>
+      <div id="exUploadSimpleStatus" style="margin-top:6px;font-size:12px;color:#475569"></div>
+      <div id="exUploadSimpleProgress" style="margin-top:8px;display:none">
+        <div style="background:#f1f5f9;border-radius:6px;overflow:hidden;height:8px">
+          <div id="exUploadSimpleProgressBar" style="background:#2563eb;height:100%;width:0%;transition:width .3s"></div>
+        </div>
+        <div id="exUploadSimpleProgressText" style="font-size:12px;color:#475569;margin-top:4px"></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()">취소</button>
+        <button class="btn btn-primary" id="exUploadSimpleBtn" onclick="submitExcusedSimpleUpload()">📤 업로드</button>
+      </div>
     </div>
   `;
   overlay.setAttribute('data-overlay', '1');
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  // 주차 dropdown
-  const weekSel = document.getElementById('exUploadWeek');
-  if(weekSel){
+  // 주차 dropdown (두 탭 동시에)
+  const fillWeeks = (selId) => {
+    const sel = document.getElementById(selId);
+    if(!sel) return;
     const auto = computeWeekKeyFromSunday();
     sbFetch('weekly_target_weeks?select=week_key,week_label&order=week_key.desc&limit=20').then(rows => {
       const existKeys = new Set((rows || []).map(w => w.week_key));
@@ -4332,8 +5075,207 @@ function openExcusedUploadModal(){
       if(!existKeys.has(auto.week_key)){
         opts.unshift(`<option value="${auto.week_key}|${auto.week_label}" selected>${auto.week_label} ⭐ (이번주 — 신규)</option>`);
       }
-      weekSel.innerHTML = opts.join('');
+      sel.innerHTML = opts.join('');
     });
+  };
+  fillWeeks('exUploadWeek');
+  fillWeeks('exUploadWeekSimple');
+}
+
+// 🆕 v6.0: 업로드 탭 전환
+function switchExcusedUploadTab(tab){
+  document.querySelectorAll('.ex-up-tab').forEach(b => {
+    b.classList.remove('ex-up-tab-active');
+    b.style.borderBottom = 'none';
+    b.style.color = '#64748b';
+  });
+  const activeBtn = document.querySelector(`.ex-up-tab[data-ex-tab="${tab}"]`);
+  if(activeBtn){
+    activeBtn.classList.add('ex-up-tab-active');
+    activeBtn.style.borderBottom = tab === 'xlsx' ? '3px solid #16a34a' : '3px solid #2563eb';
+    activeBtn.style.color = tab === 'xlsx' ? '#16a34a' : '#2563eb';
+  }
+  document.getElementById('exUpTabXlsx').style.display = tab === 'xlsx' ? '' : 'none';
+  document.getElementById('exUpTabSimple').style.display = tab === 'simple' ? '' : 'none';
+}
+
+// 🆕 v6.0: 간단 양식 업로드 처리
+async function submitExcusedSimpleUpload(){
+  const wkSel = document.getElementById('exUploadWeekSimple');
+  if(!wkSel?.value){ alert('주차를 선택해주세요.'); return; }
+  const [weekKey, weekLabel] = wkSel.value.split('|');
+
+  const textArea = document.getElementById('exUploadSimpleText');
+  const fileInput = document.getElementById('exUploadSimpleFile');
+
+  let raw = (textArea?.value || '').trim();
+  // 텍스트 비어있으면 파일에서 읽기
+  if(!raw && fileInput?.files?.[0]){
+    raw = await fileInput.files[0].text();
+  }
+  if(!raw){
+    alert('텍스트를 붙여넣거나 파일을 선택해주세요.');
+    return;
+  }
+
+  const submitBtn = document.getElementById('exUploadSimpleBtn');
+  const progressBox = document.getElementById('exUploadSimpleProgress');
+  const progressBar = document.getElementById('exUploadSimpleProgressBar');
+  const progressText = document.getElementById('exUploadSimpleProgressText');
+  if(submitBtn) submitBtn.disabled = true;
+  if(progressBox) progressBox.style.display = 'block';
+
+  try {
+    if(progressText) progressText.textContent = '📁 교적 로드 중...';
+    await loadMemberRegistry();
+
+    if(progressText) progressText.textContent = '📁 데이터 파싱 중...';
+    // 줄별로 파싱
+    const lines = raw.split(/\r?\n/).filter(l => l.trim());
+    if(lines.length < 2){ throw new Error('데이터가 부족합니다 (최소 헤더 + 1행)'); }
+    
+    // 첫 줄로 구분자 결정
+    const first = lines[0];
+    const sep = first.includes('\t') ? '\t' : ',';
+    
+    // 헤더 스킵
+    const dataLines = lines.slice(1);
+
+    // 매칭 인덱스
+    const memberByCDP = new Map();   // church|dept|phone
+    const memberByCDN = new Map();   // church|dept|name (마스킹 매칭용)
+    const memberByCN = new Map();    // church|name
+    if(_memberRegistry){
+      _memberRegistry.forEach(m => {
+        const c = m.church || ''; const d = m.dept || '';
+        const p = m.phone_last4 || ''; const n = m.name || '';
+        if(c && d && p) memberByCDP.set(`${c}|${d}|${p}`, m);
+        if(c && d && n) memberByCDN.set(`${c}|${d}|${n}`, m);
+        if(c && n)      memberByCN.set(`${c}|${n}`, m);
+      });
+    }
+
+    const allLines = [];
+    let matched = 0, unmatched = 0;
+    const groupCounts = {};
+
+    for(const ln of dataLines){
+      const parts = ln.split(sep).map(s => s.trim());
+      if(parts.length < 9) continue;
+      
+      const [name, phone, zipa, church, dept, region, zone, attend, reason, streakStr] = parts;
+      if(!name || !church || !dept) continue;
+
+      // 사유 → 단계 매핑
+      const reasonStr = String(reason || '').replace(/\s+/g,'').toLowerCase();
+      let derivedGroup = 'C', subtype = '';
+      if(reasonStr.includes('인증안함') || reasonStr.includes('인증오류')){ derivedGroup = 'B'; }
+      else if(reasonStr.includes('대체예배') || reasonStr.includes('대면대체')){ derivedGroup = 'B'; }
+      else if(reasonStr.includes('말씀나눔') || reasonStr.includes('말씀교류')){ derivedGroup = 'D'; }
+      else if(reasonStr.includes('친분')){ derivedGroup = 'E'; }
+      else if(reasonStr.includes('인시센')){ derivedGroup = (dept === '자문회') ? 'D-1' : 'E'; }
+      else if(reasonStr.includes('말씀광장')){ derivedGroup = 'E'; }
+      else if(reasonStr.includes('비메오')){ derivedGroup = 'E'; }
+      else if(reasonStr.includes('온라인') || reasonStr.includes('줌')){
+        // 화면 켬/끔 정보가 없으니 자문회면 D-1, 그 외 C
+        derivedGroup = (dept === '자문회') ? 'D-1' : 'C';
+        subtype = '온라인예배';
+      }
+
+      groupCounts[derivedGroup] = (groupCounts[derivedGroup] || 0) + 1;
+
+      // 교적 매칭
+      const phoneClean = String(phone || '').replace(/\D/g,'').slice(-4);
+      let matchedMem = null;
+      if(phoneClean) matchedMem = memberByCDP.get(`${church}|${dept}|${phoneClean}`) || null;
+      if(!matchedMem) matchedMem = memberByCDN.get(`${church}|${dept}|${name}`) || null;
+      if(!matchedMem) matchedMem = memberByCN.get(`${church}|${name}`) || null;
+      if(matchedMem) matched++; else unmatched++;
+
+      const finalRegion = matchedMem?.region_name || region || '';
+      const finalZone   = matchedMem?.zone_name || zone || '';
+      const finalPhone  = matchedMem?.phone_last4 || phoneClean || '';
+      const realName    = matchedMem?.name || name;
+
+      // member_uid 생성: church + dept + name + phone (가능하면 매칭된 것)
+      const member_uid = `${church}|${dept}|${realName}|${finalPhone}`;
+
+      allLines.push({
+        member_uid: member_uid,
+        church: church,
+        dept: dept,
+        region_name: finalRegion,
+        zone_name: finalZone,
+        phone_last4: finalPhone,
+        name: realName,
+        name_masked: name,
+        registry_kind: matchedMem ? '교적매칭' : '미매칭',
+        faith_type: matchedMem ? (matchedMem.faith_type || '일반') : '일반',
+        reason: reasonStr.includes('온라인') ? '온라인예배' : (subtype || (reasonStr || '사유출석')),
+        subtype: subtype,
+        current_group: derivedGroup,
+        target_group: '',
+        week_key: weekKey,
+      });
+    }
+
+    // 진행 상황
+    if(progressText) progressText.textContent = `📁 ${allLines.length}건 파싱 완료. 업로드 중...`;
+    if(progressBar) progressBar.style.width = '50%';
+
+    // 🆕 기존 import_excused_text RPC 와 동일한 TSV 양식으로 변환
+    // RPC 가 받는 TSV 라인 형식: 이름\t전화\t지파\t교회\t부서\t지역\t구역\t출석\t사유\t연속결석횟수
+    const tsvLines = allLines.map(rec => [
+      rec.name_masked || rec.name,
+      rec.phone_last4,
+      '서울야고보지파',
+      rec.church,
+      rec.dept,
+      rec.region_name,
+      rec.zone_name,
+      '사유 출석',
+      rec.subtype || rec.reason || '온라인예배',
+      '0',
+    ].join('\t')).join('\n');
+
+    // 청크 분할 업로드 (1000줄씩)
+    const lineArray = tsvLines.split('\n');
+    const CHUNK = 1000;
+    let totalInserted = 0, totalUpdated = 0, totalSkipped = 0;
+    for(let i = 0; i < lineArray.length; i += CHUNK){
+      const chunk = lineArray.slice(i, i + CHUNK).join('\n');
+      const res = await callRpc('import_excused_text', {
+        p_week_key: weekKey,
+        p_week_label: weekLabel,
+        p_source_name: `simple_v60_${Math.floor(i/CHUNK)+1}`,
+        p_raw_text: chunk,
+      });
+      const rr = Array.isArray(res) ? res[0] : res;
+      totalInserted += (rr?.inserted_count || 0);
+      totalUpdated  += (rr?.updated_count  || 0);
+      totalSkipped  += (rr?.skipped_count  || 0);
+      if(progressBar) progressBar.style.width = `${50 + Math.round((i+CHUNK)/lineArray.length*50)}%`;
+      if(progressText) progressText.textContent = `📁 업로드 중... ${Math.min(i+CHUNK,lineArray.length)}/${lineArray.length}`;
+    }
+
+    if(progressBar) progressBar.style.width = '100%';
+    if(progressText){
+      const classifyMsg = Object.entries(groupCounts).sort().map(([g,n]) => `${g}:${n}`).join(' · ');
+      progressText.textContent = `✅ 완료! 신규 ${totalInserted} · 갱신 ${totalUpdated} · 스킵 ${totalSkipped} · 분류 (${classifyMsg}) · 매칭 ${matched}/${matched+unmatched}`;
+      progressText.style.color = '#16a34a';
+    }
+
+    setTimeout(() => {
+      const overlay = document.querySelector('[data-overlay="1"]');
+      if(overlay) overlay.remove();
+      // 대시보드 새로고침
+      if(typeof loadExcusedDashboard === 'function') loadExcusedDashboard();
+    }, 2000);
+
+  } catch(e) {
+    console.error(e);
+    alert('업로드 실패: ' + e.message);
+    if(submitBtn) submitBtn.disabled = false;
   }
 }
 
@@ -4369,6 +5311,126 @@ async function submitExcusedUpload(){
     if(progressText) progressText.textContent = '📁 파일 파싱 중...';
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array' });
+
+    // 🆕 v6.0: '추이' 시트 파싱 → localStorage 에 보관 (분석 페이지에서 활용)
+    try {
+      if(wb.Sheets['추이']){
+        const trendWs = wb.Sheets['추이'];
+        const trendRows = XLSX.utils.sheet_to_json(trendWs, { header: 1, defval: '', raw: false });
+        // 추이 시트 구조 파싱:
+        //   row 0: '서울교회', ..., '서울야고보지파', ...
+        //   row 1: 헤더 (날짜, 재적, b, b%, c, c%, d, d%, d-1, d-1%, e, e%)
+        //   row 2~: 데이터
+        // 좌측 컬럼(0~11)은 서울교회, 우측(20~31)은 지파 전체
+        const parseTrendBlock = (startCol) => {
+          const result = [];
+          for(let i = 2; i < trendRows.length; i++){
+            const r = trendRows[i] || [];
+            const date = r[startCol];
+            if(!date || String(date).trim() === '') continue;
+            const reg = parseInt(r[startCol+1]) || 0;
+            const B = parseInt(r[startCol+2]) || 0;
+            const C = parseInt(r[startCol+4]) || 0;
+            const D = parseInt(r[startCol+6]) || 0;
+            const D1 = parseInt(r[startCol+8]) || 0;
+            const E = parseInt(r[startCol+10]) || 0;
+            // date 가 Excel 숫자거나 문자열 ('4월5일')일 수 있음
+            let dateStr = String(date);
+            if(typeof date === 'object' && date instanceof Date){
+              const yy = date.getFullYear();
+              const mm = String(date.getMonth()+1).padStart(2,'0');
+              const dd = String(date.getDate()).padStart(2,'0');
+              dateStr = `${yy}-${mm}-${dd}`;
+            }
+            result.push({ date: dateStr, reg, B, C, D, 'D-1': D1, E, total: B+C+D+D1+E });
+          }
+          return result;
+        };
+        const seoulTrend = parseTrendBlock(0);
+        const zipaTrend = parseTrendBlock(20);
+        const trendData = {
+          uploaded_at: new Date().toISOString(),
+          week_key: weekKey,
+          church_seoul: seoulTrend,
+          zipa: zipaTrend,
+        };
+        try { localStorage.setItem('excused_trend_data', JSON.stringify(trendData)); } catch(_){}
+        console.log('[xlsx] 추이 시트 저장:', trendData);
+
+        // 🆕 v6.0: DB 에도 저장 (excused_trend_snapshot RPC)
+        //         localStorage 와 달리 다른 사용자도 보고, 브라우저 닫아도 유지됨
+        try {
+          const snapshotRows = [];
+          // 날짜 정규화 헬퍼
+          const toIso = (d) => {
+            if(!d) return null;
+            // 이미 ISO 형태
+            if(/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+            // '4월5일' / '4월12일' 등 → 현재 연도로 가정
+            const m1 = String(d).match(/^(\d{1,2})월\s*(\d{1,2})일?$/);
+            if(m1){
+              const y = new Date().getFullYear();
+              return `${y}-${String(m1[1]).padStart(2,'0')}-${String(m1[2]).padStart(2,'0')}`;
+            }
+            return null;
+          };
+          zipaTrend.forEach(t => {
+            snapshotRows.push({
+              scope: 'zipa',
+              snapshot_date: t.date,
+              snapshot_iso: toIso(t.date),
+              reg: t.reg,
+              b: t.B, c: t.C, d: t.D, d1: t['D-1'], e: t.E,
+              source_week_key: weekKey,
+            });
+          });
+          seoulTrend.forEach(t => {
+            snapshotRows.push({
+              scope: 'church:서울교회',
+              snapshot_date: t.date,
+              snapshot_iso: toIso(t.date),
+              reg: t.reg,
+              b: t.B, c: t.C, d: t.D, d1: t['D-1'], e: t.E,
+              source_week_key: weekKey,
+            });
+          });
+          if(snapshotRows.length > 0){
+            try {
+              await callRpc('upsert_excused_trend_snapshot', {
+                p_rows: snapshotRows,
+                p_uploaded_by: `${userChurch}/${userDept}`.replace(/\s+/g,''),
+              });
+              console.log(`[xlsx] DB 추이 스냅샷 ${snapshotRows.length}건 저장`);
+            } catch(rpcErr){
+              // RPC 가 아직 마이그레이션 안 된 경우 무시 (localStorage 만으로 작동)
+              console.warn('[xlsx] DB 추이 스냅샷 저장 실패 (RPC 없음 가능):', rpcErr.message || rpcErr);
+            }
+          }
+        } catch(snapErr) {
+          console.warn('[xlsx] 추이 스냅샷 처리 실패:', snapErr);
+        }
+      }
+    } catch(trendErr) {
+      console.warn('[xlsx] 추이 시트 파싱 실패:', trendErr);
+    }
+
+    // 🆕 v6.0: '통계' 시트도 일부 보존 (재적 정보)
+    try {
+      if(wb.Sheets['통계']){
+        const statsWs = wb.Sheets['통계'];
+        const statsRows = XLSX.utils.sheet_to_json(statsWs, { header: 1, defval: '', raw: false });
+        // 단순히 상위 80행 raw 저장 — 분석 페이지에서 직접 매칭해서 활용
+        const statsData = {
+          uploaded_at: new Date().toISOString(),
+          week_key: weekKey,
+          rows: statsRows.slice(0, 100).map(r => r.slice(0, 50)),
+        };
+        try { localStorage.setItem('excused_stats_data', JSON.stringify(statsData)); } catch(_){}
+        console.log('[xlsx] 통계 시트 저장 (상위 100행)');
+      }
+    } catch(statsErr) {
+      console.warn('[xlsx] 통계 시트 파싱 실패:', statsErr);
+    }
 
     // 5개 교회 시트
     const CHURCH_SHEETS = {
@@ -4657,16 +5719,20 @@ function openListPage({mode='all', dept='all', region='all', cls='일반', strea
   currentAttendanceFilter = 'all';
   currentStreakFilter = 'all';   // 기본 초기화
 
-  if(userDept !== '내무부'){
+  // 🆕 교회관리자/내무부는 전체 부서를 다룸 (지파도 마찬가지)
+  const _isFullDept = isChurchScopeAdmin() || isZipaUser();
+  if(!_isFullDept){
     dept = userDept;
   }
+  // 라벨용 — 일반 부서원이면 자기 부서를 prefix
+  const _ownDeptLabel = _isFullDept ? '' : `${userDept} `;
 
   if(mode === 'target'){
     currentTargetFilter = 'target';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentDeptFilter = _isFullDept ? 'all' : userDept;
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
-    document.getElementById('listPageTitle').textContent = userDept === '내무부' ? '타겟 관리 리스트' : `${userDept} 타겟 관리 리스트`;
+    document.getElementById('listPageTitle').textContent = _isFullDept ? '타겟 관리 리스트' : `${userDept} 타겟 관리 리스트`;
   } else if(mode === 'dept'){
     currentTargetFilter = 'all';
     currentDeptFilter = dept;
@@ -4675,20 +5741,20 @@ function openListPage({mode='all', dept='all', region='all', cls='일반', strea
     document.getElementById('listPageTitle').textContent = `${dept} 결석자 리스트`;
   } else if(mode === 'region'){
     currentTargetFilter = 'all';
-    // 내무부/지파 사용자가 특정 부서의 지역을 드릴한 경우 부서 필터 유지
+    // 내무부/지파/교회관리자가 특정 부서의 지역을 드릴한 경우 부서 필터 유지
     if(dept && dept !== 'all'){
       currentDeptFilter = dept;
     } else {
-      currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+      currentDeptFilter = _isFullDept ? 'all' : userDept;
     }
     currentRegionFilter = region;
     document.getElementById('regionSelect').value = region;
-    const deptLabel = (dept && dept !== 'all') ? `${dept} ` : (userDept !== '내무부' ? `${userDept} ` : '');
+    const deptLabel = (dept && dept !== 'all') ? `${dept} ` : _ownDeptLabel;
     document.getElementById('listPageTitle').textContent = `${deptLabel}${region} 지역 결석자 리스트`;
   } else if(mode === 'streak8plus'){
     currentTargetFilter = 'all';
     currentStreakFilter = '8plus';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentDeptFilter = _isFullDept ? 'all' : userDept;
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent = '🔥 연속결석 8회 이상 리스트';
@@ -4698,7 +5764,7 @@ function openListPage({mode='all', dept='all', region='all', cls='일반', strea
     if(cls === '일반') currentStreakFilter = 'general4';
     else if(cls === '가족') currentStreakFilter = 'family8';
     else if(cls === '가족외') currentStreakFilter = 'nonfam8';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentDeptFilter = _isFullDept ? 'all' : userDept;
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent = `🔥 ${cls} · ${streak}회+ 연속결석`;
@@ -4706,24 +5772,24 @@ function openListPage({mode='all', dept='all', region='all', cls='일반', strea
     // 🆕 v5.6: 연속결석 합계 (일반 4회+ ∪ 가족 8회+ ∪ 가족외 8회+)
     currentTargetFilter = 'all';
     currentStreakFilter = 'allStreak';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentDeptFilter = _isFullDept ? 'all' : userDept;
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent = '🔥 연속결석 합계 리스트 (일반4+/가족8+/가족외8+)';
   } else if(mode === 'special'){
     currentTargetFilter = 'all';
     currentStreakFilter = 'special';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentDeptFilter = _isFullDept ? 'all' : userDept;
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent = '🚨 특별관리 대상 리스트';
   } else {
     currentTargetFilter = 'all';
-    currentDeptFilter = userDept === '내무부' ? 'all' : userDept;
+    currentDeptFilter = _isFullDept ? 'all' : userDept;
     currentRegionFilter = 'all';
     document.getElementById('regionSelect').value = currentRegionFilter;
     document.getElementById('listPageTitle').textContent =
-      userDept === '내무부' ? '전체 결석자 리스트' : `${userDept} 결석자 리스트`;
+      _isFullDept ? '전체 결석자 리스트' : `${userDept} 결석자 리스트`;
   }
 
   setFilterButton('status', currentStatusFilter);
@@ -4799,7 +5865,7 @@ function getVisibleRowsBase(){
   }
   // 부서 필터 (top bar)
   // 🔧 v4.7: 교회관리자/내무부 = 전체 부서 보기 / 일반 부서 사용자 = 자기 부서만
-  if(!isZipaUser() && !isChurchAdmin() && userDept !== '내무부'){
+  if(!isZipaUser() && !isChurchScopeAdmin()){
     rows = rows.filter(r => r.dept === userDept);
   } else if(currentDeptFilter && currentDeptFilter !== 'all'){
     rows = rows.filter(r => r.dept === currentDeptFilter);
@@ -5081,7 +6147,367 @@ function getActiveSpecialTargets(){
   return final;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   🆕 스와이프 시스템 — 대시보드 카드 좌우 슬라이드
+   - 지파: 서울→포천→구리→동대문→의정부 (전체→교회별)
+   - 내무부/교회관리자: (전체→자문회→장년회→부녀회→청년회)
+   - 부서: (전체 지역 → 각 지역별)
+   ═══════════════════════════════════════════════════════════════════════════ */
+let _swipeIndex = 0;          // 현재 스와이프 인덱스 (0 = 전체)
+let _swipeItems = [];         // [{kind, value, label, dept?, region?}] — 0번은 항상 전체/overview
+let _swipeMode = '';          // 'church' | 'mixed' | 'region_only'
+let _swipeRegionDetail = false; // 🆕 현재 슬라이드가 '결석자지역별세부' 모드인가
+let _swipeStartX = null;
+let _swipeStartY = null;
+let _swipeBound = false;
+
+function buildSwipeItems(){
+  // 🆕 사용자 권한·필터에 따라 스와이프 아이템 결정
+  // 각 아이템은 {kind, value, label, dept?, region?} 형태
+  //   kind: 'church' | 'dept' | 'region'
+  _swipeItems = [];
+  _swipeMode = '';
+
+  if(isZipaUser()){
+    // 지파 — 교회 필터가 'all' 이면 교회별 슬라이드, 특정 교회면 (부서 + 부서별 지역세부) 인터리빙
+    if(!currentChurchFilter || currentChurchFilter === 'all'){
+      _swipeMode = 'church';
+      _swipeItems.push({kind:'church', value:'all', label:'⛪ 전체 교회'});
+      CHURCHES.forEach(ch => _swipeItems.push({kind:'church', value:ch, label:ch}));
+    } else {
+      // 🆕 특정 교회 → 부서/지역세부 인터리빙
+      _swipeMode = 'mixed';
+      _swipeItems = buildDeptRegionInterleaved(currentChurchFilter);
+    }
+  } else if(isChurchScopeAdmin()){
+    // 🆕 내무부 / 교회관리자: 부서 → 부서지역세부 → 다음 부서 → 다음 부서지역세부 ...
+    _swipeMode = 'mixed';
+    _swipeItems = buildDeptRegionInterleaved(userChurch);
+  } else {
+    // 일반 부서 사용자 — 자기 부서의 지역 슬라이드 (전체 → 각 지역)
+    _swipeMode = 'region_only';
+    _swipeItems = buildRegionSwipeItems(userDept);
+  }
+
+  // 인덱스 보정
+  if(_swipeIndex < 0) _swipeIndex = 0;
+  if(_swipeIndex >= _swipeItems.length) _swipeIndex = 0;
+}
+
+/* 🆕 부서 + 부서별 지역세부 인터리빙된 아이템 리스트 */
+//   순서: [전체 부서] → [자문회 부서뷰] → [자문회 지역세부] → [장년회 부서뷰] → [장년회 지역세부] → ...
+function buildDeptRegionInterleaved(churchValue){
+  const items = [];
+  // 0번: 전체 (KPI + 부서별 카드)
+  items.push({
+    kind:'overview',
+    value:'all',
+    label:`🏛 ${churchValue} · 전체 부서`,
+  });
+  // 각 부서별로 [부서뷰] + [지역세부]
+  DEPTS.forEach(d => {
+    // 부서뷰 (그 부서 KPI + 그 부서의 지역별 카드)
+    items.push({
+      kind:'dept',
+      value:d,
+      label:`${churchValue} · ${d}`,
+      dept:d,
+    });
+    // 그 부서의 지역세부 (지역별 결석자 리스트 형태)
+    items.push({
+      kind:'region_detail',
+      value:`${d}::region_detail`,
+      label:`${churchValue} · ${d} · 결석자지역별세부`,
+      dept:d,
+    });
+  });
+  return items;
+}
+
+function buildRegionSwipeItems(deptValue){
+  const baseRows = (currentRows || []).filter(r => {
+    if(r.church !== userChurch) return false;
+    if(deptValue && deptValue !== 'all' && r.dept !== deptValue) return false;
+    return true;
+  });
+  const regions = [...new Set(baseRows.map(r => r.region_first).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,'ko'));
+  const items = [{kind:'region', value:'all', label:`📍 ${deptValue} · 전체 지역`, dept:deptValue}];
+  // 🆕 부서별 사용자에게도 "지역세부" 모드 카드 추가 (전체 결석자지역별세부)
+  items.push({
+    kind:'region_detail',
+    value:`${deptValue}::region_detail`,
+    label:`📍 ${deptValue} · 결석자지역별세부`,
+    dept:deptValue,
+  });
+  regions.forEach(rg => items.push({
+    kind:'region', value:rg, label:`${deptValue} · ${rg}`, dept:deptValue, region:rg,
+  }));
+  return items;
+}
+
+function applySwipeFilter(){
+  // 현재 _swipeIndex 기반으로 필터 셋업
+  if(!_swipeItems.length) return;
+  const cur = _swipeItems[_swipeIndex] || _swipeItems[0];
+
+  // 🆕 _swipeRegionDetail = 'region_detail' 모드 표시 — renderDashboard 가 이 플래그 보고 다른 뷰 그리기
+  _swipeRegionDetail = (cur.kind === 'region_detail');
+
+  // mode-specific 필터 갱신
+  if(_swipeMode === 'church'){
+    currentChurchFilter = cur.value;
+    const sel = document.getElementById('topChurchSelect');
+    if(sel) sel.value = cur.value;
+  } else if(_swipeMode === 'mixed'){
+    // 부서 + 지역세부 인터리빙 모드 (지파 특정교회 / 내무부 / 교회관리자)
+    if(cur.kind === 'overview'){
+      currentDeptFilter = 'all';
+      currentRegionFilter = 'all';
+    } else if(cur.kind === 'dept' || cur.kind === 'region_detail'){
+      currentDeptFilter = cur.dept;
+      currentRegionFilter = 'all';
+    }
+    const dSel = document.getElementById('topDeptSelect');
+    if(dSel) dSel.value = currentDeptFilter;
+  } else if(_swipeMode === 'region_only'){
+    // 부서별 사용자
+    if(cur.kind === 'region_detail'){
+      currentRegionFilter = 'all';
+    } else {
+      currentRegionFilter = cur.value;
+    }
+  }
+}
+
+function _triggerSwipeAnim(direction){
+  // direction: 'next' or 'prev'
+  const grid = document.getElementById('summaryGrid');
+  if(!grid) return;
+  grid.classList.remove('swipe-anim-next','swipe-anim-prev');
+  // force reflow
+  void grid.offsetWidth;
+  grid.classList.add(direction === 'next' ? 'swipe-anim-next' : 'swipe-anim-prev');
+  // 애니메이션 끝나면 클래스 제거
+  setTimeout(() => {
+    grid.classList.remove('swipe-anim-next','swipe-anim-prev');
+  }, 320);
+}
+
+function swipeNext(){
+  if(!_swipeItems.length) return;
+  _swipeIndex = (_swipeIndex + 1) % _swipeItems.length;
+  applySwipeFilter();
+  renderDashboard();
+  _triggerSwipeAnim('next');
+}
+function swipePrev(){
+  if(!_swipeItems.length) return;
+  _swipeIndex = (_swipeIndex - 1 + _swipeItems.length) % _swipeItems.length;
+  applySwipeFilter();
+  renderDashboard();
+  _triggerSwipeAnim('prev');
+}
+function swipeJump(idx){
+  if(idx < 0 || idx >= _swipeItems.length) return;
+  const dir = idx > _swipeIndex ? 'next' : 'prev';
+  _swipeIndex = idx;
+  applySwipeFilter();
+  renderDashboard();
+  _triggerSwipeAnim(dir);
+}
+
+function renderSwipeIndicator(){
+  if(!_swipeItems || _swipeItems.length <= 1) return '';
+  const cur = _swipeItems[_swipeIndex] || _swipeItems[0];
+  const dotsHtml = _swipeItems.map((it, i) =>
+    `<span class="swipe-dot ${i===_swipeIndex?'active':''}" onclick="swipeJump(${i})" title="${escapeHtml(it.label)}"></span>`
+  ).join('');
+  return `
+    <div class="swipe-indicator" id="swipeIndicator">
+      <button class="swipe-arrow" type="button" onclick="swipePrev()" aria-label="이전">‹</button>
+      <div class="swipe-center">
+        <div class="swipe-title">${escapeHtml(cur.label)}</div>
+        <div class="swipe-hint">📱 좌우로 밀어 다음 화면 보기 · ${_swipeIndex+1}/${_swipeItems.length}</div>
+        <div class="swipe-dots">${dotsHtml}</div>
+      </div>
+      <button class="swipe-arrow" type="button" onclick="swipeNext()" aria-label="다음">›</button>
+    </div>
+  `;
+}
+
+function bindSwipeGestures(){
+  if(_swipeBound) return;
+  const grid = document.getElementById('summaryGrid');
+  if(!grid) return;
+  _swipeBound = true;
+  grid.classList.add('swipe-area');
+
+  grid.addEventListener('touchstart', (e) => {
+    if(e.touches && e.touches.length === 1){
+      _swipeStartX = e.touches[0].clientX;
+      _swipeStartY = e.touches[0].clientY;
+    }
+  }, {passive:true});
+
+  grid.addEventListener('touchend', (e) => {
+    if(_swipeStartX === null) return;
+    const t = (e.changedTouches && e.changedTouches[0]);
+    if(!t){ _swipeStartX = null; return; }
+    const dx = t.clientX - _swipeStartX;
+    const dy = t.clientY - _swipeStartY;
+    _swipeStartX = null;
+    _swipeStartY = null;
+    // 가로 스와이프만 (수직 이동이 더 크면 스크롤로 간주)
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4){
+      // 입력 요소 위에서 시작한 스와이프는 무시
+      const startEl = e.target;
+      const tag = (startEl && startEl.tagName || '').toLowerCase();
+      if(tag === 'input' || tag === 'textarea' || tag === 'select' || tag === 'button') return;
+      if(dx < 0) swipeNext();
+      else swipePrev();
+    }
+  }, {passive:true});
+
+  // 키보드(데스크탑)
+  document.addEventListener('keydown', (e) => {
+    const dashActive = document.getElementById('dashboardPage')?.classList.contains('active');
+    if(!dashActive) return;
+    // 입력창 포커스 중에는 무시
+    const tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+    if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); swipeNext(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); swipePrev(); }
+  });
+
+  // 데스크탑 hover 툴팁 1회 바인딩
+  bindNameHoverTooltip();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   🆕 이름 클릭 → 실명 토글 (대시보드/현황판)
+   maskName 로 마스킹된 이름 옆에 실명 매칭이 있으면 토글 가능
+   ═══════════════════════════════════════════════════════════════════════════ */
+function findRealName(maskedName, dept, phone4, church){
+  // 1) currentRows 에서 dept+name+phone 매칭
+  const masked = String(maskedName || '').trim();
+  if(!masked) return '';
+  if(!masked.includes('*') && !masked.includes('ㅇ')) return masked;  // 이미 실명
+
+  // currentRows 의 row 객체에 name_real 이 있을 수 있음
+  if(Array.isArray(currentRows)){
+    const r = currentRows.find(x => {
+      if(dept && x.dept !== dept) return false;
+      if(church && x.church && x.church !== church) return false;
+      if(phone4 && x.phone_last4 && x.phone_last4 !== phone4) return false;
+      return namesMatch(x.name || '', masked) || namesMatch(x.name_original || '', masked);
+    });
+    if(r && r.name_real) return r.name_real;
+  }
+
+  // 2) 교적에서 매칭
+  if(_memberRegistry && _memberRegistry.length){
+    // 우선순위: dept+phone+church+이름매칭
+    let hit = _memberRegistry.find(m =>
+      (!church || m.church === church)
+      && (!dept || m.dept === dept)
+      && (!phone4 || (m.phone_last4 || '') === phone4)
+      && namesMatch(m.name || '', masked)
+    );
+    if(!hit){
+      hit = _memberRegistry.find(m =>
+        (!church || m.church === church)
+        && (!phone4 || (m.phone_last4 || '') === phone4)
+        && namesMatch(m.name || '', masked)
+      );
+    }
+    if(!hit && phone4){
+      hit = _memberRegistry.find(m =>
+        (m.phone_last4 || '') === phone4 && namesMatch(m.name || '', masked)
+      );
+    }
+    if(!hit){
+      hit = _memberRegistry.find(m => namesMatch(m.name || '', masked));
+    }
+    if(hit) return hit.name || '';
+  }
+  return '';
+}
+
+function makeNameTag(maskedName, dept, phone4, church){
+  // 클릭하면 실명 보이는 span 태그 만들기
+  const masked = String(maskedName || '').trim();
+  const real = findRealName(masked, dept, phone4 || '', church || '');
+  if(!real || real === masked){
+    return `<span class="clickable-name no-real" data-name-masked="${escapeHtml(masked)}" data-name-real="">${escapeHtml(masked)}</span>`;
+  }
+  return `<span class="clickable-name" 
+            data-name-masked="${escapeHtml(masked)}" 
+            data-name-real="${escapeHtml(real)}"
+            onclick="toggleRevealName(this, event)">${escapeHtml(masked)}</span>`;
+}
+
+function toggleRevealName(el, ev){
+  if(ev){ ev.stopPropagation(); }
+  if(!el) return;
+  const masked = el.getAttribute('data-name-masked') || '';
+  const real = el.getAttribute('data-name-real') || '';
+  if(!real){ return; }
+  if(el.classList.contains('revealed')){
+    el.textContent = masked;
+    el.classList.remove('revealed');
+  } else {
+    el.textContent = real;
+    el.classList.add('revealed');
+  }
+}
+
+// 데스크탑 hover 툴팁 — 마우스 올리면 실명 임시 표시 (모바일은 클릭만)
+let _nameTooltipBound = false;
+function bindNameHoverTooltip(){
+  if(_nameTooltipBound) return;
+  _nameTooltipBound = true;
+  let tooltip = null;
+  let lastTarget = null;
+  document.body.addEventListener('mouseover', (e) => {
+    const tg = e.target.closest && e.target.closest('.clickable-name');
+    if(!tg || lastTarget === tg){ return; }
+    if(tg.classList.contains('no-real')) return;
+    if(tg.classList.contains('revealed')) return;  // 이미 펼쳤으면 툴팁 불필요
+    const real = tg.getAttribute('data-name-real') || '';
+    if(!real) return;
+    lastTarget = tg;
+    if(!tooltip){
+      tooltip = document.createElement('div');
+      tooltip.className = 'name-tooltip';
+      document.body.appendChild(tooltip);
+    }
+    tooltip.textContent = real;
+    tooltip.style.display = 'block';
+    const rect = tg.getBoundingClientRect();
+    tooltip.style.left = (rect.left + rect.width/2 - tooltip.offsetWidth/2 + window.scrollX) + 'px';
+    tooltip.style.top  = (rect.top - tooltip.offsetHeight - 8 + window.scrollY) + 'px';
+  });
+  document.body.addEventListener('mouseout', (e) => {
+    const tg = e.target.closest && e.target.closest('.clickable-name');
+    if(!tg) return;
+    lastTarget = null;
+    if(tooltip) tooltip.style.display = 'none';
+  });
+}
+
 function renderDashboard(){
+  // 🆕 스와이프 아이템 갱신
+  buildSwipeItems();
+  // 🆕 스와이프 제스처 바인딩 (1회만)
+  bindSwipeGestures();
+
+  // 🆕 region_detail 모드: 결석자지역별세부 전용 뷰 렌더링
+  if(_swipeRegionDetail){
+    renderRegionDetailView();
+    return;
+  }
+
   const rows = sortRows(getVisibleRowsBase());
   const summaryGrid = document.getElementById('summaryGrid');
 
@@ -5116,7 +6542,7 @@ function renderDashboard(){
   // 📈 출석률 미리 계산 (KPI 첫 행 바로 다음에 표시하기 위해)
   const attAgg = aggregateAttendance(
     isZipaUser() ? currentChurchFilter : userChurch,
-    userDept === '내무부' ? currentDeptFilter : userDept,
+    isChurchScopeAdmin() ? currentDeptFilter : userDept,
     'all',
     rows
   );
@@ -5345,7 +6771,7 @@ function renderDashboard(){
       // C) 특정 교회 + 특정 부서 → 지역별 현황
       html += renderRegionCards(rows, currentChurchFilter, currentDeptFilter);
     }
-  } else if(userDept === '내무부' || isChurchAdmin()){
+  } else if(isChurchScopeAdmin()){
     // 🆕 v5.6: 교회관리자도 내무부와 동일하게 부서별/지역별 카드 표시
     // 🏛 내무부/교회관리자 — 전체 부서면 부서별 카드, 특정 부서면 지역별 카드 (9번 요청)
     if(!hasDeptFilter){
@@ -5395,7 +6821,104 @@ function renderDashboard(){
   html += breakdownHtml;
   html += renderSpecialTargetsList();
 
-  summaryGrid.innerHTML = html;
+  // 🆕 스와이프 인디케이터를 맨 앞(KPI 위)에 붙임
+  const swipeBar = renderSwipeIndicator();
+  summaryGrid.innerHTML = swipeBar + html;
+}
+
+/* 🆕 결석자지역별세부용 — 지역별로 그룹화된 결석자 명단 보기 (펼침형) */
+function renderRegionDetailView(){
+  const cur = _swipeItems[_swipeIndex] || _swipeItems[0];
+  const dept = cur.dept || (isChurchScopeAdmin() ? 'all' : userDept);
+  const summaryGrid = document.getElementById('summaryGrid');
+
+  // 표시 대상 결석자: 자기 교회 + dept 필터
+  // 지파의 경우 currentChurchFilter, 그 외엔 userChurch
+  const myChurch = isZipaUser() ? (currentChurchFilter && currentChurchFilter !== 'all' ? currentChurchFilter : null) : userChurch;
+  const allRows = (currentRows || []).map(combinedRow).filter(r => {
+    if(myChurch && r.church !== myChurch) return false;
+    if(dept && dept !== 'all' && r.dept !== dept) return false;
+    return true;
+  });
+
+  const sorted = sortRows(allRows);
+  // 지역별 그룹화
+  const byRegion = {};
+  sorted.forEach(r => {
+    const rg = r.region_first || '(미지정)';
+    if(!byRegion[rg]) byRegion[rg] = [];
+    byRegion[rg].push(r);
+  });
+  const regionKeys = Object.keys(byRegion).sort((a,b)=>a.localeCompare(b,'ko'));
+
+  // 헤더: KPI (전체)
+  const total = sorted.length;
+  const target = sorted.filter(r => r.is_target).length;
+  const done = sorted.filter(r => r.is_done).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  let html = `
+    <div class="region-detail-header" style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:1.5px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin:10px 0 14px;">
+      <div style="font-size:15px;font-weight:800;color:#3730a3;margin-bottom:4px;">
+        📍 ${escapeHtml(myChurch || '전체')} · ${escapeHtml(dept || '전체')} · 결석자지역별세부용
+      </div>
+      <div style="font-size:12px;color:#4338ca;display:flex;flex-wrap:wrap;gap:14px;">
+        <span><strong>총 ${total}명</strong></span>
+        <span>🎯 타겟 ${target}</span>
+        <span>✅ 완료 ${done} (${pct}%)</span>
+        <span>🗺️ ${regionKeys.length}개 지역</span>
+      </div>
+    </div>
+  `;
+
+  if(total === 0){
+    html += `<div class="empty-state" style="text-align:center;padding:30px;color:#94a3b8;">📭 해당 범위에 결석자가 없습니다.</div>`;
+  } else {
+    regionKeys.forEach(rg => {
+      const list = byRegion[rg];
+      const rgT = list.filter(r => r.is_target).length;
+      const rgD = list.filter(r => r.is_done).length;
+      const rgPct = list.length ? Math.round(rgD/list.length*100) : 0;
+
+      // 지역 카드 헤더
+      html += `
+        <div class="rd-region-block" style="margin-bottom:14px;border:1.5px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff;">
+          <div class="rd-region-head" style="background:linear-gradient(90deg,#f0f9ff,#e0f2fe);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bae6fd;cursor:pointer" onclick="openListPage({mode:'region',region:'${escapeHtml(rg)}',dept:'${escapeHtml(dept||'all')}'})">
+            <div style="font-weight:800;color:#0369a1;font-size:14px;">📍 ${escapeHtml(rg)}</div>
+            <div style="font-size:11px;color:#075985;">
+              <strong>${list.length}명</strong> · 🎯${rgT} · ✅${rgD} (${rgPct}%)
+            </div>
+          </div>
+          <div class="rd-region-list" style="padding:6px 4px;">
+      `;
+      list.forEach(r => {
+        const cls = r._classification && r._classification !== '일반' ? r._classification : '';
+        const clsBadge = cls ? `<span class="class-badge class-badge-${cls}" style="margin-left:4px;">${cls}</span>` : '';
+        const targetBadge = r.is_target ? `<span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:4px;font-size:10px;margin-left:4px;">🎯</span>` : '';
+        const doneBadge = r.is_done ? `<span style="background:#16a34a;color:#fff;padding:1px 5px;border-radius:4px;font-size:10px;margin-left:4px;">✅</span>` : '';
+        const spBadge = r.is_special_managed ? `<span style="margin-left:4px;" title="특별관리">🚨</span>` : '';
+        const streak = Number(r.consecutive_absent_count||0);
+        const streakBadge = streak > 0 ? `<span style="color:#dc2626;font-size:11px;margin-left:4px;">연속${streak}</span>` : '';
+        html += `
+          <div class="rd-row" style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px dashed #f1f5f9;font-size:13px;">
+            <div style="flex:1;">
+              <strong>${makeNameTag(r.name||'', r.dept||'', r.phone_last4||'', r.church||'')}</strong>
+              ${spBadge}${clsBadge}
+              <span style="color:#94a3b8;font-size:11px;margin-left:6px;">${escapeHtml(r.dept||'')}/${escapeHtml(r.zone_name||'')}</span>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              ${targetBadge}${doneBadge}${streakBadge}
+            </div>
+          </div>
+        `;
+      });
+      html += `</div></div>`;
+    });
+  }
+
+  // 스와이프 인디케이터 + 본문
+  const swipeBar = renderSwipeIndicator();
+  summaryGrid.innerHTML = swipeBar + html;
 }
 
 /* 🗺 지역별 카드 렌더링 (공통) */
@@ -5452,12 +6975,13 @@ function drillToDept(dept){
 
 /* 리스트 */
 function createRowHtml(r){
-  const canEdit = (userDept === '내무부' || r.dept === userDept);
+  // 🆕 교회관리자/내무부는 자기 교회 전체 부서 편집 가능, 일반 부서는 자기 부서만
+  const canEdit = isZipaUser() || isChurchScopeAdmin() || r.dept === userDept;
   const disabled = canEdit ? '' : 'disabled';
   return `
     <tr class="${r.is_done ? 'row-done' : ''}${r.is_special_managed ? ' row-special' : ''}">
       <td class="col-dept dept-${escapeHtml(r.dept||'')}">${escapeHtml(r.dept||'')}</td>
-      <td class="col-name"><strong>${escapeHtml(r.name||'')}</strong>${r.is_special_managed ? ' <span class="sp-badge" title="특별관리 대상">🚨</span>' : ''}${r._classification && r._classification !== '일반' ? ` <span class="class-badge class-badge-${r._classification}">${r._classification}</span>` : ''}</td>
+      <td class="col-name"><strong>${makeNameTag(r.name||'', r.dept||'', r.phone_last4||'', r.church||'')}</strong>${r.is_special_managed ? ' <span class="sp-badge" title="특별관리 대상">🚨</span>' : ''}${r._classification && r._classification !== '일반' ? ` <span class="class-badge class-badge-${r._classification}">${r._classification}</span>` : ''}</td>
       <td class="col-org">${escapeHtml(r.org_name||'')}</td>
       <td class="col-reason">${escapeHtml(r.absence_reason||'')}</td>
       <td class="col-streak">${escapeHtml(String(r.consecutive_absent_count ?? ''))}</td>
@@ -5644,7 +7168,7 @@ function renderSpecialTargetsList(){
               <div class="sp-card ${isComplete ? 'sp-card-complete' : ''}">
                 <div class="sp-card-head">
                   <div class="sp-card-name-line">
-                    <span class="sp-card-name">${escapeHtml(r.displayName)}</span>
+                    <span class="sp-card-name">${makeNameTag(r.displayName, r.dept, r.phone_last4 || '', r.church || '')}</span>
                     ${churchHtml}
                     ${attendBadge}
                   </div>
@@ -5722,8 +7246,8 @@ function renderDeptOrRegionFilter(){
   const container = document.getElementById('deptOrRegionButtons');
   if(!label || !container) return;
 
-  if(userDept === '내무부' || isZipaUser()){
-    // 내무부 또는 지파: 전체 부서 버튼
+  if(isChurchScopeAdmin() || isZipaUser()){
+    // 내무부 / 교회관리자 / 지파: 전체 부서 버튼
     label.textContent = '부서';
     const depts = ['all','자문회','장년회','부녀회','청년회'];
     const labels = {'all':'전체','자문회':'자문회','장년회':'장년회','부녀회':'부녀회','청년회':'청년회'};
@@ -5777,8 +7301,8 @@ function setStreakFilter(v){
   renderDashboard();
 }
 function setDeptFilter(v){
-  if(!isZipaUser() && userDept !== '내무부' && v !== 'all' && v !== userDept) return;
-  currentDeptFilter = (userDept === '내무부' || isZipaUser()) ? v : userDept;
+  if(!isZipaUser() && !isChurchScopeAdmin() && v !== 'all' && v !== userDept) return;
+  currentDeptFilter = (isChurchScopeAdmin() || isZipaUser()) ? v : userDept;
   // 상단 부서 셀렉트도 동기화
   const sel = document.getElementById('topDeptSelect');
   if(sel) sel.value = v;
@@ -6008,7 +7532,8 @@ async function saveAll(){
   showLoading(true);
   try{
     for(const row of currentRows){
-      if(userDept === '내무부' || row.dept === userDept){
+      // 🆕 지파/내무부/교회관리자는 자기 교회 전체 부서 저장 가능, 일반 부서는 자기 부서만
+      if(isZipaUser() || isChurchScopeAdmin() || row.dept === userDept){
         await upsertRow(row.row_id);
       }
     }
@@ -6055,7 +7580,7 @@ async function loadAnalytics(){
   // 제목 업데이트
   if(isZipaUser()){
     titleEl.textContent = '📊 지파 전체 분석';
-  } else if(userDept === '내무부'){
+  } else if(isChurchScopeAdmin()){
     titleEl.textContent = `📊 ${userChurch} 분석 (전체 부서)`;
   } else {
     titleEl.textContent = `📊 ${userChurch} ${userDept} 분석`;
@@ -6109,7 +7634,7 @@ async function loadAnalytics(){
 
     if(isZipaUser()){
       renderForZipa(allRows, weekKeys, labelMap, chartsMount);
-    } else if(userDept === '내무부'){
+    } else if(isChurchScopeAdmin()){
       renderForChurch(allRows, progRows, weekKeys, labelMap, chartsMount);
     } else {
       renderForDept(allRows, progRows, weekKeys, labelMap, chartsMount);
@@ -6164,7 +7689,7 @@ function renderAnalyticsSummary(allRows, progRows, weekKeys, labelMap){
   if(isZipaUser()){
     scopeRows = allRows;
     scopeLabel = '서울야고보지파';
-  } else if(userDept === '내무부'){
+  } else if(isChurchScopeAdmin()){
     scopeRows = allRows.filter(r => r.church === userChurch);
     scopeLabel = userChurch;
   } else {
@@ -6866,36 +8391,83 @@ function initBroadcastTab(){
   
   const role = getBcUserRole();
   const cards = [];
+  // 🆕 카드 카테고리 — 발송시 카드 그룹별로 시각 분리
+  // 'normal' = 일반 그룹방, 'dept' = 부서별, 'special' = 특별관리 대상자
   
   if(role === 'zipa'){
     // 지파관리자: 모든 옵션 가능
-    cards.push({type:'all', church:null, dept:null, icon:'🌐', title:'전체 그룹방', sub:'5교회 모든 부서'});
+    cards.push({type:'all', church:null, dept:null, icon:'🌐', title:'전체 그룹방', sub:'5교회 모든 부서', _cat:'normal'});
     // 교회별
     ['서울교회','포천교회','구리교회','동대문교회','의정부교회'].forEach(ch => {
-      cards.push({type:'church', church:ch, dept:null, icon:'⛪', title:ch, sub:'해당 교회 모든 부서'});
+      cards.push({type:'church', church:ch, dept:null, icon:'⛪', title:ch, sub:'해당 교회 모든 부서', _cat:'normal'});
     });
-    // 부서별 (전체 5교회 단위로는 type='all' + 별도 dept 처리 필요 — 일단 교회별 부서만 제공)
+    // 🆕 모든 교회의 부서별 (지파 단위로 같은 부서 전체)
+    ['자문회','장년회','부녀회','청년회'].forEach(d => {
+      cards.push({type:'all_dept', church:null, dept:d, icon:getDeptIcon(d), title:`전체 ${d}`, sub:`5교회 모든 ${d}`, _cat:'dept'});
+    });
+    // 🆕 교회별 × 부서별 (지파관리자가 특정 교회의 특정 부서에 발송)
+    ['서울교회','포천교회','구리교회','동대문교회','의정부교회'].forEach(ch => {
+      ['자문회','장년회','부녀회','청년회'].forEach(d => {
+        cards.push({type:'dept', church:ch, dept:d, icon:getDeptIcon(d), title:`${ch} ${d}`, sub:`${ch}의 ${d}만`, _cat:'dept'});
+      });
+    });
+    // 🆕 특별관리 대상자 발송
+    cards.push({type:'special', church:null, dept:null, icon:'🚨', title:'특별관리 대상자 전체', sub:'등록된 특별관리 대책방 전부', _cat:'special'});
+    ['서울교회','포천교회','구리교회','동대문교회','의정부교회'].forEach(ch => {
+      cards.push({type:'special_church', church:ch, dept:null, icon:'🚨', title:`${ch} 특별관리`, sub:`${ch} 특별관리 대책방`, _cat:'special'});
+    });
   } else if(role === 'church'){
-    // 교회관리자: 자기 교회 전체 + 자기 교회 부서별
-    cards.push({type:'church', church:userChurch, dept:null, icon:'⛪', title:`${userChurch} 전체`, sub:'우리 교회 모든 부서'});
+    // 교회관리자: 자기 교회 전체 + 자기 교회 부서별 + 자기 교회 특별관리
+    cards.push({type:'church', church:userChurch, dept:null, icon:'⛪', title:`${userChurch} 전체`, sub:'우리 교회 모든 부서', _cat:'normal'});
     ['자문회','장년회','부녀회','청년회','교역자'].forEach(d => {
-      cards.push({type:'dept', church:userChurch, dept:d, icon:getDeptIcon(d), title:`${d}`, sub:`${userChurch} ${d}`});
+      cards.push({type:'dept', church:userChurch, dept:d, icon:getDeptIcon(d), title:`${d}`, sub:`${userChurch} ${d}`, _cat:'dept'});
+    });
+    // 🆕 자기 교회의 특별관리 대상자
+    cards.push({type:'special_church', church:userChurch, dept:null, icon:'🚨', title:`${userChurch} 특별관리`, sub:'우리 교회 특별관리 대책방', _cat:'special'});
+    // 🆕 자기 교회 + 부서별 특별관리
+    ['자문회','장년회','부녀회','청년회'].forEach(d => {
+      cards.push({type:'special_dept', church:userChurch, dept:d, icon:'🚨', title:`${d} 특별관리`, sub:`${userChurch} ${d} 특별관리 대책방`, _cat:'special'});
     });
   } else if(role === 'dept'){
-    // 부서관리자: 자기 교회 자기 부서만
-    cards.push({type:'dept', church:userChurch, dept:userDept, icon:getDeptIcon(userDept), title:`${userDept}`, sub:`${userChurch} ${userDept}`});
+    // 부서관리자: 자기 교회 자기 부서만 + 자기 부서 특별관리
+    cards.push({type:'dept', church:userChurch, dept:userDept, icon:getDeptIcon(userDept), title:`${userDept}`, sub:`${userChurch} ${userDept}`, _cat:'normal'});
+    // 🆕 자기 부서의 특별관리 대상자
+    cards.push({type:'special_dept', church:userChurch, dept:userDept, icon:'🚨', title:`${userDept} 특별관리`, sub:`우리 부서 특별관리 대책방`, _cat:'special'});
   } else {
     grid.innerHTML = '<div style="padding:20px;color:#dc2626">메시지 발송 권한이 없습니다.</div>';
     return;
   }
   
-  grid.innerHTML = cards.map((c, i) => `
-    <div class="bc-scope-card" data-bc-idx="${i}" onclick="selectBcScope(${i})">
-      <div class="bc-scope-icon">${c.icon}</div>
-      <div class="bc-scope-title">${escapeHtml(c.title)}</div>
-      <div class="bc-scope-sub">${escapeHtml(c.sub)}</div>
-    </div>
-  `).join('');
+  // 🆕 카테고리별 그룹화 후 헤더 + 카드 렌더링
+  const catLabels = {
+    'normal':  {label:'📢 일반 그룹방', sub:'전체 / 교회별 발송', color:'#2563eb'},
+    'dept':    {label:'🏛 부서별 발송', sub:'각 교회의 부서별 그룹방', color:'#7c3aed'},
+    'special': {label:'🚨 특별관리 대상자', sub:'등록된 특별관리 대책방으로만 발송', color:'#dc2626'},
+  };
+  const grouped = {normal:[], dept:[], special:[]};
+  cards.forEach((c, i) => {
+    grouped[c._cat || 'normal'].push({card:c, idx:i});
+  });
+
+  let html = '';
+  ['normal', 'dept', 'special'].forEach(cat => {
+    const list = grouped[cat];
+    if(!list.length) return;
+    const meta = catLabels[cat];
+    html += `<div class="bc-cat-header" style="grid-column:1/-1;font-weight:800;font-size:13px;color:${meta.color};padding:8px 4px 4px;border-bottom:1.5px solid ${meta.color};margin-top:6px">
+      ${meta.label} <span style="font-weight:500;color:#64748b;font-size:11px">· ${meta.sub}</span>
+    </div>`;
+    list.forEach(({card, idx}) => {
+      html += `
+        <div class="bc-scope-card bc-cat-${cat}" data-bc-idx="${idx}" onclick="selectBcScope(${idx})">
+          <div class="bc-scope-icon">${card.icon}</div>
+          <div class="bc-scope-title">${escapeHtml(card.title)}</div>
+          <div class="bc-scope-sub">${escapeHtml(card.sub)}</div>
+        </div>
+      `;
+    });
+  });
+  grid.innerHTML = html;
   
   // 데이터 보존
   window._bcCards = cards;
@@ -7033,10 +8605,24 @@ async function sendBroadcast(){
     return;
   }
   // 🆕 v5.8: confirm 간소화 — 미리보기에서 이미 봤으므로 짧게
-  const scopeLabel = _bcSelectedScope.type === 'all' 
-    ? '전체 그룹방' 
-    : `${_bcSelectedScope.church || ''} ${_bcSelectedScope.dept || ''}`.trim();
-  if(!confirm(`📢 ${scopeLabel} 에 발송하시겠습니까?`)){
+  const sc = _bcSelectedScope;
+  let scopeLabel;
+  switch(sc.type){
+    case 'all':            scopeLabel = '🌐 전체 그룹방'; break;
+    case 'church':         scopeLabel = `⛪ ${sc.church} 전체`; break;
+    case 'dept':           scopeLabel = `🏛 ${sc.church} ${sc.dept}`; break;
+    case 'all_dept':       scopeLabel = `🏛 전체 ${sc.dept}`; break;
+    case 'special':        scopeLabel = '🚨 특별관리 대상자 전체'; break;
+    case 'special_church': scopeLabel = `🚨 ${sc.church} 특별관리`; break;
+    case 'special_dept':   scopeLabel = `🚨 ${sc.church} ${sc.dept} 특별관리`; break;
+    default:               scopeLabel = `${sc.church || ''} ${sc.dept || ''}`.trim();
+  }
+  // 🚨 특별관리는 한 번 더 확인
+  let confirmMsg = `📢 ${scopeLabel} 에 발송하시겠습니까?`;
+  if(String(sc.type).startsWith('special')){
+    confirmMsg = `🚨 특별관리 대상자 대책방에 발송됩니다.\n\n범위: ${scopeLabel}\n\n계속하시겠습니까?`;
+  }
+  if(!confirm(confirmMsg)){
     return;
   }
   
@@ -7775,7 +9361,7 @@ async function searchMembers(){
       html += `
         <div class="member-search-card" id="msc-${m.id}">
           <div class="msc-row">
-            <div class="msc-name">${escapeHtml(masked)}</div>
+            <div class="msc-name">${makeNameTag(masked, m.dept || '', m.phone_last4 || '', m.church || '')}</div>
             <button class="btn-mini" onclick="enterEditMember(${m.id})">✏️ 수정</button>
           </div>
           <div class="msc-meta">
@@ -9128,7 +10714,7 @@ function renderRoomsTable(rooms){
         const check = (v) => v === true  ? '✅'
                             : v === false ? '❌'
                             : (v ? '✅' : '❌');
-        const nameTxt = `${escapeHtml(s.name)}${s.phone_last4?`(${s.phone_last4})`:''} <span style="color:#94a3b8;font-size:10px">${escapeHtml(s.dept||'')}/${escapeHtml(s.region_name||'')}/${escapeHtml(s.zone_name||'')}</span>`;
+        const nameTxt = `${makeNameTag(s.name || '', s.dept || '', s.phone_last4 || '', r.church || '')}${s.phone_last4?`(${s.phone_last4})`:''} <span style="color:#94a3b8;font-size:10px">${escapeHtml(s.dept||'')}/${escapeHtml(s.region_name||'')}/${escapeHtml(s.zone_name||'')}</span>`;
         html += `<tr>`;
         if(idx === 0){
           html += `<td rowspan="${r.specials.length}" style="vertical-align:top"><strong>${escapeHtml(r.chat_title || '(제목없음)')}</strong><br><code style="font-size:10px;color:#94a3b8">${r.chat_id}</code></td>`;
@@ -9544,7 +11130,7 @@ async function loadExportData(){
         + `<td>${escapeHtml(r.dept || '')}</td>`
         + `<td>${escapeHtml(r.region_name || '')}</td>`
         + `<td>${escapeHtml(r.zone_name || '')}</td>`
-        + `<td><strong>${escapeHtml(r.name || '')}</strong></td>`
+        + `<td><strong>${makeNameTag(r.name || '', r.dept || '', r.phone_last4 || '', r.church || '')}</strong></td>`
         + `<td>${escapeHtml(r.phone_last4 || '')}</td>`
         + `<td style="text-align:center">${r.consecutive_absent_count ?? ''}</td>`
         + `</tr>`;
