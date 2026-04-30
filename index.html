@@ -218,6 +218,113 @@
     font-weight:800;
   }
 
+  /* 🆕 v6.0: 상단 컨트롤 접기/펼치기 토글 버튼 */
+  .topctl-toggle{
+    display:none;   /* 데스크탑에선 숨김 (전체 항상 보임) */
+    width:100%;
+    background:linear-gradient(135deg,#eef2ff,#e0e7ff);
+    border:1px solid #c7d2fe;
+    color:#3730a3;
+    font-size:13px;
+    font-weight:800;
+    padding:10px 14px;
+    border-radius:12px;
+    cursor:pointer;
+    margin-bottom:10px;
+    text-align:left;
+  }
+  .topctl-toggle:hover{ filter:brightness(0.97); }
+  .top-controls.collapsed .topctl-body{
+    display:none;
+  }
+  /* 모바일: 토글 표시 + 기본은 펼친 상태 */
+  @media (max-width: 768px){
+    .topctl-toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .controls{
+      flex-direction:column;
+      align-items:stretch;
+    }
+    .control-group{
+      width:100%;
+      justify-content:space-between;
+    }
+    .top-select{ flex:1; min-width:0; }
+    .top-actions{
+      width:100%;
+      gap:6px;
+    }
+    /* 액션 버튼들을 grid 로 정돈 */
+    .top-actions .btn{
+      flex:1 1 auto;
+      min-width:calc(50% - 3px);
+      max-width:calc(50% - 3px);
+      padding:10px 8px;
+      font-size:12px;
+      white-space:nowrap;
+      text-align:center;
+    }
+    .current-week{
+      width:100%;
+      text-align:center;
+      padding:6px 0;
+      background:#f8fafc;
+      border-radius:8px;
+      margin-top:4px;
+    }
+    /* list-toolbar 도 정돈 */
+    .list-toolbar > div:last-child{
+      display:grid !important;
+      grid-template-columns:repeat(2, 1fr);
+      gap:6px !important;
+      width:100%;
+    }
+    .list-toolbar .btn{
+      padding:8px 6px;
+      font-size:12px;
+      white-space:nowrap;
+    }
+  }
+
+  /* 🆕 v6.0: 사유출석자 toolbar 정돈 */
+  .excused-toolbar{
+    flex-wrap:wrap;
+    gap:10px;
+    padding:14px 16px;
+  }
+  .excused-actions{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .excused-btn{
+    padding:8px 12px;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  @media (max-width: 768px){
+    .excused-toolbar .list-title{
+      width:100%;
+      text-align:center;
+      font-size:15px;
+    }
+    .excused-actions{
+      width:100%;
+      display:grid !important;
+      grid-template-columns:repeat(3, 1fr);
+      gap:5px;
+    }
+    .excused-btn{
+      padding:7px 4px;
+      font-size:11px;
+      min-width:0;
+    }
+  }
+
   .page{ display:none; }
   .page.active{ display:block; }
 
@@ -801,34 +908,92 @@
   /* 🆕 v5.0: 사유출석자 대시보드 */
   .ex-summary-row{ margin-bottom:14px; }
   .ex-summary-card{
-    padding:18px 20px; border-radius:14px;
+    padding:18px 22px; border-radius:14px;
     display:flex; align-items:center; gap:18px;
+    box-shadow:0 2px 12px rgba(0,0,0,.04);
+    border:1px solid #e2e8f0;
   }
-  .ex-sum-label{ font-size:13px; color:#64748b; flex:1; }
-  .ex-sum-num{ font-size:32px; font-weight:800; color:#0f172a; }
-  .ex-sum-sub{ font-size:13px; color:#475569; }
+  .ex-sum-label{ font-size:13px; color:#64748b; flex:1; font-weight:600 }
+  .ex-sum-num{ font-size:34px; font-weight:800; color:#0f172a; }
+  .ex-sum-sub{ font-size:13px; color:#475569; font-weight:600 }
 
   .ex-kpi-grid{
     display:grid;
-    grid-template-columns:repeat(6,1fr);
+    grid-template-columns:repeat(7,1fr);  /* 🆕 v6.0: 7개 그룹 (A,B,C,D,D-1,E,결석) */
     gap:10px;
-    margin-bottom:14px;
+    margin-bottom:18px;
   }
-  @media (max-width: 900px){ .ex-kpi-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width: 1100px){ .ex-kpi-grid{ grid-template-columns:repeat(4,1fr); } }
+  @media (max-width: 768px){ .ex-kpi-grid{ grid-template-columns:repeat(3,1fr); gap:8px; } }
   @media (max-width: 540px){ .ex-kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width: 768px){
+    .ex-summary-card{ padding:14px 16px; gap:12px }
+    .ex-sum-num{ font-size:28px; }
+    .ex-kpi-num{ font-size:22px !important; }
+    .ex-kpi-label{ font-size:11px !important; }
+    .ex-kpi-delta{ font-size:10px !important; }
+  }
 
   .ex-kpi-card{
     padding:14px; border-radius:12px;
     border:1.5px solid #e2e8f0;
     cursor:pointer;
-    transition:transform .15s, box-shadow .15s;
+    transition:transform .15s, box-shadow .15s, border-color .15s;
     text-align:center;
+    user-select:none;
   }
   .ex-kpi-card:hover{ transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.08); }
+  /* 🆕 v6.0: 활성 카드 (선택된 단계) */
+  .ex-kpi-card.ex-kpi-active{
+    transform:translateY(-3px) scale(1.02);
+    box-shadow:0 10px 28px rgba(0,0,0,.15);
+    border-width:2.5px;
+    position:relative;
+  }
+  .ex-kpi-card.ex-kpi-active::after{
+    content:'▾';
+    position:absolute;
+    bottom:-12px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:18px;
+    color:inherit;
+  }
   .ex-kpi-icon{ font-size:18px; }
   .ex-kpi-num{ font-size:28px; font-weight:800; margin:4px 0 2px 0; }
   .ex-kpi-label{ font-size:12px; color:#475569; font-weight:700; }
   .ex-kpi-delta{ font-size:11px; margin-top:6px; font-weight:600; }
+
+  /* 🆕 v6.0: 단계 스와이프 바 */
+  .ex-swipe-bar{
+    display:flex; align-items:center;
+    background:linear-gradient(135deg,#faf5ff,#ede9fe);
+    border:1px solid #ddd6fe;
+    border-radius:10px;
+    padding:8px 12px;
+    margin:0 0 12px 0;
+  }
+  .ex-swipe-btn{
+    background:#fff;
+    border:1.5px solid #c4b5fd;
+    color:#7c3aed;
+    width:36px; height:36px;
+    border-radius:50%;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .15s;
+  }
+  .ex-swipe-btn:hover{ transform:scale(1.1); background:#f5f3ff; }
+  .ex-swipe-btn:active{ transform:scale(0.95); }
+
+  /* 🆕 v6.0: drill panel 슬라이드 애니메이션 */
+  #excusedDrillPanel.swipe-anim-next{
+    animation: swipe-in-from-right 0.22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  }
+  #excusedDrillPanel.swipe-anim-prev{
+    animation: swipe-in-from-left 0.22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  }
 
   .ex-alert{
     padding:14px 18px; border-radius:12px;
@@ -2154,20 +2319,28 @@
     touch-action:pan-y;
   }
 
-  /* 🆕 부드러운 슬라이드 전환 애니메이션 */
+  /* 🆕 v6.0: 바텀시트 슬라이드업 */
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  /* 🆕 v6.0: 더 부드러운 슬라이드 전환 (Apple/Telegram 스타일) */
   @keyframes swipe-in-from-right {
-    from { opacity: 0; transform: translateX(40px); }
-    to   { opacity: 1; transform: translateX(0); }
+    0%   { opacity: 0; transform: translate3d(24px,0,0); }
+    100% { opacity: 1; transform: translate3d(0,0,0); }
   }
   @keyframes swipe-in-from-left {
-    from { opacity: 0; transform: translateX(-40px); }
-    to   { opacity: 1; transform: translateX(0); }
+    0%   { opacity: 0; transform: translate3d(-24px,0,0); }
+    100% { opacity: 1; transform: translate3d(0,0,0); }
   }
   #summaryGrid.swipe-anim-next > *:not(.swipe-indicator){
-    animation: swipe-in-from-right 0.28s ease-out;
+    animation: swipe-in-from-right 0.22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    will-change: transform, opacity;
   }
   #summaryGrid.swipe-anim-prev > *:not(.swipe-indicator){
-    animation: swipe-in-from-left 0.28s ease-out;
+    animation: swipe-in-from-left 0.22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    will-change: transform, opacity;
   }
   /* 결석자지역별세부용 행 호버 */
   .rd-region-head:hover{
@@ -2297,50 +2470,59 @@
 <div class="container">
   <h1 id="mainPageTitle">📅 결석자 타겟 심방 현황</h1>
 
+  <!-- 🆕 v6.0: 모바일 친화 — 상단 툴바 접기/펼치기 + 지역 드롭다운 노출 -->
   <div class="top-controls" id="absenteeTopControls">
-    <div class="controls">
-      <div class="control-group">
-        <span class="control-label">월 선택</span>
-        <select class="top-select" id="monthSelect" onchange="onMonthChange()"></select>
+    <button class="topctl-toggle" type="button" id="topctlToggleBtn" onclick="toggleTopControls()" title="접기/펼치기">
+      <span id="topctlToggleIcon">▾</span> <span id="topctlToggleLabel">필터·메뉴</span>
+    </button>
+    <div class="topctl-body" id="topctlBody">
+      <div class="controls">
+        <div class="control-group">
+          <span class="control-label">월 선택</span>
+          <select class="top-select" id="monthSelect" onchange="onMonthChange()"></select>
+        </div>
+        <div class="control-group">
+          <span class="control-label">결석 주차</span>
+          <select class="top-select" id="weekSelect" onchange="onWeekChange()"></select>
+        </div>
+        <div class="control-group" id="topChurchGroup" style="display:none">
+          <span class="control-label">교회</span>
+          <select class="top-select" id="topChurchSelect" onchange="onTopChurchChange()">
+            <option value="all">전체 교회</option>
+            <option value="서울교회">서울교회</option>
+            <option value="포천교회">포천교회</option>
+            <option value="구리교회">구리교회</option>
+            <option value="동대문교회">동대문교회</option>
+            <option value="의정부교회">의정부교회</option>
+          </select>
+        </div>
+        <div class="control-group" id="topDeptGroup">
+          <span class="control-label">부서</span>
+          <select class="top-select" id="topDeptSelect" onchange="onTopDeptChange()">
+            <option value="all">전체 부서</option>
+            <option value="자문회">자문회</option>
+            <option value="장년회">장년회</option>
+            <option value="부녀회">부녀회</option>
+            <option value="청년회">청년회</option>
+          </select>
+        </div>
+        <!-- 🆕 v6.0: 지역 드롭다운 - 부서 사용자도 사용 가능하도록 노출 -->
+        <div class="control-group" id="topRegionGroup" style="display:none">
+          <span class="control-label">지역</span>
+          <select class="top-select" id="regionSelect" onchange="onRegionChange()">
+            <option value="all">전체 지역</option>
+          </select>
+        </div>
       </div>
-      <div class="control-group">
-        <span class="control-label">결석 주차</span>
-        <select class="top-select" id="weekSelect" onchange="onWeekChange()"></select>
+      <div class="top-actions">
+        <button class="btn btn-light" type="button" onclick="goAdmin()" id="adminBtn" style="display:none">🔧 관리자</button>
+        <button class="btn btn-light" type="button" onclick="switchToExcusedMode()" id="switchToExcusedBtn" style="background:#dbeafe;color:#1d4ed8;font-weight:700">📅 사유출석자 보기</button>
+        <button class="btn btn-light" type="button" onclick="goAnalytics()" id="analyticsBtn">📊 분석</button>
+        <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
+        <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
+        <button class="btn btn-danger" type="button" onclick="logout()" id="logoutBtn">🚪 로그아웃</button>
+        <div class="current-week" id="currentWeekLabel">📅 2026-04-19 주일 결석자</div>
       </div>
-      <div class="control-group" id="topChurchGroup" style="display:none">
-        <span class="control-label">교회</span>
-        <select class="top-select" id="topChurchSelect" onchange="onTopChurchChange()">
-          <option value="all">전체 교회</option>
-          <option value="서울교회">서울교회</option>
-          <option value="포천교회">포천교회</option>
-          <option value="구리교회">구리교회</option>
-          <option value="동대문교회">동대문교회</option>
-          <option value="의정부교회">의정부교회</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <span class="control-label">부서</span>
-        <select class="top-select" id="topDeptSelect" onchange="onTopDeptChange()">
-          <option value="all">전체 부서</option>
-          <option value="자문회">자문회</option>
-          <option value="장년회">장년회</option>
-          <option value="부녀회">부녀회</option>
-          <option value="청년회">청년회</option>
-        </select>
-      </div>
-      <!-- 지역 드롭다운은 숨김 유지 (리스트 페이지 상세 필터에서만 사용) -->
-      <select class="top-select" id="regionSelect" onchange="onRegionChange()" style="display:none">
-        <option value="all">전체 지역</option>
-      </select>
-    </div>
-    <div class="top-actions">
-      <button class="btn btn-light" type="button" onclick="goAdmin()" id="adminBtn" style="display:none">🔧 관리자</button>
-      <button class="btn btn-light" type="button" onclick="switchToExcusedMode()" id="switchToExcusedBtn" style="background:#dbeafe;color:#1d4ed8;font-weight:700">📅 사유출석자 보기</button>
-      <button class="btn btn-light" type="button" onclick="goAnalytics()" id="analyticsBtn">📊 분석</button>
-      <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
-      <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
-      <button class="btn btn-danger" type="button" onclick="logout()" id="logoutBtn">🚪 로그아웃</button>
-      <div class="current-week" id="currentWeekLabel">📅 2026-04-19 주일 결석자</div>
     </div>
   </div>
 
@@ -2466,14 +2648,14 @@
 
   <!-- ═══ 🆕 v5.0: 사유출석자 단계향상 현황 페이지 ═══════════════════════ -->
   <div class="page" id="excusedPage">
-    <div class="list-toolbar">
+    <div class="list-toolbar excused-toolbar">
       <div class="list-title">📅 사유출석자 단계향상 현황</div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-light" onclick="switchToAbsenteeMode()" style="background:#fef3c7;color:#b45309;font-weight:700">📋 결석자 보기</button>
-        <button class="btn btn-light" onclick="loadExcusedDashboard()">🔄 새로고침</button>
-        <button class="btn btn-primary" onclick="openExcusedAnalytics()" style="background:#7c3aed">📊 분석</button>
-        <button class="btn btn-light" onclick="openExcusedUploadModal()">📤 명단 업로드</button>
-        <button class="btn btn-light" onclick="logout()">🚪 로그아웃</button>
+      <div class="excused-actions">
+        <button class="btn btn-light excused-btn" onclick="switchToAbsenteeMode()" style="background:#fef3c7;color:#b45309;font-weight:700">📋 결석자</button>
+        <button class="btn btn-light excused-btn" onclick="loadExcusedDashboard()">🔄 새로고침</button>
+        <button class="btn btn-primary excused-btn" onclick="openExcusedAnalytics()" style="background:#7c3aed">📊 분석</button>
+        <button class="btn btn-light excused-btn" onclick="openExcusedUploadModal()">📤 업로드</button>
+        <button class="btn btn-danger excused-btn" onclick="logout()">🚪 로그아웃</button>
       </div>
     </div>
     <div id="excusedDashboardMount" style="padding:14px"></div>
@@ -2481,11 +2663,11 @@
 
   <!-- 🆕 v6.0: 사유출석자 분석 페이지 (통계 + 추이 + 비율) -->
   <div class="page" id="excusedAnalyticsPage">
-    <div class="list-toolbar">
+    <div class="list-toolbar excused-toolbar">
       <div class="list-title">📊 사유출석자 분석 (통계·추이·비율)</div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-light" onclick="closeExcusedAnalytics()">↶ 사유출석자로</button>
-        <button class="btn btn-light" onclick="loadExcusedAnalytics()">🔄 새로고침</button>
+      <div class="excused-actions">
+        <button class="btn btn-light excused-btn" onclick="closeExcusedAnalytics()">↶ 돌아가기</button>
+        <button class="btn btn-light excused-btn" onclick="loadExcusedAnalytics()">🔄 새로고침</button>
       </div>
     </div>
     <div id="excusedAnalyticsMount" style="padding:14px"></div>
@@ -3581,6 +3763,59 @@ function toggleUploadPanel(){
   syncWeekInputs();
 }
 
+// 🆕 v6.0: 상단 툴바 접기/펼치기 (모바일에서 화면 공간 확보)
+function toggleTopControls(){
+  const tc = document.getElementById('absenteeTopControls');
+  const icon = document.getElementById('topctlToggleIcon');
+  const label = document.getElementById('topctlToggleLabel');
+  if(!tc) return;
+  tc.classList.toggle('collapsed');
+  if(tc.classList.contains('collapsed')){
+    if(icon) icon.textContent = '▸';
+    if(label) label.textContent = '필터·메뉴 펼치기';
+  } else {
+    if(icon) icon.textContent = '▾';
+    if(label) label.textContent = '필터·메뉴';
+  }
+}
+
+// 🆕 v6.0: 지역 필터 변경 (부서 사용자도 지역 선택 가능)
+function onRegionChange(){
+  const sel = document.getElementById('regionSelect');
+  if(!sel) return;
+  currentRegionFilter = sel.value;
+  renderDashboard();
+  if(currentPage === 'list') renderListPage();
+}
+
+// 🆕 v6.0: 지역 드롭다운 옵션 동적 채우기
+function refreshRegionDropdown(){
+  const sel = document.getElementById('regionSelect');
+  const grp = document.getElementById('topRegionGroup');
+  if(!sel) return;
+
+  // 부서 사용자(또는 부서 선택된 경우)에만 표시
+  const dept = (currentDeptFilter && currentDeptFilter !== 'all') ? currentDeptFilter
+             : (!isZipaUser() && !isChurchScopeAdmin()) ? userDept : null;
+
+  if(!dept){
+    if(grp) grp.style.display = 'none';
+    return;
+  }
+
+  const baseChurch = isZipaUser() ? (currentChurchFilter && currentChurchFilter !== 'all' ? currentChurchFilter : null) : userChurch;
+  const regions = [...new Set((currentRows || []).filter(r => {
+    if(baseChurch && r.church !== baseChurch) return false;
+    if(r.dept !== dept) return false;
+    return true;
+  }).map(r => r.region_first).filter(Boolean))].sort((a,b) => a.localeCompare(b,'ko'));
+
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">전체 지역</option>' +
+    regions.map(rg => `<option value="${escapeHtml(rg)}" ${cur===rg?'selected':''}>${escapeHtml(rg)}</option>`).join('');
+  if(grp) grp.style.display = '';
+}
+
 /* 페이지 이동 */
 function hideAllPages(){
   ['dashboardPage','listPage','analyticsPage','adminPage'].forEach(id => {
@@ -3625,6 +3860,21 @@ function resetFiltersToDefault(){
   if(topChurchSel) topChurchSel.value = currentChurchFilter;
   if(topDeptSel) topDeptSel.value = currentDeptFilter;
   if(regionSel) regionSel.value = currentRegionFilter;
+
+  // 🆕 v6.0: 부서 사용자는 부서 dropdown 비활성 (자기 부서로 고정)
+  if(topDeptSel){
+    if(!isZipaUser() && !isChurchScopeAdmin()){
+      topDeptSel.disabled = true;
+      topDeptSel.title = '부서 사용자는 자기 부서로 고정됩니다';
+      topDeptSel.style.opacity = '0.7';
+      topDeptSel.style.cursor = 'not-allowed';
+    } else {
+      topDeptSel.disabled = false;
+      topDeptSel.title = '';
+      topDeptSel.style.opacity = '';
+      topDeptSel.style.cursor = '';
+    }
+  }
 }
 
 // 🆕 v5.0: 사유출석자 모드 진입
@@ -3672,10 +3922,21 @@ function switchToAbsenteeMode(){
 }
 
 // 🆕 v5.0: 사유출석자 대시보드 데이터 로드 + 렌더
-async function loadExcusedDashboard(){
+async function loadExcusedDashboard(opts = {}){
+  const { keepView = false } = opts;
   const mount = document.getElementById('excusedDashboardMount');
   if(!mount) return;
-  mount.innerHTML = '<div style="padding:24px;color:#64748b">불러오는 중...</div>';
+  // 🆕 v6.0: keepView 모드면 화면 깜박임 없이 백그라운드 로드
+  if(!keepView){
+    mount.innerHTML = '<div style="padding:24px;color:#64748b">불러오는 중...</div>';
+  }
+
+  // 🆕 현재 보고 있던 위치(드릴 그룹·스크롤·검색어) 보존
+  const prevState = keepView ? {
+    activeFilter: document.querySelector('[data-filter-group].active')?.dataset.filterGroup || null,
+    scrollY: window.scrollY,
+    drillSearch: document.getElementById('drillSearch')?.value || '',
+  } : null;
 
   try{
     // 권한별 교회 필터
@@ -3763,6 +4024,28 @@ async function loadExcusedDashboard(){
       thisWeek, lastWeek,
       thisCounts, lastWeekCounts,
     });
+
+    // 🆕 v6.0: 스와이프 핸들러 1회 바인딩
+    bindExcusedSwipe();
+
+    // 🆕 v6.0: keepView 모드 — 이전 그룹 필터·스크롤 위치 복원
+    if(prevState){
+      // 활성 그룹 필터 복원 (드릴 패널 다시 띄우기)
+      if(prevState.activeFilter){
+        try { filterExcusedByGroup(prevState.activeFilter); }
+        catch(e){ console.warn('필터 복원 실패:', e); }
+      }
+      // 스크롤 위치 복원
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: prevState.scrollY, behavior: 'auto' });
+        // 검색어 복원
+        const drillSearch = document.getElementById('drillSearch');
+        if(drillSearch && prevState.drillSearch){
+          drillSearch.value = prevState.drillSearch;
+          drillSearch.dispatchEvent(new Event('input'));
+        }
+      });
+    }
   }catch(e){
     console.error(e);
     mount.innerHTML = `<div style="padding:24px;color:#dc2626">❌ 로드 실패: ${escapeHtml(e.message)}<br><br>🛠 DB 스키마 적용이 필요할 수 있습니다.<br><code>excused_schema.sql</code> 을 먼저 적용해주세요.</div>`;
@@ -3772,6 +4055,10 @@ async function loadExcusedDashboard(){
 function renderExcusedDashboard(mount, data){
   const { masters, total, thisWeek, lastWeek, thisCounts, lastWeekCounts } = data;
   const weekLabel = thisWeek ? thisWeek.week_label : '(주차 미설정)';
+
+  // 🆕 v6.0: 사유출석자 단계 스와이프 — 사용 가능한 그룹 (실제 명단 있는 것만)
+  const availableGroups = ['A','B','C','D','D-1','E','결석'].filter(g => (thisCounts[g] || 0) > 0);
+  window._excusedAvailableGroups = availableGroups;
 
   // 그룹별 색상
   const groupConfig = {
@@ -3986,10 +4273,12 @@ function showAllExcusedList(){
 }
 
 // 🆕 v5.3: 명단 영역 렌더링
-function renderExcusedDrillPanel({title, rows, closeLabel}){
+function renderExcusedDrillPanel({title, rows, closeLabel, currentGroup}){
   const panel = document.getElementById('excusedDrillPanel');
   if(!panel) return;
   const groupConfig = window._excusedGroupConfig || {};
+  const groups = window._excusedAvailableGroups || [];
+  const showSwipeBar = currentGroup && groups.length > 1;
 
   let html = `
     <div class="ex-drill-head">
@@ -4001,6 +4290,17 @@ function renderExcusedDrillPanel({title, rows, closeLabel}){
     </div>
   `;
 
+  // 🆕 v6.0: 단계 스와이프 인디케이터 + 좌우 이동 버튼
+  if(showSwipeBar){
+    html += `
+      <div class="ex-swipe-bar">
+        <button class="ex-swipe-btn" onclick="excusedGroupPrev()">‹</button>
+        <div id="excusedSwipeIndicator" style="flex:1;text-align:center"></div>
+        <button class="ex-swipe-btn" onclick="excusedGroupNext()">›</button>
+      </div>
+    `;
+  }
+
   if(rows.length === 0){
     html += '<div style="padding:30px;text-align:center;color:#94a3b8">📭 해당 그룹 명단이 없습니다.</div>';
   } else {
@@ -4010,9 +4310,15 @@ function renderExcusedDrillPanel({title, rows, closeLabel}){
 
   panel.innerHTML = html;
   panel.style.display = '';
-  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if(!panel.dataset.scrolledOnce){
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    panel.dataset.scrolledOnce = '1';
+  }
   // 데이터 보존 (CSV 내보내기용)
   window._excusedDrillRows = rows;
+
+  // 인디케이터 갱신
+  if(showSwipeBar) updateExcusedSwipeIndicator(currentGroup);
 }
 
 // 🆕 v5.4: 테이블 형태로 사유출석자 명단 렌더 (한 행에 모든 정보)
@@ -4172,7 +4478,15 @@ function closeExcusedDrill(){
   if(panel){
     panel.style.display = 'none';
     panel.innerHTML = '';
+    delete panel.dataset.scrolledOnce;
   }
+  // KPI 카드 active 해제
+  document.querySelectorAll('[data-group]').forEach(card => {
+    card.classList.remove('ex-kpi-active');
+  });
+  document.querySelectorAll('[data-filter-group]').forEach(btn => {
+    btn.classList.remove('active');
+  });
 }
 
 function renderExcusedCard(m, groupConfig){
@@ -4317,7 +4631,7 @@ async function onExcusedTargetSubtypeChange(memberUid, subtype){
       p_target_group: targetGroup,
     });
     showToast(`🎯 목표 설정: ${subtype} (${targetGroup} 단계)`);
-    await loadExcusedDashboard();
+    await loadExcusedDashboard({keepView:true});
   }catch(e){
     console.warn('목표 설정 실패:', e);
     showToast('저장 실패: ' + e.message, true);
@@ -4956,6 +5270,10 @@ function filterExcusedByGroup(group){
   document.querySelectorAll('[data-filter-group]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.filterGroup === group);
   });
+  // KPI 카드도 active 표시
+  document.querySelectorAll('[data-group]').forEach(card => {
+    card.classList.toggle('ex-kpi-active', card.dataset.group === group);
+  });
   // 🆕 v5.3: 드릴 패널에 표시
   const masters = window._excusedMasters || [];
   if(group === 'all'){
@@ -4972,7 +5290,81 @@ function filterExcusedByGroup(group){
     title: `${cfg.icon || ''} ${cfg.label || group} 명단`,
     rows: filtered,
     closeLabel: '✕ 닫기',
+    currentGroup: group,
   });
+  // 스와이프 인디케이터 갱신
+  updateExcusedSwipeIndicator(group);
+}
+
+// 🆕 v6.0: 단계별 이동 (스와이프/키보드)
+function excusedGroupNext(){
+  const groups = window._excusedAvailableGroups || [];
+  if(!groups.length) return;
+  const cur = document.querySelector('[data-group].ex-kpi-active')?.dataset.group;
+  const idx = cur ? groups.indexOf(cur) : -1;
+  const next = groups[(idx + 1) % groups.length];
+  filterExcusedByGroup(next);
+  _triggerExcusedSwipeAnim('next');
+}
+function excusedGroupPrev(){
+  const groups = window._excusedAvailableGroups || [];
+  if(!groups.length) return;
+  const cur = document.querySelector('[data-group].ex-kpi-active')?.dataset.group;
+  const idx = cur ? groups.indexOf(cur) : -1;
+  const prev = groups[(idx - 1 + groups.length) % groups.length];
+  filterExcusedByGroup(prev);
+  _triggerExcusedSwipeAnim('prev');
+}
+function _triggerExcusedSwipeAnim(direction){
+  const drill = document.getElementById('excusedDrillPanel');
+  if(!drill) return;
+  drill.classList.remove('swipe-anim-next','swipe-anim-prev');
+  void drill.offsetWidth;
+  drill.classList.add(direction === 'next' ? 'swipe-anim-next' : 'swipe-anim-prev');
+  setTimeout(() => drill.classList.remove('swipe-anim-next','swipe-anim-prev'), 240);
+}
+
+function updateExcusedSwipeIndicator(activeGroup){
+  const groups = window._excusedAvailableGroups || [];
+  const ind = document.getElementById('excusedSwipeIndicator');
+  if(!ind || !groups.length) return;
+  const idx = groups.indexOf(activeGroup);
+  ind.innerHTML = groups.map((g, i) => 
+    `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${i===idx?'#7c3aed':'#cbd5e1'};margin:0 3px"></span>`
+  ).join('');
+}
+
+// 🆕 v6.0: 사유출석자 페이지 스와이프 바인딩 (1회만)
+let _excusedSwipeBound = false;
+function bindExcusedSwipe(){
+  if(_excusedSwipeBound) return;
+  _excusedSwipeBound = true;
+  let sx = null, sy = null;
+  const mount = document.getElementById('excusedDashboardMount');
+  if(!mount) return;
+  mount.addEventListener('touchstart', (e) => {
+    if(e.touches.length === 1){
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+    }
+  }, {passive:true});
+  mount.addEventListener('touchend', (e) => {
+    if(sx === null) return;
+    const t = e.changedTouches?.[0];
+    if(!t){ sx = null; return; }
+    const dx = t.clientX - sx;
+    const dy = t.clientY - sy;
+    sx = null; sy = null;
+    // 가로 우세 + 충분한 거리
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4){
+      const tag = (e.target?.tagName || '').toLowerCase();
+      if(tag === 'input' || tag === 'textarea' || tag === 'select' || tag === 'button') return;
+      // 화면 왼쪽 가장자리(0~30px)에서 시작한 건 페이지 뒤로가기로 양보
+      if(t.clientX - dx <= 30) return;
+      if(dx < 0) excusedGroupNext();
+      else excusedGroupPrev();
+    }
+  }, {passive:true});
 }
 
 // 🆕 v5.0: 세부유형 변경 (자동으로 그룹 재분류)
@@ -4989,7 +5381,7 @@ async function onExcusedSubtypeChange(memberUid, subtype){
       return;
     }
     showToast(`✅ 세부유형 "${subtype}" → ${res.group} 단계`);
-    await loadExcusedDashboard();
+    await loadExcusedDashboard({keepView:true});
   }catch(e){
     alert('변경 실패: ' + e.message);
   }finally{
@@ -5012,7 +5404,7 @@ async function markExcusedCertified(memberUid){
       p_week_key: weekKey,
     });
     showToast('✅ A 그룹 인증 처리됨');
-    await loadExcusedDashboard();
+    await loadExcusedDashboard({keepView:true});
   }catch(e){
     alert('실패: ' + e.message);
   }finally{
@@ -6540,10 +6932,10 @@ function _triggerSwipeAnim(direction){
   // force reflow
   void grid.offsetWidth;
   grid.classList.add(direction === 'next' ? 'swipe-anim-next' : 'swipe-anim-prev');
-  // 애니메이션 끝나면 클래스 제거
+  // 애니메이션 끝나면 클래스 제거 (220ms + 약간의 buffer)
   setTimeout(() => {
     grid.classList.remove('swipe-anim-next','swipe-anim-prev');
-  }, 320);
+  }, 240);
 }
 
 function swipeNext(){
@@ -6828,6 +7220,8 @@ function renderDashboard(){
   buildSwipeItems();
   // 🆕 스와이프 제스처 바인딩 (1회만)
   bindSwipeGestures();
+  // 🆕 v6.0: 지역 드롭다운 옵션 갱신
+  if(typeof refreshRegionDropdown === 'function') refreshRegionDropdown();
 
   // 🆕 region_detail 모드: 결석자지역별세부 전용 뷰 렌더링
   if(_swipeRegionDetail){
@@ -7159,8 +7553,6 @@ function renderRegionDetailView(){
   const dept = cur.dept || (isChurchScopeAdmin() ? 'all' : userDept);
   const summaryGrid = document.getElementById('summaryGrid');
 
-  // 표시 대상 결석자: 자기 교회 + dept 필터
-  // 지파의 경우 currentChurchFilter, 그 외엔 userChurch
   const myChurch = isZipaUser() ? (currentChurchFilter && currentChurchFilter !== 'all' ? currentChurchFilter : null) : userChurch;
   const allRows = (currentRows || []).map(combinedRow).filter(r => {
     if(myChurch && r.church !== myChurch) return false;
@@ -7168,20 +7560,35 @@ function renderRegionDetailView(){
     return true;
   });
 
-  const sorted = sortRows(allRows);
-  // 지역별 그룹화
+  // 🆕 v6.0: 지역별 그룹화
   const byRegion = {};
-  sorted.forEach(r => {
+  allRows.forEach(r => {
     const rg = r.region_first || '(미지정)';
     if(!byRegion[rg]) byRegion[rg] = [];
     byRegion[rg].push(r);
   });
   const regionKeys = Object.keys(byRegion).sort((a,b)=>a.localeCompare(b,'ko'));
 
-  // 헤더: KPI (전체)
-  const total = sorted.length;
-  const target = sorted.filter(r => r.is_target).length;
-  const done = sorted.filter(r => r.is_done).length;
+  // 🆕 v6.0: 사용자 요청 — 타겟 우선 + 구역(zone) 순 정렬
+  const sortByTargetThenZone = (a, b) => {
+    // 1) 타겟 우선
+    const at = a.is_target ? 1 : 0;
+    const bt = b.is_target ? 1 : 0;
+    if(at !== bt) return bt - at;
+    // 2) 구역(zone_name) 순
+    const az = a.zone_name || '';
+    const bz = b.zone_name || '';
+    if(az !== bz) return az.localeCompare(bz, 'ko', {numeric:true});
+    // 3) 이름 순
+    return (a.name||'').localeCompare(b.name||'', 'ko');
+  };
+  Object.keys(byRegion).forEach(rg => {
+    byRegion[rg].sort(sortByTargetThenZone);
+  });
+
+  const total = allRows.length;
+  const target = allRows.filter(r => r.is_target).length;
+  const done = allRows.filter(r => r.is_done).length;
   const pct = total ? Math.round(done/total*100) : 0;
 
   let html = `
@@ -7195,6 +7602,7 @@ function renderRegionDetailView(){
         <span>✅ 완료 ${done} (${pct}%)</span>
         <span>🗺️ ${regionKeys.length}개 지역</span>
       </div>
+      <div style="font-size:11px;color:#6366f1;margin-top:6px;font-style:italic">💡 행을 탭하면 심방날짜·계획을 바로 입력할 수 있습니다</div>
     </div>
   `;
 
@@ -7207,18 +7615,17 @@ function renderRegionDetailView(){
       const rgD = list.filter(r => r.is_done).length;
       const rgPct = list.length ? Math.round(rgD/list.length*100) : 0;
 
-      // 지역 카드 헤더
       html += `
         <div class="rd-region-block" style="margin-bottom:14px;border:1.5px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff;">
-          <div class="rd-region-head" style="background:linear-gradient(90deg,#f0f9ff,#e0f2fe);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bae6fd;cursor:pointer" onclick="openListPage({mode:'region',region:'${escapeHtml(rg)}',dept:'${escapeHtml(dept||'all')}'})">
+          <div class="rd-region-head" style="background:linear-gradient(90deg,#f0f9ff,#e0f2fe);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bae6fd;">
             <div style="font-weight:800;color:#0369a1;font-size:14px;">📍 ${escapeHtml(rg)}</div>
             <div style="font-size:11px;color:#075985;">
               <strong>${list.length}명</strong> · 🎯${rgT} · ✅${rgD} (${rgPct}%)
             </div>
           </div>
-          <div class="rd-region-list" style="padding:6px 4px;">
+          <div class="rd-region-list" style="padding:4px 4px;">
       `;
-      list.forEach(r => {
+      list.forEach((r, idx) => {
         const cls = r._classification && r._classification !== '일반' ? r._classification : '';
         const clsBadge = cls ? `<span class="class-badge class-badge-${cls}" style="margin-left:4px;">${cls}</span>` : '';
         const targetBadge = r.is_target ? `<span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:4px;font-size:10px;margin-left:4px;">🎯</span>` : '';
@@ -7226,12 +7633,38 @@ function renderRegionDetailView(){
         const spBadge = r.is_special_managed ? `<span style="margin-left:4px;" title="특별관리">🚨</span>` : '';
         const streak = Number(r.consecutive_absent_count||0);
         const streakBadge = streak > 0 ? `<span style="color:#dc2626;font-size:11px;margin-left:4px;">연속${streak}</span>` : '';
+
+        // 🆕 v6.0: 심방날짜·심방자 표시
+        const visitDate = r.visit_date || '';
+        const visitor = r.visitor || '';
+        const plan = r.visit_plan || r.plan_text || '';
+        let visitInfo = '';
+        if(visitDate){
+          visitInfo += `<span style="background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px">📅 ${escapeHtml(visitDate)}</span>`;
+        }
+        if(visitor){
+          visitInfo += `<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px">👤 ${escapeHtml(visitor)}</span>`;
+        }
+
+        // 행 데이터를 data-* 로 인코딩
+        const rowDataAttr = encodeURIComponent(JSON.stringify({
+          row_id: r.row_id,
+          name: r.name, dept: r.dept, phone_last4: r.phone_last4, church: r.church,
+          region_name: r.region_first || '', zone_name: r.zone_name || '',
+          visit_date: visitDate, visitor: visitor, plan_text: plan,
+          is_target: !!r.is_target, is_done: !!r.is_done,
+        }));
+
         html += `
-          <div class="rd-row" style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px dashed #f1f5f9;font-size:13px;">
-            <div style="flex:1;">
-              <strong>${makeNameTag(r.name||'', r.dept||'', r.phone_last4||'', r.church||'')}</strong>
-              ${spBadge}${clsBadge}
-              <span style="color:#94a3b8;font-size:11px;margin-left:6px;">${escapeHtml(r.dept||'')}/${escapeHtml(r.zone_name||'')}</span>
+          <div class="rd-row" data-row="${rowDataAttr}" onclick="openInlineVisitEditor(this)"
+               style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px dashed #f1f5f9;font-size:13px;cursor:pointer;transition:background 0.15s;${r.is_target ? 'background:#faf5ff;' : ''}">
+            <div style="flex:1;min-width:0;">
+              <div>
+                <strong>${makeNameTag(r.name||'', r.dept||'', r.phone_last4||'', r.church||'')}</strong>
+                ${spBadge}${clsBadge}
+                <span style="color:#94a3b8;font-size:11px;margin-left:6px;">${escapeHtml(r.dept||'')}/${escapeHtml(r.zone_name||'')}</span>
+              </div>
+              ${visitInfo ? `<div style="margin-top:4px;">${visitInfo}${plan ? `<span style="color:#64748b;font-size:11px;font-style:italic;margin-left:2px">${escapeHtml(plan.length > 30 ? plan.slice(0,30)+'…' : plan)}</span>` : ''}</div>` : ''}
             </div>
             <div style="text-align:right;flex-shrink:0;">
               ${targetBadge}${doneBadge}${streakBadge}
@@ -7243,9 +7676,112 @@ function renderRegionDetailView(){
     });
   }
 
-  // 스와이프 인디케이터 + 본문
   const swipeBar = renderSwipeIndicator();
   summaryGrid.innerHTML = swipeBar + html;
+}
+
+// 🆕 v6.0: 행 클릭 → 심방날짜·계획 입력 모달 (mini-app 스타일)
+function openInlineVisitEditor(rowEl){
+  if(!rowEl) return;
+  const dataStr = rowEl.getAttribute('data-row');
+  if(!dataStr) return;
+  let row;
+  try { row = JSON.parse(decodeURIComponent(dataStr)); }
+  catch(e){ console.error(e); return; }
+
+  // 클릭 효과
+  rowEl.style.background = '#e0e7ff';
+  setTimeout(() => { rowEl.style.background = row.is_target ? '#faf5ff' : ''; }, 150);
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.setAttribute('data-overlay', '1');
+  overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
+
+  // 바텀시트 스타일 모달
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:18px 18px 0 0;max-width:560px;width:100%;padding:18px 20px 22px;box-shadow:0 -4px 24px rgba(0,0,0,.15);max-height:85vh;overflow:auto;animation:slideUp 0.22s cubic-bezier(0.25,0.1,0.25,1)';
+
+  const targetBtn = row.is_target
+    ? `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', false, this)" style="background:#fef2f2;color:#dc2626">🚫 타겟 해제</button>`
+    : `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', true, this)" style="background:#faf5ff;color:#7c3aed">🎯 타겟 지정</button>`;
+
+  box.innerHTML = `
+    <div style="width:40px;height:4px;background:#cbd5e1;border-radius:2px;margin:0 auto 14px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
+      <div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:3px">${escapeHtml(row.name)}</div>
+        <div style="font-size:12px;color:#64748b">${escapeHtml(row.church||'')} · ${escapeHtml(row.dept||'')} · ${escapeHtml(row.region_name||'')} ${escapeHtml(row.zone_name||'')}</div>
+      </div>
+      <button onclick="this.closest('[data-overlay]').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:0">×</button>
+    </div>
+
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin:14px 0 12px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">📅 심방예정일</label>
+      <input type="date" id="iveVisitDate" value="${escapeHtml(row.visit_date||'')}"
+             style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px">
+    </div>
+
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:12px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">👤 심방자</label>
+      <input type="text" id="iveVisitor" value="${escapeHtml(row.visitor||'')}"
+             placeholder="심방자 이름"
+             style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px">
+    </div>
+
+    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:14px">
+      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">📝 심방계획</label>
+      <textarea id="iveVisitPlan" rows="3" placeholder="심방 시 다룰 내용·접근 방법·기도제목 등"
+                style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit">${escapeHtml(row.plan_text||'')}</textarea>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${targetBtn}
+      <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()" style="flex:1">취소</button>
+      <button class="btn btn-primary" onclick="iveSubmit('${escapeHtml(row.row_id)}')" style="flex:1.5">💾 저장</button>
+    </div>
+  `;
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+async function iveSubmit(rowId){
+  const visitDate = document.getElementById('iveVisitDate')?.value || '';
+  const visitor = document.getElementById('iveVisitor')?.value || '';
+  const plan = document.getElementById('iveVisitPlan')?.value || '';
+  try {
+    // 기존 진행 업데이트 RPC 사용
+    const res = await callRpc('upsert_weekly_visit_progress', {
+      p_row_id: rowId,
+      p_week_key: currentWeekKey,
+      p_visit_date: visitDate || null,
+      p_visitor: visitor || null,
+      p_plan_text: plan || null,
+    });
+    document.querySelector('[data-overlay="1"]')?.remove();
+    showToast('✅ 저장되었습니다');
+    // 데이터 새로고침
+    await reloadCurrentWeek();
+  } catch(e){
+    alert('저장 실패: ' + (e.message || e));
+  }
+}
+
+async function iveToggleTarget(rowId, makeTarget, btn){
+  try {
+    if(btn) btn.disabled = true;
+    await callRpc('set_weekly_visit_target', {
+      p_row_id: rowId,
+      p_week_key: currentWeekKey,
+      p_is_target: makeTarget,
+    });
+    showToast(makeTarget ? '🎯 타겟 지정됨' : '🚫 타겟 해제됨');
+    document.querySelector('[data-overlay="1"]')?.remove();
+    await reloadCurrentWeek();
+  } catch(e){
+    alert('실패: ' + (e.message || e));
+    if(btn) btn.disabled = false;
+  }
 }
 
 /* 🗺 지역별 카드 렌더링 (공통) */
