@@ -6634,6 +6634,81 @@ function bindSwipeGestures(){
 
   // 데스크탑 hover 툴팁 1회 바인딩
   bindNameHoverTooltip();
+
+  // 🆕 v6.0: 페이지 단위 뒤로가기 스와이프 (스마트폰 스타일)
+  //   - 화면 왼쪽 가장자리(0~30px) 에서 시작 → 오른쪽으로 80px 이상 밀면 goBack()
+  //   - 일반 본문 스와이프(부서 전환)와 충돌 없도록 시작 위치를 가장자리로 한정
+  bindPageSwipeBack();
+}
+
+let _pageSwipeStartX = null;
+let _pageSwipeStartY = null;
+let _pageSwipeBound = false;
+function bindPageSwipeBack(){
+  if(_pageSwipeBound) return;
+  _pageSwipeBound = true;
+
+  document.addEventListener('touchstart', (e) => {
+    if(e.touches && e.touches.length === 1){
+      const x = e.touches[0].clientX;
+      // 왼쪽 가장자리에서 시작한 터치만 추적 (시스템 뒤로가기 제스처와 동일한 패턴)
+      if(x <= 30){
+        _pageSwipeStartX = x;
+        _pageSwipeStartY = e.touches[0].clientY;
+      } else {
+        _pageSwipeStartX = null;
+      }
+    }
+  }, {passive:true});
+
+  document.addEventListener('touchend', (e) => {
+    if(_pageSwipeStartX === null) return;
+    const t = e.changedTouches && e.changedTouches[0];
+    if(!t){ _pageSwipeStartX = null; return; }
+    const dx = t.clientX - _pageSwipeStartX;
+    const dy = t.clientY - _pageSwipeStartY;
+    _pageSwipeStartX = null;
+    _pageSwipeStartY = null;
+    // 오른쪽으로 80px 이상 + 가로 우세 + 입력요소 아닐 때
+    if(dx > 80 && Math.abs(dx) > Math.abs(dy) * 1.4){
+      const tag = (e.target && e.target.tagName || '').toLowerCase();
+      if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      pageSwipeBack();
+    }
+  }, {passive:true});
+
+  // 데스크탑: Alt + ←
+  document.addEventListener('keydown', (e) => {
+    if(e.altKey && e.key === 'ArrowLeft'){
+      const tag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+      if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      e.preventDefault();
+      pageSwipeBack();
+    }
+  });
+}
+
+// 🆕 페이지 단위 스마트한 뒤로가기 — 현재 페이지에 따라 적절한 곳으로 복귀
+function pageSwipeBack(){
+  // 모달이 열려있으면 모달 닫기
+  const overlay = document.querySelector('[data-overlay="1"]') || document.querySelector('[data-em-overlay="1"]');
+  if(overlay){ overlay.remove(); return; }
+
+  // 현재 어떤 페이지가 활성인지 확인
+  if(document.getElementById('listPage')?.classList.contains('active')){
+    goDashboard(); return;
+  }
+  if(document.getElementById('analyticsPage')?.classList.contains('active')){
+    goDashboard(); return;
+  }
+  if(document.getElementById('adminPage')?.classList.contains('active')){
+    goDashboard(); return;
+  }
+  if(document.getElementById('excusedAnalyticsPage')?.classList.contains('active')){
+    if(typeof closeExcusedAnalytics === 'function'){ closeExcusedAnalytics(); return; }
+  }
+  // 그 외엔 일반 goBack
+  if(typeof goBack === 'function') goBack();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
