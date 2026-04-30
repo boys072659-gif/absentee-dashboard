@@ -264,8 +264,15 @@
       max-width:calc(50% - 3px);
       padding:10px 8px;
       font-size:12px;
-      white-space:nowrap;
+      white-space:normal;        /* 🆕 단어 단위 줄바꿈 허용 */
+      word-break:keep-all;       /* 🆕 한글 단어가 가운데서 잘리지 않게 */
+      line-height:1.3;
       text-align:center;
+      min-height:42px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
     }
     .current-week{
       width:100%;
@@ -285,7 +292,9 @@
     .list-toolbar .btn{
       padding:8px 6px;
       font-size:12px;
-      white-space:nowrap;
+      white-space:normal;
+      word-break:keep-all;
+      line-height:1.3;
     }
   }
 
@@ -322,6 +331,14 @@
       padding:7px 4px;
       font-size:11px;
       min-width:0;
+      white-space:normal;
+      word-break:keep-all;
+      line-height:1.3;
+      min-height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:3px;
     }
   }
 
@@ -2516,10 +2533,10 @@
       </div>
       <div class="top-actions">
         <button class="btn btn-light" type="button" onclick="goAdmin()" id="adminBtn" style="display:none">🔧 관리자</button>
-        <button class="btn btn-light" type="button" onclick="switchToExcusedMode()" id="switchToExcusedBtn" style="background:#dbeafe;color:#1d4ed8;font-weight:700">📅 사유출석자 보기</button>
+        <button class="btn btn-light" type="button" onclick="switchToExcusedMode()" id="switchToExcusedBtn" style="background:#dbeafe;color:#1d4ed8;font-weight:700">📅 사유출석자</button>
         <button class="btn btn-light" type="button" onclick="goAnalytics()" id="analyticsBtn">📊 분석</button>
-        <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
-        <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
+        <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">📤 업로드</button>
+        <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">🔄 새로고침</button>
         <button class="btn btn-danger" type="button" onclick="logout()" id="logoutBtn">🚪 로그아웃</button>
         <div class="current-week" id="currentWeekLabel">📅 2026-04-19 주일 결석자</div>
       </div>
@@ -7634,25 +7651,30 @@ function renderRegionDetailView(){
         const streak = Number(r.consecutive_absent_count||0);
         const streakBadge = streak > 0 ? `<span style="color:#dc2626;font-size:11px;margin-left:4px;">연속${streak}</span>` : '';
 
-        // 🆕 v6.0: 심방날짜·심방자 표시
-        const visitDate = r.visit_date || '';
-        const visitor = r.visitor || '';
-        const plan = r.visit_plan || r.plan_text || '';
+        // 🆕 v6.0: 정확한 필드명 사용 - visit_date_display, shepherd, plan_text
+        const visitDateDisplay = r.visit_date_display || '';
+        const visitDateSort = r.visit_date_sort || '';
+        const shepherd = r.shepherd || '';
+        const plan = r.plan_text || '';
         let visitInfo = '';
-        if(visitDate){
-          visitInfo += `<span style="background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px">📅 ${escapeHtml(visitDate)}</span>`;
+        if(visitDateDisplay){
+          visitInfo += `<span style="background:#dbeafe;color:#1d4ed8;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px">📅 ${escapeHtml(visitDateDisplay)}</span>`;
         }
-        if(visitor){
-          visitInfo += `<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px">👤 ${escapeHtml(visitor)}</span>`;
+        if(shepherd){
+          visitInfo += `<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;font-size:10px;margin-right:4px">👤 ${escapeHtml(shepherd)}</span>`;
         }
 
-        // 행 데이터를 data-* 로 인코딩
+        // 행 데이터를 data-* 로 인코딩 — 정확한 필드명으로 저장
         const rowDataAttr = encodeURIComponent(JSON.stringify({
           row_id: r.row_id,
           name: r.name, dept: r.dept, phone_last4: r.phone_last4, church: r.church,
           region_name: r.region_first || '', zone_name: r.zone_name || '',
-          visit_date: visitDate, visitor: visitor, plan_text: plan,
+          visit_date_sort: visitDateSort,
+          visit_date_display: visitDateDisplay,
+          shepherd: shepherd,
+          plan_text: plan,
           is_target: !!r.is_target, is_done: !!r.is_done,
+          worship: r.worship || '', attendance: r.attendance || '', note: r.note || '',
         }));
 
         html += `
@@ -7693,74 +7715,111 @@ function openInlineVisitEditor(rowEl){
   rowEl.style.background = '#e0e7ff';
   setTimeout(() => { rowEl.style.background = row.is_target ? '#faf5ff' : ''; }, 150);
 
+  // 🆕 z-index 매우 높게 (다른 페이지 요소 위) + 페이지 스크롤 잠금
+  document.body.style.overflow = 'hidden';
+
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)';
   overlay.setAttribute('data-overlay', '1');
-  overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
+  overlay.onclick = (e) => {
+    if(e.target === overlay){
+      overlay.remove();
+      document.body.style.overflow = '';
+    }
+  };
 
-  // 바텀시트 스타일 모달
+  // 🆕 바텀시트 — 컴팩트하게 (max-height 65vh)
   const box = document.createElement('div');
-  box.style.cssText = 'background:#fff;border-radius:18px 18px 0 0;max-width:560px;width:100%;padding:18px 20px 22px;box-shadow:0 -4px 24px rgba(0,0,0,.15);max-height:85vh;overflow:auto;animation:slideUp 0.22s cubic-bezier(0.25,0.1,0.25,1)';
+  box.style.cssText = 'background:#fff;border-radius:18px 18px 0 0;max-width:560px;width:100%;padding:14px 18px 18px;box-shadow:0 -4px 24px rgba(0,0,0,.18);max-height:80vh;overflow-y:auto;animation:slideUp 0.22s cubic-bezier(0.25,0.1,0.25,1);position:relative;z-index:1';
 
+  // 🆕 정확한 필드: visit_date_sort (YYYY-MM-DD), shepherd, plan_text
   const targetBtn = row.is_target
-    ? `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', false, this)" style="background:#fef2f2;color:#dc2626">🚫 타겟 해제</button>`
-    : `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', true, this)" style="background:#faf5ff;color:#7c3aed">🎯 타겟 지정</button>`;
+    ? `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', false, this)" style="background:#fef2f2;color:#dc2626;flex:1;min-width:0">🚫 타겟 해제</button>`
+    : `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', true, this)" style="background:#faf5ff;color:#7c3aed;flex:1;min-width:0">🎯 타겟 지정</button>`;
 
   box.innerHTML = `
-    <div style="width:40px;height:4px;background:#cbd5e1;border-radius:2px;margin:0 auto 14px"></div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
-      <div>
-        <div style="font-size:18px;font-weight:800;margin-bottom:3px">${escapeHtml(row.name)}</div>
-        <div style="font-size:12px;color:#64748b">${escapeHtml(row.church||'')} · ${escapeHtml(row.dept||'')} · ${escapeHtml(row.region_name||'')} ${escapeHtml(row.zone_name||'')}</div>
+    <div style="width:36px;height:4px;background:#cbd5e1;border-radius:2px;margin:0 auto 10px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px">
+      <div style="min-width:0;flex:1">
+        <div style="font-size:17px;font-weight:800;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(row.name)}</div>
+        <div style="font-size:11px;color:#64748b">${escapeHtml(row.church||'')} · ${escapeHtml(row.dept||'')} · ${escapeHtml(row.region_name||'')} ${escapeHtml(row.zone_name||'')}</div>
       </div>
-      <button onclick="this.closest('[data-overlay]').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:0">×</button>
+      <button onclick="this.closest('[data-overlay]').remove();document.body.style.overflow=''" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:0;flex-shrink:0">×</button>
     </div>
 
-    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin:14px 0 12px">
-      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">📅 심방예정일</label>
-      <input type="date" id="iveVisitDate" value="${escapeHtml(row.visit_date||'')}"
-             style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px">
+    <div style="display:flex;gap:8px;margin:10px 0">
+      <div style="flex:1;background:#f8fafc;border-radius:8px;padding:8px 10px">
+        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">📅 심방예정일</label>
+        <input type="date" id="iveVisitDate" value="${escapeHtml(row.visit_date_sort||'')}"
+               style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px">
+      </div>
+      <div style="flex:1;background:#f8fafc;border-radius:8px;padding:8px 10px">
+        <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👤 심방자</label>
+        <input type="text" id="iveVisitor" value="${escapeHtml(row.shepherd||'')}"
+               placeholder="심방자 이름"
+               style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px">
+      </div>
     </div>
 
-    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:12px">
-      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">👤 심방자</label>
-      <input type="text" id="iveVisitor" value="${escapeHtml(row.visitor||'')}"
-             placeholder="심방자 이름"
-             style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px">
-    </div>
-
-    <div style="background:#f8fafc;border-radius:10px;padding:12px;margin-bottom:14px">
-      <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px">📝 심방계획</label>
+    <div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:10px">
+      <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">📝 심방계획</label>
       <textarea id="iveVisitPlan" rows="3" placeholder="심방 시 다룰 내용·접근 방법·기도제목 등"
-                style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit">${escapeHtml(row.plan_text||'')}</textarea>
+                style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${escapeHtml(row.plan_text||'')}</textarea>
     </div>
 
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;gap:6px">
       ${targetBtn}
-      <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove()" style="flex:1">취소</button>
-      <button class="btn btn-primary" onclick="iveSubmit('${escapeHtml(row.row_id)}')" style="flex:1.5">💾 저장</button>
+      <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove();document.body.style.overflow=''" style="flex:1;min-width:0">취소</button>
+      <button class="btn btn-primary" onclick="iveSubmit('${escapeHtml(row.row_id)}')" style="flex:1.5;min-width:0">💾 저장</button>
     </div>
   `;
   overlay.appendChild(box);
   document.body.appendChild(overlay);
+
+  // 🆕 모달 안 input은 클릭 이벤트 전파 차단 (overlay onclick 영향 X)
+  box.addEventListener('click', (e) => e.stopPropagation());
 }
 
 async function iveSubmit(rowId){
-  const visitDate = document.getElementById('iveVisitDate')?.value || '';
-  const visitor = document.getElementById('iveVisitor')?.value || '';
+  // 🆕 정확한 필드명 사용 - p_visit_date_sort, p_shepherd
+  const visitDateRaw = document.getElementById('iveVisitDate')?.value || '';
+  const shepherd = document.getElementById('iveVisitor')?.value || '';
   const plan = document.getElementById('iveVisitPlan')?.value || '';
+
+  // 날짜를 sort 와 display 형식으로 분리
+  let visitDateSort = null;
+  let visitDateDisplay = '';
+  if(visitDateRaw){
+    visitDateSort = visitDateRaw;  // YYYY-MM-DD
+    // display 형식: M/D
+    const m = visitDateRaw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m){
+      visitDateDisplay = `${parseInt(m[2])}/${parseInt(m[3])}`;
+    } else {
+      visitDateDisplay = visitDateRaw;
+    }
+  }
+
   try {
-    // 기존 진행 업데이트 RPC 사용
-    const res = await callRpc('upsert_weekly_visit_progress', {
-      p_row_id: rowId,
+    // 기존 진행 가져와서 다른 필드(worship/attendance/note 등) 보존
+    const prev = (typeof getProgress === 'function') ? getProgress(rowId) : {};
+
+    await callRpc('upsert_weekly_visit_progress', {
       p_week_key: currentWeekKey,
-      p_visit_date: visitDate || null,
-      p_visitor: visitor || null,
-      p_plan_text: plan || null,
+      p_row_id: rowId,
+      p_is_target: !!prev.is_target,    // 변경 안 함
+      p_is_done: !!prev.is_done,
+      p_worship: prev.worship || null,
+      p_attendance: prev.attendance || null,
+      p_note: prev.note || '',
+      p_shepherd: shepherd,
+      p_visit_date_sort: visitDateSort,
+      p_visit_date_display: visitDateDisplay,
+      p_plan_text: plan,
     });
     document.querySelector('[data-overlay="1"]')?.remove();
+    document.body.style.overflow = '';
     showToast('✅ 저장되었습니다');
-    // 데이터 새로고침
     await reloadCurrentWeek();
   } catch(e){
     alert('저장 실패: ' + (e.message || e));
@@ -7770,13 +7829,24 @@ async function iveSubmit(rowId){
 async function iveToggleTarget(rowId, makeTarget, btn){
   try {
     if(btn) btn.disabled = true;
-    await callRpc('set_weekly_visit_target', {
-      p_row_id: rowId,
+    // 진행 데이터 보존하면서 is_target 만 변경
+    const prev = (typeof getProgress === 'function') ? getProgress(rowId) : {};
+    await callRpc('upsert_weekly_visit_progress', {
       p_week_key: currentWeekKey,
+      p_row_id: rowId,
       p_is_target: makeTarget,
+      p_is_done: !!prev.is_done,
+      p_worship: prev.worship || null,
+      p_attendance: prev.attendance || null,
+      p_note: prev.note || '',
+      p_shepherd: prev.shepherd || '',
+      p_visit_date_sort: prev.visit_date_sort || null,
+      p_visit_date_display: prev.visit_date_display || '',
+      p_plan_text: prev.plan_text || '',
     });
     showToast(makeTarget ? '🎯 타겟 지정됨' : '🚫 타겟 해제됨');
     document.querySelector('[data-overlay="1"]')?.remove();
+    document.body.style.overflow = '';
     await reloadCurrentWeek();
   } catch(e){
     alert('실패: ' + (e.message || e));
