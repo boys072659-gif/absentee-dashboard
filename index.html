@@ -2342,6 +2342,45 @@
     to   { transform: translateY(0); }
   }
 
+  /* 🆕 v6.0: 미니앱 모달 토글 버튼 (타겟/완료) */
+  .ive-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:10px 6px;
+    background:#fff;
+    border:1.5px solid #cbd5e1;
+    border-radius:8px;
+    color:#475569;
+    font-size:13px;
+    font-weight:700;
+    transition:all .15s;
+    user-select:none;
+  }
+  .ive-toggle .ive-toggle-icon{
+    filter:grayscale(100%);
+    opacity:0.5;
+  }
+  .ive-toggle.on-target{
+    background:#faf5ff;
+    border-color:#7c3aed;
+    color:#7c3aed;
+  }
+  .ive-toggle.on-target .ive-toggle-icon{
+    filter:none;
+    opacity:1;
+  }
+  .ive-toggle.on-done{
+    background:#f0fdf4;
+    border-color:#16a34a;
+    color:#16a34a;
+  }
+  .ive-toggle.on-done .ive-toggle-icon{
+    filter:none;
+    opacity:1;
+  }
+
   /* 🆕 v6.0: 더 부드러운 슬라이드 전환 (Apple/Telegram 스타일) */
   @keyframes swipe-in-from-right {
     0%   { opacity: 0; transform: translate3d(24px,0,0); }
@@ -3821,16 +3860,24 @@ function refreshRegionDropdown(){
   }
 
   const baseChurch = isZipaUser() ? (currentChurchFilter && currentChurchFilter !== 'all' ? currentChurchFilter : null) : userChurch;
+  // 🆕 v6.0: region_name (DB 원본) + region_first (combinedRow 변환) 둘 다 확인
   const regions = [...new Set((currentRows || []).filter(r => {
     if(baseChurch && r.church !== baseChurch) return false;
     if(r.dept !== dept) return false;
     return true;
-  }).map(r => r.region_first).filter(Boolean))].sort((a,b) => a.localeCompare(b,'ko'));
+  }).map(r => r.region_first || r.region_name).filter(Boolean))].sort((a,b) => a.localeCompare(b,'ko'));
+
+  // 🆕 디버그 로그 (개발 시 콘솔에서 확인)
+  if(regions.length === 0){
+    console.info('[regionDropdown] 지역 없음 — dept:', dept, 'church:', baseChurch, 'currentRows.length:', (currentRows || []).length);
+  } else {
+    console.info('[regionDropdown] 지역', regions.length, '개:', regions.join(', '));
+  }
 
   const cur = sel.value;
   sel.innerHTML = '<option value="all">전체 지역</option>' +
     regions.map(rg => `<option value="${escapeHtml(rg)}" ${cur===rg?'selected':''}>${escapeHtml(rg)}</option>`).join('');
-  if(grp) grp.style.display = '';
+  if(grp) grp.style.display = regions.length > 0 ? '' : 'none';
 }
 
 /* 페이지 이동 */
@@ -7703,6 +7750,7 @@ function renderRegionDetailView(){
 }
 
 // 🆕 v6.0: 행 클릭 → 심방날짜·계획 입력 모달 (mini-app 스타일)
+//          모든 필드 (타겟/완료/예배확답/심방예정일/심방자/심방계획/진행사항) 포함
 function openInlineVisitEditor(rowEl){
   if(!rowEl) return;
   const dataStr = rowEl.getAttribute('data-row');
@@ -7715,7 +7763,7 @@ function openInlineVisitEditor(rowEl){
   rowEl.style.background = '#e0e7ff';
   setTimeout(() => { rowEl.style.background = row.is_target ? '#faf5ff' : ''; }, 150);
 
-  // 🆕 z-index 매우 높게 (다른 페이지 요소 위) + 페이지 스크롤 잠금
+  // 페이지 스크롤 잠금 + 매우 높은 z-index
   document.body.style.overflow = 'hidden';
 
   const overlay = document.createElement('div');
@@ -7728,18 +7776,21 @@ function openInlineVisitEditor(rowEl){
     }
   };
 
-  // 🆕 바텀시트 — 컴팩트하게 (max-height 65vh)
   const box = document.createElement('div');
-  box.style.cssText = 'background:#fff;border-radius:18px 18px 0 0;max-width:560px;width:100%;padding:14px 18px 18px;box-shadow:0 -4px 24px rgba(0,0,0,.18);max-height:80vh;overflow-y:auto;animation:slideUp 0.22s cubic-bezier(0.25,0.1,0.25,1);position:relative;z-index:1';
+  box.style.cssText = 'background:#fff;border-radius:18px 18px 0 0;max-width:560px;width:100%;padding:14px 18px 18px;box-shadow:0 -4px 24px rgba(0,0,0,.18);max-height:85vh;overflow-y:auto;animation:slideUp 0.22s cubic-bezier(0.25,0.1,0.25,1);position:relative;z-index:1';
 
-  // 🆕 정확한 필드: visit_date_sort (YYYY-MM-DD), shepherd, plan_text
-  const targetBtn = row.is_target
-    ? `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', false, this)" style="background:#fef2f2;color:#dc2626;flex:1;min-width:0">🚫 타겟 해제</button>`
-    : `<button class="btn btn-light" onclick="iveToggleTarget('${escapeHtml(row.row_id)}', true, this)" style="background:#faf5ff;color:#7c3aed;flex:1;min-width:0">🎯 타겟 지정</button>`;
+  // 현재 값들
+  const isTarget = !!row.is_target;
+  const isDone = !!row.is_done;
+  const worship = row.worship || '';
+  const visitDateSort = row.visit_date_sort || '';
+  const shepherd = row.shepherd || '';
+  const plan = row.plan_text || '';
+  const note = row.note || '';
 
   box.innerHTML = `
     <div style="width:36px;height:4px;background:#cbd5e1;border-radius:2px;margin:0 auto 10px"></div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
       <div style="min-width:0;flex:1">
         <div style="font-size:17px;font-weight:800;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(row.name)}</div>
         <div style="font-size:11px;color:#64748b">${escapeHtml(row.church||'')} · ${escapeHtml(row.dept||'')} · ${escapeHtml(row.region_name||'')} ${escapeHtml(row.zone_name||'')}</div>
@@ -7747,51 +7798,125 @@ function openInlineVisitEditor(rowEl){
       <button onclick="this.closest('[data-overlay]').remove();document.body.style.overflow=''" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:0;flex-shrink:0">×</button>
     </div>
 
-    <div style="display:flex;gap:8px;margin:10px 0">
+    <!-- 🎯 타겟 + ✅ 진행여부 (한 줄, 토글 버튼) -->
+    <div style="display:flex;gap:6px;margin:10px 0">
+      <label class="ive-toggle ${isTarget?'on-target':''}" style="flex:1;cursor:pointer">
+        <input type="checkbox" id="iveIsTarget" ${isTarget?'checked':''} style="display:none">
+        <span class="ive-toggle-icon">🎯</span>
+        <span class="ive-toggle-label">타겟</span>
+      </label>
+      <label class="ive-toggle ${isDone?'on-done':''}" style="flex:1;cursor:pointer">
+        <input type="checkbox" id="iveIsDone" ${isDone?'checked':''} style="display:none">
+        <span class="ive-toggle-icon">✅</span>
+        <span class="ive-toggle-label">심방완료</span>
+      </label>
+    </div>
+
+    <!-- ⛪ 예배확답 -->
+    <div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:8px">
+      <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">⛪ 예배확답</label>
+      <div style="display:flex;gap:4px">
+        ${['', '확정', '미정', '불참'].map(v => {
+          const sel = worship === v;
+          const lbl = v || '미선택';
+          const colors = sel ? (v==='확정' ? 'background:#16a34a;color:#fff;border-color:#16a34a' :
+                                v==='미정' ? 'background:#eab308;color:#fff;border-color:#eab308' :
+                                v==='불참' ? 'background:#dc2626;color:#fff;border-color:#dc2626' :
+                                             'background:#64748b;color:#fff;border-color:#64748b')
+                            : 'background:#fff;color:#475569;border-color:#cbd5e1';
+          return `<button type="button" data-worship="${escapeHtml(v)}" onclick="iveSelectWorship(this, '${escapeHtml(v)}')"
+                          style="flex:1;padding:7px 4px;border:1.5px solid;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;${colors}">${lbl}</button>`;
+        }).join('')}
+      </div>
+      <input type="hidden" id="iveWorship" value="${escapeHtml(worship)}">
+    </div>
+
+    <!-- 📅 심방예정일 + 👤 심방자 (한 줄) -->
+    <div style="display:flex;gap:6px;margin-bottom:8px">
       <div style="flex:1;background:#f8fafc;border-radius:8px;padding:8px 10px">
         <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">📅 심방예정일</label>
-        <input type="date" id="iveVisitDate" value="${escapeHtml(row.visit_date_sort||'')}"
+        <input type="date" id="iveVisitDate" value="${escapeHtml(visitDateSort)}"
                style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px">
       </div>
       <div style="flex:1;background:#f8fafc;border-radius:8px;padding:8px 10px">
         <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">👤 심방자</label>
-        <input type="text" id="iveVisitor" value="${escapeHtml(row.shepherd||'')}"
+        <input type="text" id="iveVisitor" value="${escapeHtml(shepherd)}"
                placeholder="심방자 이름"
                style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px">
       </div>
     </div>
 
-    <div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:10px">
+    <!-- 📝 심방계획 -->
+    <div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:8px">
       <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">📝 심방계획</label>
       <textarea id="iveVisitPlan" rows="3" placeholder="심방 시 다룰 내용·접근 방법·기도제목 등"
-                style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${escapeHtml(row.plan_text||'')}</textarea>
+                style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${escapeHtml(plan)}</textarea>
+    </div>
+
+    <!-- 📋 진행사항 -->
+    <div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:12px">
+      <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px">📋 진행사항</label>
+      <textarea id="iveNote" rows="2" placeholder="심방 결과·이슈·다음 단계 등"
+                style="width:100%;padding:7px 8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px;font-family:inherit;resize:vertical">${escapeHtml(note)}</textarea>
     </div>
 
     <div style="display:flex;gap:6px">
-      ${targetBtn}
       <button class="btn btn-light" onclick="this.closest('[data-overlay]').remove();document.body.style.overflow=''" style="flex:1;min-width:0">취소</button>
-      <button class="btn btn-primary" onclick="iveSubmit('${escapeHtml(row.row_id)}')" style="flex:1.5;min-width:0">💾 저장</button>
+      <button class="btn btn-primary" onclick="iveSubmit('${escapeHtml(row.row_id)}')" style="flex:2;min-width:0">💾 저장</button>
     </div>
   `;
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 
-  // 🆕 모달 안 input은 클릭 이벤트 전파 차단 (overlay onclick 영향 X)
+  // 모달 안 클릭 이벤트 전파 차단
   box.addEventListener('click', (e) => e.stopPropagation());
+
+  // 토글 버튼 클릭 시 시각 피드백
+  box.querySelectorAll('.ive-toggle').forEach(lbl => {
+    const cb = lbl.querySelector('input[type="checkbox"]');
+    if(!cb) return;
+    lbl.addEventListener('click', (e) => {
+      // 라벨 클릭 시 자동 toggle 발생 안 하면 수동
+      e.preventDefault();
+      cb.checked = !cb.checked;
+      const id = cb.id;
+      if(id === 'iveIsTarget') lbl.classList.toggle('on-target', cb.checked);
+      if(id === 'iveIsDone') lbl.classList.toggle('on-done', cb.checked);
+    });
+  });
+}
+
+// 예배확답 버튼 그룹 — 선택 시 색상 변경 + hidden input 갱신
+function iveSelectWorship(btn, value){
+  const group = btn.parentElement;
+  group.querySelectorAll('button[data-worship]').forEach(b => {
+    const v = b.dataset.worship;
+    const sel = v === value;
+    const colors = sel ? (v==='확정' ? 'background:#16a34a;color:#fff;border-color:#16a34a' :
+                          v==='미정' ? 'background:#eab308;color:#fff;border-color:#eab308' :
+                          v==='불참' ? 'background:#dc2626;color:#fff;border-color:#dc2626' :
+                                       'background:#64748b;color:#fff;border-color:#64748b')
+                      : 'background:#fff;color:#475569;border-color:#cbd5e1';
+    b.style.cssText = `flex:1;padding:7px 4px;border:1.5px solid;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;${colors}`;
+  });
+  const hidden = document.getElementById('iveWorship');
+  if(hidden) hidden.value = value;
 }
 
 async function iveSubmit(rowId){
-  // 🆕 정확한 필드명 사용 - p_visit_date_sort, p_shepherd
+  const isTarget = document.getElementById('iveIsTarget')?.checked || false;
+  const isDone = document.getElementById('iveIsDone')?.checked || false;
+  const worship = document.getElementById('iveWorship')?.value || '';
   const visitDateRaw = document.getElementById('iveVisitDate')?.value || '';
   const shepherd = document.getElementById('iveVisitor')?.value || '';
   const plan = document.getElementById('iveVisitPlan')?.value || '';
+  const note = document.getElementById('iveNote')?.value || '';
 
   // 날짜를 sort 와 display 형식으로 분리
   let visitDateSort = null;
   let visitDateDisplay = '';
   if(visitDateRaw){
-    visitDateSort = visitDateRaw;  // YYYY-MM-DD
-    // display 형식: M/D
+    visitDateSort = visitDateRaw;
     const m = visitDateRaw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if(m){
       visitDateDisplay = `${parseInt(m[2])}/${parseInt(m[3])}`;
@@ -7801,17 +7926,16 @@ async function iveSubmit(rowId){
   }
 
   try {
-    // 기존 진행 가져와서 다른 필드(worship/attendance/note 등) 보존
+    // attendance 는 자동 (결석/출석) — 기존 값 보존, 없으면 '결석'
     const prev = (typeof getProgress === 'function') ? getProgress(rowId) : {};
-
     await callRpc('upsert_weekly_visit_progress', {
       p_week_key: currentWeekKey,
       p_row_id: rowId,
-      p_is_target: !!prev.is_target,    // 변경 안 함
-      p_is_done: !!prev.is_done,
-      p_worship: prev.worship || null,
-      p_attendance: prev.attendance || null,
-      p_note: prev.note || '',
+      p_is_target: isTarget,
+      p_is_done: isDone,
+      p_worship: worship || null,
+      p_attendance: prev.attendance || '결석',
+      p_note: note,
       p_shepherd: shepherd,
       p_visit_date_sort: visitDateSort,
       p_visit_date_display: visitDateDisplay,
@@ -7826,10 +7950,11 @@ async function iveSubmit(rowId){
   }
 }
 
+// (이전 iveToggleTarget 은 모달 안 토글로 통합되어 더 이상 사용 안 함)
 async function iveToggleTarget(rowId, makeTarget, btn){
+  // 호환성을 위해 남겨둠 - 리스트 직접 호출 시 사용
   try {
     if(btn) btn.disabled = true;
-    // 진행 데이터 보존하면서 is_target 만 변경
     const prev = (typeof getProgress === 'function') ? getProgress(rowId) : {};
     await callRpc('upsert_weekly_visit_progress', {
       p_week_key: currentWeekKey,
