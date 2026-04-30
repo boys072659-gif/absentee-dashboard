@@ -12440,6 +12440,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
   syncWeekInputs();
   // 🆕 v4.7: 로그인 화면 초기화 시 교회 선택에 맞는 부서 dropdown 자동 갱신
   try { onLoginChurchChange(); } catch(_) {}
+  // 🆕 v6.0: 페이지 단위 뒤로가기 스와이프를 페이지 진입 즉시 활성화
+  //   (이전엔 결석자 대시보드 진입 후에만 바인딩되어 사유출석자 페이지에서 작동 안 됨)
+  try { bindPageSwipeBack(); } catch(_) {}
   focusPwInput();
 });
 </script>
