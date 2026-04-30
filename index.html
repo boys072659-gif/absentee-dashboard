@@ -2335,6 +2335,7 @@
     </div>
     <div class="top-actions">
       <button class="btn btn-light" type="button" onclick="goAdmin()" id="adminBtn" style="display:none">🔧 관리자</button>
+      <button class="btn btn-light" type="button" onclick="switchToExcusedMode()" id="switchToExcusedBtn" style="background:#dbeafe;color:#1d4ed8;font-weight:700">📅 사유출석자 보기</button>
       <button class="btn btn-light" type="button" onclick="goAnalytics()" id="analyticsBtn">📊 분석</button>
       <button class="btn btn-light" type="button" onclick="toggleUploadPanel()" id="uploadBtn">명단 업로드</button>
       <button class="btn btn-light" type="button" onclick="reloadCurrentWeek()">새로고침</button>
@@ -2468,6 +2469,7 @@
     <div class="list-toolbar">
       <div class="list-title">📅 사유출석자 단계향상 현황</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-light" onclick="switchToAbsenteeMode()" style="background:#fef3c7;color:#b45309;font-weight:700">📋 결석자 보기</button>
         <button class="btn btn-light" onclick="loadExcusedDashboard()">🔄 새로고침</button>
         <button class="btn btn-primary" onclick="openExcusedAnalytics()" style="background:#7c3aed">📊 분석</button>
         <button class="btn btn-light" onclick="openExcusedUploadModal()">📤 명단 업로드</button>
@@ -3603,6 +3605,33 @@ function showExcusedDashboard(){
   const up = document.getElementById('uploadPanel');
   if(up) up.style.display = 'none';
   loadExcusedDashboard();
+}
+
+// 🆕 v6.0: 결석자 ↔ 사유출석자 모드 전환 (재로그인 없이)
+function switchToExcusedMode(){
+  userMode = 'excused';
+  // 결석자 페이지의 상단 컨트롤·업로드 패널 숨김
+  const tc = document.getElementById('absenteeTopControls');
+  if(tc) tc.style.display = 'none';
+  const up = document.getElementById('uploadPanel');
+  if(up) up.style.display = 'none';
+  showExcusedDashboard();
+}
+
+function switchToAbsenteeMode(){
+  userMode = 'absentee';
+  hideAllPages();
+  document.getElementById('dashboardPage').classList.add('active');
+  currentPage = 'dashboard';
+  // 결석자 상단 컨트롤·페이지 제목 복원
+  const tc = document.getElementById('absenteeTopControls');
+  if(tc) tc.style.display = '';
+  const title = document.getElementById('mainPageTitle');
+  if(title) title.textContent = '📋 결석자 타겟 심방 현황';
+  document.title = '결석자 타겟 심방 현황';
+  // 권한별 디폴트 필터로 리셋 + 재렌더링
+  if(typeof resetFiltersToDefault === 'function') resetFiltersToDefault();
+  if(typeof renderDashboard === 'function') renderDashboard();
 }
 
 // 🆕 v5.0: 사유출석자 대시보드 데이터 로드 + 렌더
@@ -5142,12 +5171,19 @@ async function submitExcusedSimpleUpload(){
     const lines = raw.split(/\r?\n/).filter(l => l.trim());
     if(lines.length < 2){ throw new Error('데이터가 부족합니다 (최소 헤더 + 1행)'); }
     
-    // 첫 줄로 구분자 결정
-    const first = lines[0];
-    const sep = first.includes('\t') ? '\t' : ',';
-    
     // 헤더 스킵
     const dataLines = lines.slice(1);
+
+    // 🆕 v6.0: 줄별 구분자 자동 감지 (SQL 의 import_excused_text 와 동일한 로직)
+    //   우선순위: 탭 > 다중공백(2칸+) > 콤마 > 파이프
+    //   "사유 출석" 같이 한 칸 공백을 포함한 값이 있어도 다중공백 분리로 보호됨
+    const splitLine = (ln) => {
+      if(ln.includes('\t')) return ln.split(/\t+/);
+      if(/ {2,}/.test(ln))  return ln.split(/ {2,}/);   // 2칸 이상의 공백
+      if(ln.includes(','))  return ln.split(',');
+      if(ln.includes('|'))  return ln.split('|');
+      return ln.split(/\s+/);   // 마지막 폴백
+    };
 
     // 🆕 v6.0: 1차 업로드 매칭 키 — 부서 + 지역 + 전화번호 (필수 3가지)
     //   사용자 요구: "부서와 지역 전화번호 → 마스킹 안된 실명을 알아냄"
@@ -5185,9 +5221,16 @@ async function submitExcusedSimpleUpload(){
     const groupCounts = {};
     const matchedMembers = [];   // 🆕 매칭된 실명 목록 (UI 표시용)
 
+    let parseSkipped = 0;
     for(const ln of dataLines){
-      const parts = ln.split(sep).map(s => s.trim());
-      if(parts.length < 9) continue;
+      const parts = splitLine(ln).map(s => s.trim());
+      if(parts.length < 9){
+        parseSkipped++;
+        if(parseSkipped <= 5){   // 처음 5개만 디버그 로그
+          console.warn('[1차] 컬럼 부족 (스킵):', parts.length, '개 →', ln.slice(0, 100));
+        }
+        continue;
+      }
       
       const [name, phone, zipa, church, dept, region, zone, attend, reason, streakStr] = parts;
       if(!name || !church || !dept) continue;
